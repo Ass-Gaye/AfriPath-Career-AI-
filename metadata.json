@@ -1,0 +1,8 @@
+{
+  "name": "Gambia Career AI",
+  "description": "AI-powered career intelligence, personalized skill gap analysis, and 90-day learning roadmap platform for young Gambians.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
