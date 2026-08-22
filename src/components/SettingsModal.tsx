@@ -125,6 +125,49 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [isResetting, setIsResetting] = useState(false);
   const [resetErrorMsg, setResetErrorMsg] = useState('');
 
+  // Live skill input states for SettingsModal
+  const [typedTechSkill, setTypedTechSkill] = useState('');
+  const [typedSoftSkill, setTypedSoftSkill] = useState('');
+
+  const addDirectSkillSettings = (skillName: string, type: 'tech' | 'soft') => {
+    const trimmed = skillName.trim().replace(/^,+|,+$/g, '');
+    if (!trimmed) return;
+
+    if (type === 'tech') {
+      setProfileForm((prev) => {
+        if (prev.currentSkills.includes(trimmed)) return prev;
+        return {
+          ...prev,
+          currentSkills: [...prev.currentSkills, trimmed],
+        };
+      });
+      setTypedTechSkill('');
+    } else {
+      setProfileForm((prev) => {
+        if (prev.softSkills.includes(trimmed)) return prev;
+        return {
+          ...prev,
+          softSkills: [...prev.softSkills, trimmed],
+        };
+      });
+      setTypedSoftSkill('');
+    }
+  };
+
+  const removeSkillSettings = (skillToRemove: string, type: 'tech' | 'soft') => {
+    if (type === 'tech') {
+      setProfileForm((prev) => ({
+        ...prev,
+        currentSkills: prev.currentSkills.filter((s) => s !== skillToRemove),
+      }));
+    } else {
+      setProfileForm((prev) => ({
+        ...prev,
+        softSkills: prev.softSkills.filter((s) => s !== skillToRemove),
+      }));
+    }
+  };
+
   if (!isOpen) return null;
 
   // PROFILE SAVE HANDLER
@@ -455,10 +498,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
               {/* Skills Selector */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                  Technical Skills ({profileForm.currentSkills.length} selected)
-                </label>
-                <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto p-2.5 rounded-xl bg-slate-950 border border-slate-800">
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-300">
+                    Technical & Hard Skills ({profileForm.currentSkills.length} selected)
+                  </label>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto p-2.5 rounded-xl bg-slate-950 border border-slate-800 mb-2">
                   {COMMON_TECHNICAL_SKILLS.map((sk) => {
                     const isSelected = profileForm.currentSkills.includes(sk);
                     return (
@@ -466,7 +512,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         key={sk}
                         type="button"
                         onClick={() => handleToggleSkill(sk, 'tech')}
-                        className={`px-2.5 py-1 rounded-lg text-xs font-medium transition ${
+                        className={`px-2 py-0.5 rounded-lg text-xs font-medium transition ${
                           isSelected
                             ? 'bg-emerald-600 text-white shadow-sm'
                             : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
@@ -478,14 +524,73 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     );
                   })}
                 </div>
+
+                {/* Active Technical Skills Chips */}
+                {profileForm.currentSkills.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-2 p-2 rounded-lg bg-slate-950/60 border border-slate-800">
+                    {profileForm.currentSkills.map((sk) => (
+                      <span
+                        key={sk}
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-[11px]"
+                      >
+                        <span>{sk}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeSkillSettings(sk, 'tech')}
+                          className="text-emerald-400 hover:text-white"
+                        >
+                          <X className="w-2.5 h-2.5" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Live Type-To-Add Technical Skill */}
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Type custom skill and press Enter..."
+                    value={typedTechSkill}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val.includes(',')) {
+                        val.split(',').forEach((p) => addDirectSkillSettings(p, 'tech'));
+                      } else {
+                        setTypedTechSkill(val);
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ',') {
+                        e.preventDefault();
+                        addDirectSkillSettings(typedTechSkill, 'tech');
+                      }
+                    }}
+                    onBlur={() => {
+                      if (typedTechSkill.trim()) addDirectSkillSettings(typedTechSkill, 'tech');
+                    }}
+                    className="flex-1 px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => addDirectSkillSettings(typedTechSkill, 'tech')}
+                    disabled={!typedTechSkill.trim()}
+                    className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white text-xs font-semibold"
+                  >
+                    Add
+                  </button>
+                </div>
               </div>
 
               {/* Soft Skills Selector */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                  Soft Skills & Competencies ({profileForm.softSkills.length} selected)
-                </label>
-                <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto p-2.5 rounded-xl bg-slate-950 border border-slate-800">
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-300">
+                    Soft Skills & Competencies ({profileForm.softSkills.length} selected)
+                  </label>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto p-2.5 rounded-xl bg-slate-950 border border-slate-800 mb-2">
                   {COMMON_SOFT_SKILLS.map((sk) => {
                     const isSelected = profileForm.softSkills.includes(sk);
                     return (
@@ -493,7 +598,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         key={sk}
                         type="button"
                         onClick={() => handleToggleSkill(sk, 'soft')}
-                        className={`px-2.5 py-1 rounded-lg text-xs font-medium transition ${
+                        className={`px-2 py-0.5 rounded-lg text-xs font-medium transition ${
                           isSelected
                             ? 'bg-blue-600 text-white shadow-sm'
                             : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
@@ -504,6 +609,62 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       </button>
                     );
                   })}
+                </div>
+
+                {/* Active Soft Skills Chips */}
+                {profileForm.softSkills.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-2 p-2 rounded-lg bg-slate-950/60 border border-slate-800">
+                    {profileForm.softSkills.map((sk) => (
+                      <span
+                        key={sk}
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-950/80 border border-blue-500/40 text-blue-300 text-[11px]"
+                      >
+                        <span>{sk}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeSkillSettings(sk, 'soft')}
+                          className="text-blue-400 hover:text-white"
+                        >
+                          <X className="w-2.5 h-2.5" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Live Type-To-Add Soft Skill */}
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Type soft skill and press Enter..."
+                    value={typedSoftSkill}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val.includes(',')) {
+                        val.split(',').forEach((p) => addDirectSkillSettings(p, 'soft'));
+                      } else {
+                        setTypedSoftSkill(val);
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ',') {
+                        e.preventDefault();
+                        addDirectSkillSettings(typedSoftSkill, 'soft');
+                      }
+                    }}
+                    onBlur={() => {
+                      if (typedSoftSkill.trim()) addDirectSkillSettings(typedSoftSkill, 'soft');
+                    }}
+                    className="flex-1 px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => addDirectSkillSettings(typedSoftSkill, 'soft')}
+                    disabled={!typedSoftSkill.trim()}
+                    className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white text-xs font-semibold"
+                  >
+                    Add
+                  </button>
                 </div>
               </div>
 

@@ -46,7 +46,62 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 }) => {
   const [step, setStep] = useState<number>(1);
   const [isParsingCV, setIsParsingCV] = useState<boolean>(false);
-  const [customSkill, setCustomSkill] = useState<string>('');
+  // Custom Skill live input states
+  const [customTechInput, setCustomTechInput] = useState<string>('');
+  const [customSoftInput, setCustomSoftInput] = useState<string>('');
+
+  const addSkillDirectly = (skillName: string, type: 'tech' | 'soft') => {
+    const trimmed = skillName.trim().replace(/^,+|,+$/g, '');
+    if (!trimmed) return;
+
+    if (type === 'tech') {
+      setFormData((prev) => {
+        if (prev.currentSkills.includes(trimmed)) return prev;
+        return {
+          ...prev,
+          currentSkills: [...prev.currentSkills, trimmed],
+        };
+      });
+      setCustomTechInput('');
+    } else {
+      setFormData((prev) => {
+        if (prev.softSkills.includes(trimmed)) return prev;
+        return {
+          ...prev,
+          softSkills: [...prev.softSkills, trimmed],
+        };
+      });
+      setCustomSoftInput('');
+    }
+  };
+
+  const handleTechInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      addSkillDirectly(customTechInput, 'tech');
+    }
+  };
+
+  const handleSoftInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      addSkillDirectly(customSoftInput, 'soft');
+    }
+  };
+
+  const removeCustomSkill = (skillToRemove: string, type: 'tech' | 'soft') => {
+    if (type === 'tech') {
+      setFormData((prev) => ({
+        ...prev,
+        currentSkills: prev.currentSkills.filter((s) => s !== skillToRemove),
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        softSkills: prev.softSkills.filter((s) => s !== skillToRemove),
+      }));
+    }
+  };
   const [cvFileName, setCvFileName] = useState<string>('');
 
   // CV Setup Choice: 'upload' or 'ai-builder'
@@ -113,14 +168,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
   const handleAddCustomSkill = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!customSkill.trim()) return;
-    if (!formData.currentSkills.includes(customSkill.trim())) {
-      setFormData((prev) => ({
-        ...prev,
-        currentSkills: [...prev.currentSkills, customSkill.trim()],
-      }));
+    if (customTechInput.trim()) {
+      addSkillDirectly(customTechInput, 'tech');
     }
-    setCustomSkill('');
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -427,10 +477,17 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
             {/* Technical Skills */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-2">
-                Technical & Hard Skills <span className="text-rose-400">*</span>
-              </label>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold text-slate-300">
+                  Technical & Hard Skills <span className="text-rose-400">*</span>
+                </label>
+                <span className="text-[11px] text-slate-400">
+                  {formData.currentSkills.length} selected
+                </span>
+              </div>
+
+              {/* Quick Select Preset Pills */}
+              <div className="flex flex-wrap gap-1.5 mb-2.5">
                 {COMMON_TECHNICAL_SKILLS.map((skill) => {
                   const selected = formData.currentSkills.includes(skill);
                   return (
@@ -440,7 +497,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                       onClick={() => toggleTechnicalSkill(skill)}
                       className={`px-2.5 py-1 rounded-lg text-xs font-medium transition flex items-center gap-1 ${
                         selected
-                          ? 'bg-emerald-600 text-white'
+                          ? 'bg-emerald-600 text-white shadow-sm'
                           : 'bg-slate-950 text-slate-300 border border-slate-800 hover:border-slate-700'
                       }`}
                     >
@@ -450,33 +507,89 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                   );
                 })}
               </div>
-              {errors.skills && <p className="text-xs text-rose-400 mt-1">{errors.skills}</p>}
 
-              {/* Add Custom Skill */}
-              <form onSubmit={handleAddCustomSkill} className="mt-3 flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Add another skill (e.g. Flutter, C++)..."
-                  value={customSkill}
-                  onChange={(e) => setCustomSkill(e.target.value)}
-                  className="flex-1 px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                />
+              {/* Active Selected Skills Chips (including live typed) */}
+              {formData.currentSkills.length > 0 && (
+                <div className="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800 mb-2.5">
+                  <div className="text-[10px] font-semibold uppercase text-slate-400 mb-1.5">
+                    Your Active Technical Skills (Click ✕ to remove):
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {formData.currentSkills.map((skill) => (
+                      <span
+                        key={skill}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-xs font-medium"
+                      >
+                        <span>{skill}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeCustomSkill(skill, 'tech')}
+                          className="text-emerald-400 hover:text-white transition p-0.5"
+                          title="Remove skill"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Live Type-To-Add Input */}
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    placeholder="Type any skill and press Enter or comma (e.g. Patient Care, Farm Management, AutoCAD, Tailoring)..."
+                    value={customTechInput}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val.includes(',')) {
+                        const parts = val.split(',');
+                        parts.forEach((p) => addSkillDirectly(p, 'tech'));
+                      } else {
+                        setCustomTechInput(val);
+                      }
+                    }}
+                    onKeyDown={handleTechInputKeyDown}
+                    onBlur={() => {
+                      if (customTechInput.trim()) {
+                        addSkillDirectly(customTechInput, 'tech');
+                      }
+                    }}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                  {customTechInput.trim() && (
+                    <span className="absolute right-2.5 top-2 text-[10px] text-emerald-400 bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-800 animate-pulse">
+                      Press Enter to add
+                    </span>
+                  )}
+                </div>
                 <button
-                  type="submit"
-                  className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium flex items-center gap-1"
+                  type="button"
+                  onClick={() => addSkillDirectly(customTechInput, 'tech')}
+                  disabled={!customTechInput.trim()}
+                  className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:hover:bg-emerald-600 text-white text-xs font-semibold flex items-center gap-1 transition shadow-sm"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add</span>
                 </button>
-              </form>
+              </div>
+              {errors.skills && <p className="text-xs text-rose-400 mt-1">{errors.skills}</p>}
             </div>
 
             {/* Soft Skills */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-2">
-                Soft Strengths
-              </label>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold text-slate-300">
+                  Soft Strengths & Competencies
+                </label>
+                <span className="text-[11px] text-slate-400">
+                  {formData.softSkills.length} selected
+                </span>
+              </div>
+
+              <div className="flex flex-wrap gap-1.5 mb-2.5">
                 {COMMON_SOFT_SKILLS.map((skill) => {
                   const selected = formData.softSkills.includes(skill);
                   return (
@@ -486,7 +599,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                       onClick={() => toggleSoftSkill(skill)}
                       className={`px-2.5 py-1 rounded-lg text-xs font-medium transition flex items-center gap-1 ${
                         selected
-                          ? 'bg-emerald-700 text-white'
+                          ? 'bg-blue-600 text-white shadow-sm'
                           : 'bg-slate-950 text-slate-300 border border-slate-800 hover:border-slate-700'
                       }`}
                     >
@@ -495,6 +608,74 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                     </button>
                   );
                 })}
+              </div>
+
+              {/* Active Soft Skills Chips */}
+              {formData.softSkills.length > 0 && (
+                <div className="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800 mb-2.5">
+                  <div className="text-[10px] font-semibold uppercase text-slate-400 mb-1.5">
+                    Your Active Soft Skills (Click ✕ to remove):
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {formData.softSkills.map((skill) => (
+                      <span
+                        key={skill}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-950/80 border border-blue-500/40 text-blue-300 text-xs font-medium"
+                      >
+                        <span>{skill}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeCustomSkill(skill, 'soft')}
+                          className="text-blue-400 hover:text-white transition p-0.5"
+                          title="Remove skill"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Live Type-To-Add Soft Skill */}
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    placeholder="Type soft skills and press Enter or comma (e.g. Critical Thinking, Public Speaking, Conflict Resolution)..."
+                    value={customSoftInput}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val.includes(',')) {
+                        const parts = val.split(',');
+                        parts.forEach((p) => addSkillDirectly(p, 'soft'));
+                      } else {
+                        setCustomSoftInput(val);
+                      }
+                    }}
+                    onKeyDown={handleSoftInputKeyDown}
+                    onBlur={() => {
+                      if (customSoftInput.trim()) {
+                        addSkillDirectly(customSoftInput, 'soft');
+                      }
+                    }}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                  {customSoftInput.trim() && (
+                    <span className="absolute right-2.5 top-2 text-[10px] text-blue-400 bg-blue-950 px-1.5 py-0.5 rounded border border-blue-800 animate-pulse">
+                      Press Enter to add
+                    </span>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => addSkillDirectly(customSoftInput, 'soft')}
+                  disabled={!customSoftInput.trim()}
+                  className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:hover:bg-blue-600 text-white text-xs font-semibold flex items-center gap-1 transition shadow-sm"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add</span>
+                </button>
               </div>
             </div>
           </div>
