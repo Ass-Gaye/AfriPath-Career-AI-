@@ -314,3 +314,6 @@ export const PAN_AFRICAN_OPPORTUNITIES: JobOpportunity[] = [
     logoColor: 'bg-rose-600',
   },
 ];
+
+export const AFRICAN_OPPORTUNITIES = PAN_AFRICAN_OPPORTUNITIES;
+

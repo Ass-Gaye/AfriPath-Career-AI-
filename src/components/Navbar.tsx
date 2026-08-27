@@ -19,6 +19,10 @@ import {
   Briefcase,
   FileCheck,
   Globe2,
+  Globe,
+  Zap,
+  ShieldAlert,
+  HelpCircle,
 } from 'lucide-react';
 import { AfriPathLogo } from './AfriPathLogo';
 import { LanguageSelector } from './LanguageSelector';
@@ -37,6 +41,7 @@ interface NavbarProps {
   onLoadDemoUser: () => void;
   isDemoUser: boolean;
   onOpenTranslationAdmin?: () => void;
+  onOpenAboutModal?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -50,6 +55,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onLoadDemoUser,
   isDemoUser,
   onOpenTranslationAdmin,
+  onOpenAboutModal,
 }) => {
   const { t } = useTranslation(['navigation', 'common']);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -66,51 +72,58 @@ export const Navbar: React.FC<NavbarProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const navItems = [
-    { id: 'landing', label: t('navigation:home'), icon: Compass },
-    { id: 'dashboard', label: t('navigation:dashboard'), icon: TrendingUp, disabled: !userProfile },
-    { id: 'matches', label: t('navigation:matches'), icon: Target, disabled: !userProfile },
-    { id: 'skill-gap', label: t('navigation:skillGap'), icon: FileText, disabled: !userProfile },
-    { id: 'roadmap', label: t('navigation:roadmap'), icon: TrendingUp, disabled: !userProfile },
-    { id: 'cv-builder', label: t('navigation:cvBuilder'), icon: FileCheck, disabled: !userProfile },
-    { id: 'gambia-map', label: t('navigation:opportunities'), icon: Briefcase },
-    { id: 'mentor', label: t('navigation:advisor'), icon: MessageSquare },
+  // Dynamic Navigation Items based on auth state
+  const publicNavItems = [
+    { id: 'landing', label: t('navigation:home', 'Home'), icon: Compass },
+    { id: 'careers', label: 'Careers', icon: Compass },
+    { id: 'skills', label: 'Skills', icon: Zap },
+    { id: 'opportunities', label: t('navigation:opportunities', 'Opportunities'), icon: Briefcase },
+    { id: 'countries', label: 'Countries', icon: Globe },
+    { id: 'mentor', label: t('navigation:advisor', 'AI Advisor'), icon: MessageSquare },
   ];
 
-  const displayName = authUser?.fullName || userProfile?.name || t('navigation:viewProfile');
-  const displayEmail = authUser?.email || 'Authenticated User';
+  const authenticatedNavItems = [
+    { id: 'dashboard', label: t('navigation:dashboard', 'Dashboard'), icon: TrendingUp },
+    { id: 'my-path', label: 'My Path', icon: Compass },
+    { id: 'careers', label: 'Careers', icon: Target },
+    { id: 'skills', label: 'Skills', icon: Zap },
+    { id: 'opportunities', label: 'Opportunities', icon: Briefcase },
+    { id: 'roadmap', label: '90-Day Plan', icon: FileText },
+    { id: 'cv-builder', label: t('navigation:cvBuilder', 'AI CV'), icon: FileCheck },
+    { id: 'mentor', label: t('navigation:advisor', 'AI Advisor'), icon: MessageSquare },
+  ];
+
+  const currentNavItems = (authUser || userProfile) ? authenticatedNavItems : publicNavItems;
+
+  const displayName = authUser?.fullName || userProfile?.name || t('navigation:viewProfile', 'Profile');
+  const displayEmail = authUser?.email || (isDemoUser ? 'demo@afripath.ai' : 'Guest Account');
 
   return (
     <header className="sticky top-0 z-50 w-full bg-slate-900/95 backdrop-blur-md border-b border-slate-800 text-slate-100 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
         {/* Zone 1: AfriPath AI Brand Logo */}
         <button
-          onClick={() => setActiveTab(userProfile ? 'dashboard' : 'landing')}
+          onClick={() => setActiveTab((authUser || userProfile) ? 'dashboard' : 'landing')}
           className="flex items-center text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-xl py-1 transition hover:opacity-90 shrink-0"
         >
           <AfriPathLogo size="md" showTagline={false} />
         </button>
 
-        {/* Zone 2: Navigation Links */}
+        {/* Zone 2: Desktop Navigation Links */}
         <nav className="hidden lg:flex items-center gap-1">
-          {navItems.map((item) => {
+          {currentNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
-            const isDisabled = item.disabled;
 
             return (
               <button
                 key={item.id}
-                disabled={isDisabled}
                 onClick={() => setActiveTab(item.id)}
                 className={`whitespace-nowrap px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
                   isActive
                     ? 'bg-emerald-600 text-white shadow-sm'
-                    : isDisabled
-                    ? 'text-slate-600 cursor-not-allowed opacity-40'
                     : 'text-slate-300 hover:text-white hover:bg-slate-800/80'
                 }`}
-                title={isDisabled ? 'Complete career assessment to unlock' : item.label}
               >
                 <Icon className="w-3.5 h-3.5 shrink-0" />
                 <span>{item.label}</span>
@@ -139,7 +152,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           )}
 
           {/* If authenticated user */}
-          {authUser ? (
+          {(authUser || userProfile) ? (
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -168,7 +181,29 @@ export const Navbar: React.FC<NavbarProps> = ({
                     className="w-full px-3 py-2 rounded-xl text-left text-xs font-medium text-slate-200 hover:bg-slate-800 flex items-center gap-2"
                   >
                     <TrendingUp className="w-4 h-4 text-emerald-400" />
-                    <span>{t('navigation:dashboard')}</span>
+                    <span>{t('navigation:dashboard', 'Dashboard')}</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      setActiveTab('my-path');
+                    }}
+                    className="w-full px-3 py-2 rounded-xl text-left text-xs font-medium text-slate-200 hover:bg-slate-800 flex items-center gap-2"
+                  >
+                    <Compass className="w-4 h-4 text-emerald-400" />
+                    <span>My Career Pathway</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      setActiveTab('admin');
+                    }}
+                    className="w-full px-3 py-2 rounded-xl text-left text-xs font-medium text-purple-300 hover:bg-slate-800 flex items-center gap-2"
+                  >
+                    <ShieldAlert className="w-4 h-4 text-purple-400" />
+                    <span>Admin Control Hub</span>
                   </button>
 
                   <button
@@ -202,7 +237,20 @@ export const Navbar: React.FC<NavbarProps> = ({
                       className="w-full px-3 py-2 rounded-xl text-left text-xs font-medium text-emerald-300 hover:bg-slate-800 flex items-center gap-2"
                     >
                       <Globe2 className="w-4 h-4 text-emerald-400" />
-                      <span>{t('navigation:adminTranslations')}</span>
+                      <span>{t('navigation:adminTranslations', 'Translation Studio')}</span>
+                    </button>
+                  )}
+
+                  {onOpenAboutModal && (
+                    <button
+                      onClick={() => {
+                        setDropdownOpen(false);
+                        onOpenAboutModal();
+                      }}
+                      className="w-full px-3 py-2 rounded-xl text-left text-xs font-medium text-slate-300 hover:bg-slate-800 flex items-center gap-2"
+                    >
+                      <HelpCircle className="w-4 h-4 text-slate-400" />
+                      <span>About & Support</span>
                     </button>
                   )}
 
@@ -227,7 +275,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     className="w-full px-3 py-2 rounded-xl text-left text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white flex items-center gap-2"
                   >
                     <LogOut className="w-4 h-4 text-slate-400" />
-                    <span>{t('navigation:logout')}</span>
+                    <span>{t('navigation:logout', 'Log Out')}</span>
                   </button>
                 </div>
               )}
@@ -240,7 +288,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className="px-3 py-1.5 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5"
               >
                 <LogIn className="w-3.5 h-3.5" />
-                <span>{t('navigation:login')}</span>
+                <span>{t('navigation:login', 'Log In')}</span>
               </button>
 
               <button
@@ -248,38 +296,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition shadow-sm flex items-center gap-1.5"
               >
                 <UserPlus className="w-3.5 h-3.5" />
-                <span>{t('navigation:signup')}</span>
+                <span>{t('navigation:signup', 'Sign Up')}</span>
               </button>
             </div>
           )}
         </div>
-      </div>
-
-      {/* Mobile Sub-Navigation */}
-      <div className="lg:hidden overflow-x-auto border-t border-slate-800 bg-slate-900 px-3 py-2 flex items-center gap-1.5 scrollbar-none">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.id;
-          const isDisabled = item.disabled;
-
-          return (
-            <button
-              key={item.id}
-              disabled={isDisabled}
-              onClick={() => setActiveTab(item.id)}
-              className={`whitespace-nowrap px-2.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 shrink-0 ${
-                isActive
-                  ? 'bg-emerald-600 text-white'
-                  : isDisabled
-                  ? 'text-slate-600 opacity-40'
-                  : 'text-slate-400 hover:text-white bg-slate-800/60'
-              }`}
-            >
-              <Icon className="w-3.5 h-3.5" />
-              <span>{item.label}</span>
-            </button>
-          );
-        })}
       </div>
     </header>
   );

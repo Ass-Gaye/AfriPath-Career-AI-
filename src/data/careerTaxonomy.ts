@@ -292,3 +292,6 @@ export const GLOBAL_CAREER_TAXONOMY: CareerDefinition[] = [
     sampleWorkEnvironments: ['Ports Authority (GPA)', 'Shipping Lines (Maersk, Bolloré)', 'Importers / Supermarkets', 'Logistics Companies'],
   },
 ];
+
+export const CAREER_TAXONOMY = GLOBAL_CAREER_TAXONOMY;
+

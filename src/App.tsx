@@ -19,6 +19,14 @@ import { AICVBuilder } from './components/AICVBuilder';
 import { AuthModal, AuthMode } from './components/AuthModal';
 import { SettingsModal, SettingsTab } from './components/SettingsModal';
 import { TranslationAdminModal } from './components/TranslationAdminModal';
+import { CareersExplorer } from './components/CareersExplorer';
+import { SkillsExplorer } from './components/SkillsExplorer';
+import { OpportunitiesExplorer } from './components/OpportunitiesExplorer';
+import { CountriesExplorer } from './components/CountriesExplorer';
+import { MyPathView } from './components/MyPathView';
+import { AdminHub } from './components/AdminHub';
+import { AboutContactModal } from './components/AboutContactModal';
+import { MobileBottomNav } from './components/MobileBottomNav';
 import {
   UserProfile,
   CareerMatch,
@@ -76,6 +84,7 @@ export default function App() {
   // Modals & Banners
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
   const [isTranslationAdminOpen, setIsTranslationAdminOpen] = useState<boolean>(false);
+  const [isAboutModalOpen, setIsAboutModalOpen] = useState<boolean>(false);
   const [systemBanner, setSystemBanner] = useState<{ type: 'success' | 'info'; message: string } | null>(null);
 
   // Check persistent session on initial mount
@@ -299,7 +308,6 @@ export default function App() {
 
   // User-Controlled Reset Action Completed
   const handleResetComplete = () => {
-    // Wipe local career states
     setUserProfile(null);
     setCareerMatches([]);
     setSkillGap(null);
@@ -308,10 +316,8 @@ export default function App() {
     setCompletedTaskIds([]);
     setIsDemoUser(false);
 
-    // Redirect to Career Profile Setup
     setActiveTab('assessment');
 
-    // Show confirmation notification
     setSystemBanner({
       type: 'success',
       message: "Your career profile has been successfully reset. Let's create your new career journey.",
@@ -380,10 +386,11 @@ export default function App() {
         onLoadDemoUser={handleLoadDemoUser}
         isDemoUser={isDemoUser}
         onOpenTranslationAdmin={() => setIsTranslationAdminOpen(true)}
+        onOpenAboutModal={() => setIsAboutModalOpen(true)}
       />
 
       {/* Main View Router */}
-      <main className="flex-1">
+      <main className="flex-1 pb-24 lg:pb-0">
         {activeTab === 'landing' && (
           <LandingPage
             onStartAssessment={() => {
@@ -394,7 +401,7 @@ export default function App() {
               }
             }}
             onLoadDemoUser={handleLoadDemoUser}
-            onExploreJobs={() => setActiveTab('gambia-map')}
+            onExploreJobs={() => setActiveTab('opportunities')}
             onOpenAuth={handleOpenAuth}
             onOpenMentorWithQuery={handleOpenMentorWithQuery}
           />
@@ -422,6 +429,73 @@ export default function App() {
             completedTaskIds={completedTaskIds}
             onOpenSettings={handleOpenSettings}
             onOpenCVBuilder={() => setActiveTab('cv-builder')}
+          />
+        )}
+
+        {activeTab === 'my-path' && userProfile && (
+          <MyPathView
+            userProfile={userProfile}
+            careerMatches={careerMatches}
+            skillGap={skillGap}
+            roadmap={roadmap}
+            targetCareer={targetCareer}
+            onSelectTargetCareer={handleSelectTargetCareer}
+            onNavigate={(tab) => setActiveTab(tab)}
+            completedTaskIds={completedTaskIds}
+          />
+        )}
+
+        {activeTab === 'careers' && (
+          <CareersExplorer
+            userProfile={userProfile}
+            onSelectCareerForPath={(career) => {
+              setTargetCareer(career);
+              if (userProfile) {
+                setActiveTab('my-path');
+              } else {
+                setActiveTab('assessment');
+              }
+            }}
+            onStartAssessment={() => setActiveTab('assessment')}
+            onOpenCVBuilderForCareer={(career) => {
+              setTargetCareer(career);
+              setActiveTab('cv-builder');
+            }}
+            onOpenAdvisorWithPrompt={handleOpenMentorWithQuery}
+          />
+        )}
+
+        {activeTab === 'skills' && (
+          <SkillsExplorer
+            userProfile={userProfile}
+            onNavigateToRoadmap={() => setActiveTab(userProfile ? 'roadmap' : 'assessment')}
+            onOpenAdvisorWithSkill={(skill) =>
+              handleOpenMentorWithQuery(`How can I master ${skill} and use it to get hired in Africa?`)
+            }
+          />
+        )}
+
+        {activeTab === 'opportunities' && (
+          <OpportunitiesExplorer
+            userProfile={userProfile}
+            onGenerateCVForJob={(jobTitle) => {
+              setTargetCareer(jobTitle);
+              setActiveTab('cv-builder');
+            }}
+            onOpenAdvisorForOpp={(title) =>
+              handleOpenMentorWithQuery(`What are the interview expectations for ${title}?`)
+            }
+          />
+        )}
+
+        {activeTab === 'countries' && (
+          <CountriesExplorer
+            onSelectCountryForJobs={(code) => {
+              setActiveTab('opportunities');
+            }}
+            onOpenAdvisorForCountry={(country) =>
+              handleOpenMentorWithQuery(`What are the highest demand tech and vocational careers in ${country}?`)
+            }
           />
         )}
 
@@ -470,7 +544,7 @@ export default function App() {
             careerMatches={careerMatches.length > 0 ? careerMatches : MUSA_JALLOW_CAREER_MATCHES}
             targetCareer={targetCareer}
             onSelectTargetCareer={handleSelectTargetCareer}
-            onNavigateToJobs={() => setActiveTab('gambia-map')}
+            onNavigateToJobs={() => setActiveTab('opportunities')}
             initialCV={cvData}
             onSaveCV={handleSaveCV}
           />
@@ -494,7 +568,28 @@ export default function App() {
             initialQuery={mentorInitialQuery}
           />
         )}
+
+        {activeTab === 'admin' && (
+          <AdminHub
+            onOpenTranslationModal={() => setIsTranslationAdminOpen(true)}
+          />
+        )}
       </main>
+
+      {/* Mobile Bottom Navigation Bar with large touch targets & distinct emerald-600 active state */}
+      <MobileBottomNav
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        userProfile={userProfile}
+        authUser={authUser}
+        onOpenAuth={handleOpenAuth}
+        onOpenSettings={handleOpenSettings}
+        onLogout={handleLogout}
+        onLoadDemoUser={handleLoadDemoUser}
+        isDemoUser={isDemoUser}
+        onOpenTranslationAdmin={() => setIsTranslationAdminOpen(true)}
+        onOpenAboutModal={() => setIsAboutModalOpen(true)}
+      />
 
       {/* Printable Report Modal */}
       {userProfile && (
@@ -532,6 +627,12 @@ export default function App() {
       <TranslationAdminModal
         isOpen={isTranslationAdminOpen}
         onClose={() => setIsTranslationAdminOpen(false)}
+      />
+
+      {/* About & Contact Modal */}
+      <AboutContactModal
+        isOpen={isAboutModalOpen}
+        onClose={() => setIsAboutModalOpen(false)}
       />
     </div>
   );

@@ -14,7 +14,7 @@
   "adminTranslations": "Translation Manager",
   "settings": "Settings & Preferences",
   "login": "Sign In",
-  "signup": "Get Started",
+  "signup": "Sign Up",
   "logout": "Log Out",
   "welcomeUser": "Hello, {{name}}",
   "marketSwitch": "Switch Market Context",
