@@ -1,0 +1,12 @@
+{
+  "title": "AfriPath AI Kilifa",
+  "subtitle": "Ndimbal ci ligéey waxtu wu nekk ci {{country}} ak Afrik sépp.",
+  "inputPlaceholder": "Laajal lu jëm ci ligéey, fay, xam-xam walla seet ligéey...",
+  "send": "Yónnee",
+  "clearChat": "Far waxtaan bi",
+  "voiceRead": "Deglu kàddu gi",
+  "stopVoice": "Taxawal kàddu gi",
+  "quickReplies": "Laaj yi nga mën a tànn:",
+  "initialGreeting": "Dalal jamm! Man maay sa AfriPath AI Kilifa. Mangi fi ngir dimbali la ci fay, xam-xam ak ligéey yu am ci {{country}} ak Afrik. Lu nga bëgg xam tey?",
+  "disclaimer": "AfriPath AI mungi lay jox digle ak nattalu fay. Wóoralal ak kër yi joxe ligéey."
+}

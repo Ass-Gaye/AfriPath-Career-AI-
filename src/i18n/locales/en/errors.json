@@ -1,0 +1,10 @@
+{
+  "fetchFailed": "Unable to load this information. Please check your internet connection.",
+  "requiredField": "This field is required.",
+  "invalidEmail": "Please enter a valid email address.",
+  "passwordTooShort": "Password must be at least 6 characters.",
+  "passwordsMismatch": "Passwords do not match.",
+  "sessionExpired": "Your session has expired. Please sign in again.",
+  "generalError": "An unexpected error occurred. Please try again.",
+  "missingTranslation": "Translation missing for key: {{key}} (Falling back to English)"
+}

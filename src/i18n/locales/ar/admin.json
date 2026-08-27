@@ -1,0 +1,22 @@
+{
+  "title": "إدارة الترجمات في AfriPath",
+  "subtitle": "متابعة نسبة اكتمال الترجمات والتحقق من المصطلحات الإقليمية وإدارة النصوص بجميع اللغات الأفريقية.",
+  "completeness": "نسبة اكتمال الترجمة حسب اللغة",
+  "searchKeys": "بحث في مفاتيح الترجمة (مثال: home.hero.title)...",
+  "namespaces": "مجالات النصوص",
+  "sourceLanguage": "المصدر (الإنجليزية)",
+  "targetLanguage": "اللغة المستهدفة",
+  "status": {
+    "PUBLISHED": "منشور ومعتمد",
+    "REVIEW": "قيد المراجعة",
+    "DRAFT": "مسودة",
+    "NEEDS_TRANSLATION": "يحتاج ترجمة"
+  },
+  "saveTranslation": "حفظ الترجمة",
+  "markReviewed": "تحديد كمراجع",
+  "missingKeysCount": "{{count}} نص غير مترجم",
+  "allVerified": "جميع النصوص معتمدة",
+  "filterMissing": "عرض النصوص غير المكتملة فقط",
+  "moduleBreakdown": "نسبة الاكتمال حسب القسم",
+  "exportPO": "تصدير ملفات JSON"
+}

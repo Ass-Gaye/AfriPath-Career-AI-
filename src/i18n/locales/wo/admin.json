@@ -1,0 +1,22 @@
+{
+  "title": "Saytu làkk yi ci AfriPath",
+  "subtitle": "Xoolal nivo làkk yi, wóoralal baat yi ak jëfandikoo làkki Afrik sépp.",
+  "completeness": "Nattalu làkk bi",
+  "searchKeys": "Seet kàddu (ci misaal: home.hero.title)...",
+  "namespaces": "Wàll yi",
+  "sourceLanguage": "Angale",
+  "targetLanguage": "Làkk bi nga bëgg",
+  "status": {
+    "PUBLISHED": "Wóor na te génn na",
+    "REVIEW": "Ñungi koy saytu",
+    "DRAFT": "Tàmbli nañu ko",
+    "NEEDS_TRANSLATION": "Laaj na làkk"
+  },
+  "saveTranslation": "Denc làkk bi",
+  "markReviewed": "Wax ne saytu nañu ko",
+  "missingKeysCount": "{{count}} kàddu yu manke",
+  "allVerified": "Kàddu yépp wóor nañu",
+  "filterMissing": "Woneel yi manke rekk",
+  "moduleBreakdown": "Nivo bu nekk ci wàll bi",
+  "exportPO": "Génne JSON yi"
+}

@@ -1,0 +1,10 @@
+{
+  "fetchFailed": "Impossible de charger ces informations. Veuillez vérifier votre connexion internet.",
+  "requiredField": "Ce champ est obligatoire.",
+  "invalidEmail": "Veuillez saisir une adresse email valide.",
+  "passwordTooShort": "Le mot de passe doit comporter au moins 6 caractères.",
+  "passwordsMismatch": "Les mots de passe ne correspondent pas.",
+  "sessionExpired": "Votre session a expiré. Veuillez vous reconnecter.",
+  "generalError": "Une erreur inattendue est survenue. Veuillez réessayer.",
+  "missingTranslation": "Traduction manquante pour la clé : {{key}} (Basculement vers l'anglais)"
+}

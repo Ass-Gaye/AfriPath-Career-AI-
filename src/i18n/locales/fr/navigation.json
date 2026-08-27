@@ -1,0 +1,22 @@
+{
+  "brand": "AfriPath AI",
+  "tagline": "Votre carrière. Vos compétences. Votre avenir.",
+  "home": "Accueil",
+  "assessment": "Évaluation de carrière",
+  "dashboard": "Tableau de bord",
+  "matches": "Métiers correspondants",
+  "skillGap": "Analyse des compétences",
+  "roadmap": "Feuille de route 90 jours",
+  "regionalMap": "Pôles d'emploi en Afrique",
+  "advisor": "Conseiller Carrière IA",
+  "cvBuilder": "Générateur de CV IA",
+  "opportunities": "Opportunités",
+  "adminTranslations": "Gestion des traductions",
+  "settings": "Paramètres & Préférences",
+  "login": "Connexion",
+  "signup": "Commencer",
+  "logout": "Déconnexion",
+  "welcomeUser": "Bonjour, {{name}}",
+  "marketSwitch": "Changer de contexte pays",
+  "viewProfile": "Voir le profil"
+}

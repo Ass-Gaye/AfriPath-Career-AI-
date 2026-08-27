@@ -1,0 +1,23 @@
+{
+  "title": "تحليل فجوة المهارات",
+  "subtitle": "المسار المستهدف: {{targetCareer}} في {{country}}",
+  "readinessScore": "مؤشر الجاهزية العامة",
+  "ownedSkills": "المهارات التي تتقنها بالفعل",
+  "skillsToAcquire": "المهارات المطلوب تعلمها لسد الفجوة",
+  "estimatedTime": "إجمالي الوقت المقدر",
+  "priority": {
+    "Critical": "أولوية قصوى",
+    "High": "أولوية عالية",
+    "Medium": "أولوية متوسطة"
+  },
+  "category": {
+    "Technical": "مهارة تقنية",
+    "Soft": "مهارة شخصية / قيادية",
+    "Tool": "أداة / إطار عمل",
+    "Domain": "مجال تخصصي",
+    "Vocational": "مهارة عملية / مهنية"
+  },
+  "recommendedResources": "مصادر تعليمية مجانية وموثوقة",
+  "africanProvider": "مؤسسة / منصة تعليمية أفريقية",
+  "proceedToRoadmap": "إنشاء خطة العمل التنفيذية (90 يوماً)"
+}

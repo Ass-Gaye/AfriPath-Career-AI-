@@ -1,0 +1,22 @@
+{
+  "title": "AfriPath Translation Management",
+  "subtitle": "Review translation completeness, verify regional terminology, and manage multilingual strings across all African languages.",
+  "completeness": "Translation Completeness by Language",
+  "searchKeys": "Search translation keys (e.g. home.hero.title)...",
+  "namespaces": "Namespaces",
+  "sourceLanguage": "Source (English)",
+  "targetLanguage": "Target Language",
+  "status": {
+    "PUBLISHED": "Published & Verified",
+    "REVIEW": "In Review",
+    "DRAFT": "Draft",
+    "NEEDS_TRANSLATION": "Needs Translation"
+  },
+  "saveTranslation": "Save Translation",
+  "markReviewed": "Mark as Reviewed",
+  "missingKeysCount": "{{count}} missing translations",
+  "allVerified": "All keys verified",
+  "filterMissing": "Show Missing Only",
+  "moduleBreakdown": "Completeness by Module / Namespace",
+  "exportPO": "Export JSON Strings"
+}

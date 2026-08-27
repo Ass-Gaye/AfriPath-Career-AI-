@@ -1,0 +1,22 @@
+{
+  "title": "Gestion des traductions AfriPath",
+  "subtitle": "Supervisez le taux de complétude des traductions, vérifiez la terminologie régionale et gérez les chaînes multilingues à travers toutes les langues africaines.",
+  "completeness": "Taux de complétude par langue",
+  "searchKeys": "Rechercher une clé (ex: home.hero.title)...",
+  "namespaces": "Espaces de noms",
+  "sourceLanguage": "Source (Anglais)",
+  "targetLanguage": "Langue cible",
+  "status": {
+    "PUBLISHED": "Publié et vérifié",
+    "REVIEW": "En cours de révision",
+    "DRAFT": "Brouillon",
+    "NEEDS_TRANSLATION": "À traduire"
+  },
+  "saveTranslation": "Enregistrer la traduction",
+  "markReviewed": "Marquer comme révisé",
+  "missingKeysCount": "{{count}} traductions manquantes",
+  "allVerified": "Toutes les clés sont vérifiées",
+  "filterMissing": "Afficher uniquement les clés manquantes",
+  "moduleBreakdown": "Complétude par module / espace de noms",
+  "exportPO": "Exporter les chaînes JSON"
+}

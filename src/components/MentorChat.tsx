@@ -7,27 +7,37 @@ import {
   RotateCcw,
   Copy,
   Check,
+  Sparkles,
 } from 'lucide-react';
 import { ChatMessage, UserProfile } from '../types/career';
 import { sendMentorMessage } from '../services/api';
+import { getCountryByCode } from '../data/countriesData';
 
 interface MentorChatProps {
   userProfile: UserProfile | null;
   targetCareer: string | null;
+  initialQuery?: string | null;
 }
 
-export const MentorChat: React.FC<MentorChatProps> = ({ userProfile, targetCareer }) => {
+export const MentorChat: React.FC<MentorChatProps> = ({
+  userProfile,
+  targetCareer,
+  initialQuery,
+}) => {
+  const countryConfig = getCountryByCode(userProfile?.countryCode || 'GM');
+  const userCountryName = userProfile?.country || countryConfig.name;
+
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'init-1',
       sender: 'assistant',
-      text: `Hello ${userProfile?.name ? userProfile.name.split(' ')[0] : 'friend'}! I'm Kemo AI, your Gambian Career Coach. Whether you are exploring tech pathways, wondering how to get hired at companies like QCell, Gamswitch, or Africell, or building your 90-day learning routine, I'm here for you. What's on your mind today?`,
+      text: `Hello ${userProfile?.name ? userProfile.name.split(' ')[0] : 'friend'}! I'm your AfriPath AI Career Advisor. Whether you're exploring pathways in ${userCountryName}, looking for remote African opportunities, figuring out what skills to learn, or building your portfolio, I'm here for you. What would you like to explore today?`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       quickReplies: [
-        'How do I land an internship at QCell or Africell?',
-        'Should I learn AI or Cybersecurity?',
-        'What tech projects impress Gambian employers?',
-        'How to work remotely from Serekunda or Banjul?',
+        `What are high-paying careers in ${userCountryName}?`,
+        'How do I switch into technology without a CS degree?',
+        'What skills should I learn for data analysis & AI?',
+        'How can I find verified remote jobs in Africa?',
       ],
     },
   ]);
@@ -46,6 +56,12 @@ export const MentorChat: React.FC<MentorChatProps> = ({ userProfile, targetCaree
   useEffect(() => {
     scrollToBottom();
   }, [messages, isTyping]);
+
+  useEffect(() => {
+    if (initialQuery && initialQuery.trim()) {
+      handleSendMessage(initialQuery);
+    }
+  }, [initialQuery]);
 
   const handleSendMessage = async (textToSend?: string) => {
     const query = textToSend || inputMessage;
@@ -117,12 +133,12 @@ export const MentorChat: React.FC<MentorChatProps> = ({ userProfile, targetCaree
       {
         id: `init-${Date.now()}`,
         sender: 'assistant',
-        text: `Chat reset. Ask me any career, skill, or salary question in The Gambia!`,
+        text: `Chat reset. Ask me any career, skill, education, or salary question in ${userCountryName} or across Africa!`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         quickReplies: [
-          'What are high-paying tech jobs in Banjul?',
-          'How do I build an AI developer portfolio?',
-          'What are common tech interview questions in The Gambia?',
+          `What are in-demand skills in ${userCountryName}?`,
+          'How do I build a competitive portfolio?',
+          'What are typical interview questions for my target role?',
         ],
       },
     ]);
@@ -138,11 +154,11 @@ export const MentorChat: React.FC<MentorChatProps> = ({ userProfile, targetCaree
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <h2 className="text-sm sm:text-base font-bold text-white">Kemo AI • Gambia Career Coach</h2>
+              <h2 className="text-sm sm:text-base font-bold text-white">AfriPath AI • Career Advisor</h2>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
             </div>
             <p className="text-[11px] text-slate-400">
-              Guidance for {userProfile?.name || 'Job Seekers'} • {targetCareer || 'Career Pathway'}
+              Personalized intelligence for {userProfile?.name || 'African Job Seekers'} • {countryConfig.flag} {userCountryName}
             </p>
           </div>
         </div>
@@ -248,7 +264,7 @@ export const MentorChat: React.FC<MentorChatProps> = ({ userProfile, targetCaree
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce"></span>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce [animation-delay:0.2s]"></span>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce [animation-delay:0.4s]"></span>
-              <span className="text-[11px] text-slate-400 ml-1">Kemo AI is thinking...</span>
+              <span className="text-[11px] text-slate-400 ml-1">AfriPath AI Advisor is thinking...</span>
             </div>
           </div>
         )}
@@ -267,7 +283,7 @@ export const MentorChat: React.FC<MentorChatProps> = ({ userProfile, targetCaree
         >
           <input
             type="text"
-            placeholder="Ask anything (e.g. 'How should I structure my CV for Gamswitch?')..."
+            placeholder="Ask anything (e.g. 'What projects should I build for a data analyst portfolio?')..."
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             disabled={isTyping}

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Compass,
   Target,
@@ -15,7 +16,12 @@ import {
   ChevronDown,
   LogIn,
   UserPlus,
+  Briefcase,
+  FileCheck,
+  Globe2,
 } from 'lucide-react';
+import { AfriPathLogo } from './AfriPathLogo';
+import { LanguageSelector } from './LanguageSelector';
 import { UserProfile } from '../types/career';
 import { AuthUser } from '../services/api';
 import { AuthMode } from './AuthModal';
@@ -30,6 +36,7 @@ interface NavbarProps {
   onLogout: () => void;
   onLoadDemoUser: () => void;
   isDemoUser: boolean;
+  onOpenTranslationAdmin?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -42,7 +49,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   onLogout,
   onLoadDemoUser,
   isDemoUser,
+  onOpenTranslationAdmin,
 }) => {
+  const { t } = useTranslation(['navigation', 'common']);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -58,32 +67,28 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, []);
 
   const navItems = [
-    { id: 'landing', label: 'Overview', icon: Compass },
-    { id: 'dashboard', label: 'Dashboard', icon: TrendingUp, disabled: !userProfile },
-    { id: 'matches', label: 'Matches', icon: Target, disabled: !userProfile },
-    { id: 'skill-gap', label: 'Skill Gap', icon: FileText, disabled: !userProfile },
-    { id: 'roadmap', label: 'Roadmap', icon: TrendingUp, disabled: !userProfile },
-    { id: 'gambia-map', label: 'Gambia Jobs', icon: MapPin },
-    { id: 'mentor', label: 'AI Mentor', icon: MessageSquare },
+    { id: 'landing', label: t('navigation:home'), icon: Compass },
+    { id: 'dashboard', label: t('navigation:dashboard'), icon: TrendingUp, disabled: !userProfile },
+    { id: 'matches', label: t('navigation:matches'), icon: Target, disabled: !userProfile },
+    { id: 'skill-gap', label: t('navigation:skillGap'), icon: FileText, disabled: !userProfile },
+    { id: 'roadmap', label: t('navigation:roadmap'), icon: TrendingUp, disabled: !userProfile },
+    { id: 'cv-builder', label: t('navigation:cvBuilder'), icon: FileCheck, disabled: !userProfile },
+    { id: 'gambia-map', label: t('navigation:opportunities'), icon: Briefcase },
+    { id: 'mentor', label: t('navigation:advisor'), icon: MessageSquare },
   ];
 
-  const displayName = authUser?.fullName || userProfile?.name || 'My Account';
+  const displayName = authUser?.fullName || userProfile?.name || t('navigation:viewProfile');
   const displayEmail = authUser?.email || 'Authenticated User';
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-slate-900 border-b border-slate-800 text-slate-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-        {/* Zone 1: Brand */}
+    <header className="sticky top-0 z-50 w-full bg-slate-900/95 backdrop-blur-md border-b border-slate-800 text-slate-100 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+        {/* Zone 1: AfriPath AI Brand Logo */}
         <button
           onClick={() => setActiveTab(userProfile ? 'dashboard' : 'landing')}
-          className="flex items-center gap-2.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-lg py-1 transition hover:opacity-90 shrink-0"
+          className="flex items-center text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-xl py-1 transition hover:opacity-90 shrink-0"
         >
-          <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center font-bold text-white shadow-sm">
-            <span className="text-base">🇬🇲</span>
-          </div>
-          <span className="font-bold text-base tracking-tight text-white whitespace-nowrap">
-            Gambia Career AI
-          </span>
+          <AfriPathLogo size="md" showTagline={false} />
         </button>
 
         {/* Zone 2: Navigation Links */}
@@ -98,32 +103,38 @@ export const Navbar: React.FC<NavbarProps> = ({
                 key={item.id}
                 disabled={isDisabled}
                 onClick={() => setActiveTab(item.id)}
-                className={`whitespace-nowrap px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
+                className={`whitespace-nowrap px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
                   isActive
                     ? 'bg-emerald-600 text-white shadow-sm'
                     : isDisabled
-                    ? 'text-slate-600 cursor-not-allowed opacity-50'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                    ? 'text-slate-600 cursor-not-allowed opacity-40'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800/80'
                 }`}
-                title={isDisabled ? 'Complete profile setup to unlock' : item.label}
+                title={isDisabled ? 'Complete career assessment to unlock' : item.label}
               >
-                <Icon className="w-4 h-4 shrink-0" />
+                <Icon className="w-3.5 h-3.5 shrink-0" />
                 <span>{item.label}</span>
               </button>
             );
           })}
         </nav>
 
-        {/* Zone 3: Actions & Account Menu */}
+        {/* Zone 3: Actions, Language Selector & Account Menu */}
         <div className="flex items-center gap-2 shrink-0">
+          {/* Pan-African Language Selector Dropdown */}
+          <LanguageSelector
+            variant="compact"
+            onOpenAdmin={onOpenTranslationAdmin}
+          />
+
           {!authUser && !isDemoUser && (
             <button
               onClick={onLoadDemoUser}
-              className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-amber-500/10 text-amber-300 border border-amber-500/20 hover:bg-amber-500/20 transition whitespace-nowrap"
+              className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-amber-500/10 text-amber-300 border border-amber-500/20 hover:bg-amber-500/20 transition whitespace-nowrap"
               title="Load Musa Jallow Demo Profile"
             >
               <UserCheck className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <span>Demo Profile</span>
+              <span>Demo</span>
             </button>
           )}
 
@@ -137,7 +148,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <div className="w-5 h-5 rounded-full bg-emerald-500 text-slate-950 font-bold flex items-center justify-center text-[10px]">
                   {displayName.charAt(0).toUpperCase()}
                 </div>
-                <span className="truncate max-w-[110px]">{displayName}</span>
+                <span className="truncate max-w-[100px]">{displayName}</span>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
               </button>
 
@@ -157,7 +168,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     className="w-full px-3 py-2 rounded-xl text-left text-xs font-medium text-slate-200 hover:bg-slate-800 flex items-center gap-2"
                   >
                     <TrendingUp className="w-4 h-4 text-emerald-400" />
-                    <span>Dashboard</span>
+                    <span>{t('navigation:dashboard')}</span>
                   </button>
 
                   <button
@@ -182,6 +193,19 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <span>Security & Password</span>
                   </button>
 
+                  {onOpenTranslationAdmin && (
+                    <button
+                      onClick={() => {
+                        setDropdownOpen(false);
+                        onOpenTranslationAdmin();
+                      }}
+                      className="w-full px-3 py-2 rounded-xl text-left text-xs font-medium text-emerald-300 hover:bg-slate-800 flex items-center gap-2"
+                    >
+                      <Globe2 className="w-4 h-4 text-emerald-400" />
+                      <span>{t('navigation:adminTranslations')}</span>
+                    </button>
+                  )}
+
                   <button
                     onClick={() => {
                       setDropdownOpen(false);
@@ -203,7 +227,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     className="w-full px-3 py-2 rounded-xl text-left text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white flex items-center gap-2"
                   >
                     <LogOut className="w-4 h-4 text-slate-400" />
-                    <span>Log Out</span>
+                    <span>{t('navigation:logout')}</span>
                   </button>
                 </div>
               )}
@@ -213,18 +237,18 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="flex items-center gap-2">
               <button
                 onClick={() => onOpenAuth('login')}
-                className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5"
+                className="px-3 py-1.5 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5"
               >
                 <LogIn className="w-3.5 h-3.5" />
-                <span>Log In</span>
+                <span>{t('navigation:login')}</span>
               </button>
 
               <button
                 onClick={() => onOpenAuth('signup')}
-                className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition shadow-sm flex items-center gap-1.5"
+                className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition shadow-sm flex items-center gap-1.5"
               >
                 <UserPlus className="w-3.5 h-3.5" />
-                <span>Create Account</span>
+                <span>{t('navigation:signup')}</span>
               </button>
             </div>
           )}
@@ -243,7 +267,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               key={item.id}
               disabled={isDisabled}
               onClick={() => setActiveTab(item.id)}
-              className={`whitespace-nowrap px-2.5 py-1.5 rounded-md text-xs font-medium transition flex items-center gap-1.5 shrink-0 ${
+              className={`whitespace-nowrap px-2.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 shrink-0 ${
                 isActive
                   ? 'bg-emerald-600 text-white'
                   : isDisabled

@@ -1,0 +1,56 @@
+{
+  "hero": {
+    "badge": "Jumtukaay gu xereñ ngir ligéeyu Afrik",
+    "title": "Sa ëllëg mungi tàmbli ci yoon wu wóor.",
+    "subtitle": "Seetal ligéey yi, gëstu xam-xam yi la manke, gis ligéey yu wóor ci sa réew ak ci addina sépp, te am yoonu ligéey ci 90 fan.",
+    "findCareer": "Wut sama yoonu ligéey",
+    "exploreHubs": "Gis bérébi ligéey ci Afrik",
+    "chatAdvisor": "Waxtaan ak AI Kilifa",
+    "stats": {
+      "countries": "Réewi Afrik",
+      "careers": "Ligéey yu wóor",
+      "curriculums": "Jàngoro ak xam-xam",
+      "accuracy": "Wóoralu AI bi"
+    }
+  },
+  "intelligenceLoop": {
+    "badge": "Yoonu xam-xam bu AfriPath",
+    "title": "4 cër ngir yee sa ligéey",
+    "subtitle": "Defar nañu ko ngir ndawi Afrik, ndaw yu am diplôme ak ñi bëgg a yokk seen ligéey.",
+    "step1": {
+      "title": "1. Saytu sa xam-xam",
+      "desc": "Waxal sa njàng, xam-xam yi nga am ak li nga bëgg ci 12 wàll yu am solo ci Afrik."
+    },
+    "step2": {
+      "title": "2. Ligéey yi yem ak sa réew",
+      "desc": "Jël ligéey yi gën a baax ci sa réew, ak fay yu wóor ak kër yi koy laaj."
+    },
+    "step3": {
+      "title": "3. Xam-xam yi la manke",
+      "desc": "Xam li nga wara jàng ci xam-xam yu bees, ak jàngukaay yu amul pay ci Afrik ak addina."
+    },
+    "step4": {
+      "title": "4. Yoonu 90 fan",
+      "desc": "Topp yoon wu lëmës, defar CV bu baax te jëli ligéey yu wóor."
+    }
+  },
+  "sectors": {
+    "badge": "Wàll yi gën a yëngu",
+    "title": "Gis wàlli ligéey yu mag ci Afrik",
+    "subtitle": "Xamal ligéey yi ñuy laaj lool, fay yi, ak kër yi ëpp solo.",
+    "viewRoles": "Gis ligéey yi am solo",
+    "rolesCount": "Ligéey yu am"
+  },
+  "regional": {
+    "badge": "Béréb yi ci Afrik",
+    "title": "Pôles ak dëkk yu am ligéey",
+    "subtitle": "Natt fay yi ak kër yi ci Banjul, Dakar, Lagos, Nairobi ba Kigali.",
+    "viewMarket": "Xool réew mi",
+    "selectedCountry": "Réew mi nga tànn : {{country}}"
+  },
+  "cta": {
+    "title": "Bëgg nga xam sa yoonu ligéey ci Afrik ?",
+    "subtitle": "Bokkël ci junniy ndaw yu Afrik ñuy tabax seen ëllëg ak AfriPath AI.",
+    "button": "Tàmbli saytukaay bi"
+  }
+}

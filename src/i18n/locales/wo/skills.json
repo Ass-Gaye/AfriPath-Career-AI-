@@ -1,0 +1,23 @@
+{
+  "title": "Xam-xam yi manke",
+  "subtitle": "Ngir jël ligéeyu: {{targetCareer}} ci {{country}}",
+  "readinessScore": "Nivo bu nga tollu leegi",
+  "ownedSkills": "Xam-xam yi nga am",
+  "skillsToAcquire": "Xam-xam yi nga wara yokk",
+  "estimatedTime": "Waxtu yi nga wara def",
+  "priority": {
+    "Critical": "Am na solo lool",
+    "High": "Am na solo",
+    "Medium": "Digg-dóomu"
+  },
+  "category": {
+    "Technical": "Xam-xamu ligéey",
+    "Soft": "Jikko yu baax",
+    "Tool": "Jumtukaay",
+    "Domain": "Wàllu ligéey",
+    "Vocational": "Ligéeyu loxo"
+  },
+  "recommendedResources": "Jàngukaay yu amul pay ci Afrik ak addina",
+  "africanProvider": "Daara / Kër bu nekk ci Afrik",
+  "proceedToRoadmap": "Sosi yoonu 90 fan"
+}

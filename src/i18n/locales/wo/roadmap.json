@@ -1,0 +1,18 @@
+{
+  "title": "Yoonu 90 fan ngir ligéey",
+  "subtitle": "Palanu ayu-bess bu wóor ngir dugg ci ligéeyu {{targetCareer}}.",
+  "progress": "Ni nga ci gën a yeggee",
+  "recommendedHours": "Li nga wara ligéey: {{hours}} waxtu / ayu-bess",
+  "targetTimeframe": "Mataay: 90 Fan (12 Ayu-bess)",
+  "phases": {
+    "month1": "Weer 1: Cëslaay ak xam-xam yi tàmbli",
+    "month2": "Weer 2: Ligéey ci projé yu dëggu",
+    "month3": "Weer 3: CV, xamante ak seet ligéey"
+  },
+  "week": "Ayu-bess {{number}}",
+  "milestone": "Li nga wara def ci ayu-bess bi",
+  "markComplete": "Wax ne pare na",
+  "taskCompleted": "Pare na",
+  "generateCV": "Defar CV ngir yoon wii",
+  "keyOutcomes": "Li nga nara am ci 90 fan"
+}

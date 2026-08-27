@@ -1,0 +1,23 @@
+{
+  "title": "Vos métiers correspondants",
+  "subtitle": "Carrières classées par l'IA et calibrées pour {{country}} et l'écosystème africain.",
+  "matchScore": "Score de correspondance",
+  "salaryLocal": "Grille salariale locale",
+  "salaryUSD": "Équivalent USD télétravail mondial",
+  "demand": "Demande du marché",
+  "growthPotential": "Potentiel d'évolution",
+  "transitionDifficulty": "Difficulté de transition",
+  "matchingSkills": "Vos compétences acquises",
+  "missingSkills": "Compétences clés à développer",
+  "localEmployers": "Principaux recruteurs en {{country}}",
+  "sampleTitles": "Intitulés de postes courants",
+  "whyFits": "Pourquoi ce métier vous correspond",
+  "pathways": "Parcours d'apprentissage recommandés",
+  "actionPlan": "Prochaines étapes concrètes recommandées",
+  "viewSkillGap": "Diagnostiquer les compétences",
+  "generateRoadmap": "Construire la feuille de route 90 jours",
+  "selectAsTarget": "Définir comme objectif de carrière actif",
+  "filterSector": "Filtrer par secteur",
+  "sortScore": "Trier par score de correspondance",
+  "sortDemand": "Trier par demande du marché"
+}

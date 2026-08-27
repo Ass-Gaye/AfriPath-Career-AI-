@@ -1,0 +1,23 @@
+{
+  "title": "Skill Gap Analysis",
+  "subtitle": "Targeting: {{targetCareer}} in {{country}}",
+  "readinessScore": "Overall Readiness Score",
+  "ownedSkills": "Skills You Already Have",
+  "skillsToAcquire": "Skills to Bridge the Gap",
+  "estimatedTime": "Estimated Total Time",
+  "priority": {
+    "Critical": "Critical Priority",
+    "High": "High Priority",
+    "Medium": "Medium Priority"
+  },
+  "category": {
+    "Technical": "Technical Skill",
+    "Soft": "Soft / Interpersonal",
+    "Tool": "Tool / Framework",
+    "Domain": "Industry Domain",
+    "Vocational": "Vocational / Practical"
+  },
+  "recommendedResources": "Curated Free & Verified Resources",
+  "africanProvider": "African Provider",
+  "proceedToRoadmap": "Generate 90-Day Execution Roadmap"
+}

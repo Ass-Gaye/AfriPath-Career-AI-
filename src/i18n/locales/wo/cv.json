@@ -1,0 +1,25 @@
+{
+  "title": "Defar CV ak AI",
+  "subtitle": "Defaral sa bopp CV bu rafet te wóor ngir kër yi ci Afrik ak addina.",
+  "templates": {
+    "modern": "Bu bees te rafet",
+    "tech": "Xam-xamu xarala",
+    "ats": "Bu yomb a jàng (ATS)",
+    "executive": "Kañ-kañ bu gàtt"
+  },
+  "sections": {
+    "personal": "Xibaar ci sa bopp",
+    "summary": "Teunk sa ligéey",
+    "education": "Sa njàng ak diplôme",
+    "experience": "Béréb yi nga ligéey",
+    "projects": "Projé yi nga def",
+    "skills": "Xam-xam ak jumtukaay",
+    "certifications": "Kàggu wóor"
+  },
+  "atsScore": "Nattalu ATS",
+  "enhanceAI": "Ràfleel ak AI",
+  "downloadPDF": "Yeb ko ci PDF",
+  "exportJSON": "Génne xibaar yi",
+  "targetJob": "Ligéey bi nga bëgg",
+  "targetEmployer": "Kër gi nga bëgg (su la neexee)"
+}

@@ -1,0 +1,56 @@
+{
+  "hero": {
+    "badge": "Plateforme Panafricaine d'Intelligence Carrière",
+    "title": "Votre avenir commence par un parcours.",
+    "subtitle": "Explorez les métiers, analysez vos écarts de compétences, découvrez des opportunités locales et internationales vérifiées, et suivez une feuille de route concrète de 90 jours adaptée à votre pays en Afrique.",
+    "findCareer": "Trouver mon parcours professionnel",
+    "exploreHubs": "Explorer les pôles d'emploi africains",
+    "chatAdvisor": "Discuter avec le conseiller IA",
+    "stats": {
+      "countries": "Marchés africains",
+      "careers": "Métiers cartographiés",
+      "curriculums": "Compétences & Tâches vérifiées",
+      "accuracy": "Précision des recommandations IA"
+    }
+  },
+  "intelligenceLoop": {
+    "badge": "La boucle d'intelligence AfriPath",
+    "title": "Un moteur éprouvé d'accélération de carrière en 4 étapes",
+    "subtitle": "Conçu spécifiquement pour la jeunesse africaine, les diplômés universitaires, les étudiants de la formation professionnelle (EFTP) et les professionnels.",
+    "step1": {
+      "title": "1. Évaluation multidimensionnelle",
+      "desc": "Indiquez votre parcours académique, vos compétences pratiques réelles, vos contraintes et vos centres d'intérêt parmi 12 secteurs économiques africains."
+    },
+    "step2": {
+      "title": "2. Correspondance locale & salaires",
+      "desc": "Recevez des recommandations de carrières classées selon les grilles salariales réelles, les employeurs vérifiés et la demande dans votre pays."
+    },
+    "step3": {
+      "title": "3. Diagnostic précis des compétences",
+      "desc": "Identifiez les compétences techniques et transversales à acquérir avec des ressources d'apprentissage gratuites africaines et mondiales."
+    },
+    "step4": {
+      "title": "4. Feuille de route d'action sur 90 jours",
+      "desc": "Suivez un plan d'action hebdomadaire par étapes, créez un CV optimisé pour les recruteurs et postulez directement aux offres vérifiées."
+    }
+  },
+  "sectors": {
+    "badge": "Secteurs en forte croissance",
+    "title": "Explorez les industries dynamiques d'Afrique",
+    "subtitle": "Découvrez la demande du marché, les salaires moyens et les employeurs clés dans les secteurs économiques porteurs.",
+    "viewRoles": "Voir les métiers en forte demande",
+    "rolesCount": "Métiers répertoriés"
+  },
+  "regional": {
+    "badge": "Écosystèmes régionaux",
+    "title": "Pôles d'emploi panafricains et locaux",
+    "subtitle": "Comparez les salaires, les hubs technologiques et les principaux recruteurs de Banjul et Dakar à Lagos, Nairobi et Kigali.",
+    "viewMarket": "Explorer le marché",
+    "selectedCountry": "Marché actuellement sélectionné : {{country}}"
+  },
+  "cta": {
+    "title": "Prêt à découvrir votre parcours professionnel en Afrique ?",
+    "subtitle": "Rejoignez des milliers d'étudiants, diplômés et professionnels africains qui construisent leur avenir avec AfriPath AI.",
+    "button": "Faire l'évaluation gratuite"
+  }
+}

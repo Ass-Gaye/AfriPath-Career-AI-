@@ -1,0 +1,18 @@
+{
+  "title": "90-Day Career Execution Roadmap",
+  "subtitle": "Milestone-driven weekly plan to transition into {{targetCareer}}.",
+  "progress": "Roadmap Completion Progress",
+  "recommendedHours": "Recommended: {{hours}} hrs / week",
+  "targetTimeframe": "Duration: 90 Days (12 Weeks)",
+  "phases": {
+    "month1": "Month 1: Core Foundations & Technical Basics",
+    "month2": "Month 2: Applied Projects & Real-world Workflows",
+    "month3": "Month 3: Portfolio, Local Networking & Job Search"
+  },
+  "week": "Week {{number}}",
+  "milestone": "Week Milestone Deliverable",
+  "markComplete": "Mark as Completed",
+  "taskCompleted": "Completed",
+  "generateCV": "Create ATS CV for this Roadmap",
+  "keyOutcomes": "Key 90-Day Outcomes"
+}

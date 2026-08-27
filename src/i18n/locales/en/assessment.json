@@ -1,0 +1,53 @@
+{
+  "title": "African Career Discovery Assessment",
+  "subtitle": "Discover personalized career matches benchmarked against your chosen African market.",
+  "steps": {
+    "personal": "Personal & Location",
+    "education": "Education & Background",
+    "skills": "Current Skills",
+    "interests": "Interests & Sectors",
+    "goals": "Goals & Constraints",
+    "review": "Generate Matches"
+  },
+  "fields": {
+    "fullName": "Full Name",
+    "country": "African Country Context",
+    "location": "City / Region",
+    "educationLevel": "Highest Education Level",
+    "institution": "University / Institute / School",
+    "fieldOfStudy": "Field of Study / Specialization",
+    "graduationYear": "Graduation / Completion Year",
+    "technicalSkills": "Technical & Practical Skills",
+    "softSkills": "Soft & Transferable Skills",
+    "interests": "Areas of Passion & Interest",
+    "targetIndustries": "Target Industries",
+    "careerGoal": "Primary Career Objective",
+    "maturityStage": "Current Career Stage",
+    "preferredPathway": "Preferred Career Pathway",
+    "preferredWorkType": "Work Preference",
+    "budgetLevel": "Learning Budget",
+    "deviceAccess": "Primary Device Access",
+    "weeklyHours": "Weekly Hours Available"
+  },
+  "options": {
+    "maturity": {
+      "Explorer": "Explorer — I am not sure which career fits me best",
+      "Beginner": "Beginner — I chose a field but need guidance on where to start",
+      "Learner": "Learner — I am currently taking courses or acquiring skills",
+      "JobSeeker": "Job Seeker — Actively looking for internships or full-time roles",
+      "Professional": "Professional — Looking to advance or level-up in my current field",
+      "CareerChanger": "Career Changer — Wanting to transition into a new sector",
+      "Entrepreneur": "Entrepreneur — Building a venture, startup, or freelance service"
+    },
+    "workType": {
+      "Local": "Local Employment (In-country)",
+      "Remote": "Remote (Global / Pan-African)",
+      "Hybrid": "Hybrid (Flexible On-site & Remote)"
+    }
+  },
+  "actions": {
+    "generate": "Analyze Career Profile with AI",
+    "quickFill": "Load Demo Profile (Musa Jallow - West Africa)",
+    "uploadCV": "Or Auto-Fill from CV / Resume (PDF, DOCX, TXT)"
+  }
+}

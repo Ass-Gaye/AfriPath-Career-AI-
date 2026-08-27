@@ -15,6 +15,7 @@ import {
   ChevronRight,
   ShieldCheck,
   Settings,
+  Globe2,
 } from 'lucide-react';
 import {
   UserProfile,
@@ -24,6 +25,7 @@ import {
   CVData,
 } from '../types/career';
 import { AuthUser } from '../services/api';
+import { getCountryByCode } from '../data/countriesData';
 
 interface DashboardProps {
   userProfile: UserProfile;
@@ -54,6 +56,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onOpenCVBuilder,
   authUser,
 }) => {
+  const countryConfig = getCountryByCode(userProfile.countryCode || 'GM');
+  const userCountryName = userProfile.country || countryConfig.name;
+
   // Calculate Roadmap progress
   const totalTasks = roadmap
     ? roadmap.months.flatMap((m) => m.weeks.flatMap((w) => w.tasks)).length
@@ -99,13 +104,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="space-y-1.5">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>Gambia Career Intelligence</span>
+              <span>{countryConfig.flag} {userCountryName} & Pan-African Career Intelligence</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
               Welcome back {firstName} 👋
             </h1>
             <p className="text-xs sm:text-sm text-slate-400">
-              {userProfile.fieldOfStudy || 'Information Systems'} • {userProfile.institution || 'University of The Gambia'} ({userProfile.location || 'The Gambia'})
+              {userProfile.fieldOfStudy || 'Technology & Science'} • {userProfile.institution || 'Higher Education Institution'} ({userProfile.location || userCountryName})
             </p>
           </div>
 
@@ -138,7 +143,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
       </div>
 
-      {/* 4 Core Status Cards (Career Profile, AI Career Analysis, Skill Roadmap, My CV) */}
+      {/* 4 Core Status Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: Career Profile */}
         <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between space-y-3">
@@ -153,7 +158,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
           <div>
             <div className="text-base font-bold text-white truncate">{displayName}</div>
-            <div className="text-xs text-slate-300 font-medium truncate">{userProfile.institution || 'University of The Gambia (UTG)'}</div>
+            <div className="text-xs text-slate-300 font-medium truncate">{userProfile.institution || `${userCountryName} Institution`}</div>
             <div className="text-xs text-slate-400 truncate">
               {userProfile.fieldOfStudy ? `${userProfile.fieldOfStudy} • ` : ''}{userProfile.currentSkills?.length || 0} skills added
             </div>
@@ -179,7 +184,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
           <div>
             <div className="text-base font-bold text-white truncate">{topMatch.title}</div>
-            <div className="text-xs text-slate-400">Top pathway for Gambian market</div>
+            <div className="text-xs text-slate-400">Top pathway for {userCountryName} & Africa</div>
           </div>
           <button
             onClick={() => onNavigate('matches')}
@@ -238,7 +243,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
           <div>
             <div className="text-base font-bold text-white truncate">
-              {cvData ? cvData.targetCareer : 'AI Gambian CV'}
+              {cvData ? cvData.targetCareer : 'AI Verified CV'}
             </div>
             <div className="text-xs text-slate-400">
               {isCVReady ? 'ATS Optimized & Verified' : 'Generate with 1-click'}
@@ -275,7 +280,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <span>AI Career Recommendations</span>
               </h2>
               <p className="text-xs text-slate-400">
-                Ranked by alignment with your skills and Gambian market demand.
+                Ranked by alignment with your skills and market demand in {userCountryName}.
               </p>
             </div>
             <button
@@ -410,12 +415,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
             <div>
               <h3 className="text-sm font-bold text-white">
-                {isCVReady ? 'Your Gambian CV is Ready' : 'Don’t have a CV? Create one with AI.'}
+                {isCVReady ? 'Your Verified CV is Ready' : 'Don’t have a CV? Create one with AI.'}
               </h3>
               <p className="text-xs text-slate-300 mt-1 leading-relaxed">
                 {isCVReady
                   ? `Optimized for ${cvData.targetCareer} with 0 hallucinations and ATS compliance.`
-                  : `Generate an authentic Gambian CV tailored to ${targetCareer}. 100% verified facts.`}
+                  : `Generate an authentic CV tailored to ${targetCareer}. 100% verified facts.`}
               </p>
             </div>
 
@@ -430,26 +435,26 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </div>
 
-          {/* AI Mentor Callout Card */}
+          {/* AI Career Advisor Callout Card */}
           <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-bold text-xs">
                 AI
               </div>
               <div>
-                <h3 className="text-sm font-bold text-white">Kemo AI Career Coach</h3>
-                <p className="text-[11px] text-slate-400">Gambian Market & Interview Advisor</p>
+                <h3 className="text-sm font-bold text-white">AfriPath AI Advisor</h3>
+                <p className="text-[11px] text-slate-400">Pan-African Career & Interview Coach</p>
               </div>
             </div>
             <p className="text-xs text-slate-300 leading-relaxed">
-              Get answers about tech salaries in Banjul, CV tailoring, or internship opportunities.
+              Get grounded guidance on salaries, portfolio preparation, TVET credentials, or remote opportunities.
             </p>
             <button
               onClick={() => onNavigate('mentor')}
               className="w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs transition flex items-center justify-center gap-1.5 shadow-sm"
             >
               <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Chat with Mentor</span>
+              <span>Chat with Advisor</span>
             </button>
           </div>
         </div>

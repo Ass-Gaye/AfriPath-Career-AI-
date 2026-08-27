@@ -1,0 +1,23 @@
+{
+  "title": "Buntu AfriPath",
+  "welcome": "Dalal jamm, {{name}}",
+  "overview": "Li am ci sa ligéey",
+  "activeTarget": "Ligéey bi nga tànn leegi",
+  "readiness": "Nivo bu nga tollu",
+  "progress": "Avancement yoonu 90 fan",
+  "savedMatches": "Ligéey yi la gën a yem",
+  "resumeScore": "Nattalu sa CV",
+  "recentActivities": "Li nga def lépp",
+  "actions": {
+    "retake": "Délloosi gëstukaay bi",
+    "switchTarget": "Soppi ligéey bi nga tànn",
+    "viewRoadmap": "Wéy ci yoonu 90 fan",
+    "buildCV": "Soppi sa CV",
+    "exploreJobs": "Gis ligéey yi am"
+  },
+  "noProfile": {
+    "title": "Amoo profil bu pare ba tey",
+    "desc": "Defal gëstukaayu 3 simili ngir am ligéey yi la yem ak yoonu njàng.",
+    "cta": "Tàmbli gëstu gi leegi"
+  }
+}

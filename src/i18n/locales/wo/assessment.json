@@ -1,0 +1,53 @@
+{
+  "title": "Gëstu sa yoonu ligéey ci Afrik",
+  "subtitle": "Xam ligéey yi la gën a yem ci sa réew ak sa xam-xam.",
+  "steps": {
+    "personal": "Sa bopp & Fu nga dëkk",
+    "education": "Sa njàng",
+    "skills": "Xam-xam yi nga am",
+    "interests": "Li nga bëgg",
+    "goals": "Sa bëgg-bëgg",
+    "review": "Gis ligéey yi"
+  },
+  "fields": {
+    "fullName": "Sa sant ak sa tur",
+    "country": "Sa réew ci Afrik",
+    "location": "Dëkk / Gox",
+    "educationLevel": "Sa niveau njàng",
+    "institution": "Daara / Université / Institut",
+    "fieldOfStudy": "Li nga jàng",
+    "graduationYear": "At mi nga pare",
+    "technicalSkills": "Xam-xamu ligéey",
+    "softSkills": "Jikko yu baax ci ligéey",
+    "interests": "Wàll yi la neex",
+    "targetIndustries": "Wàll yi nga bëgg ligéey",
+    "careerGoal": "Li nga bëgg ëllëg",
+    "maturityStage": "Fu nga tollu leegi",
+    "preferredPathway": "Yoonu njàng bi la gënal",
+    "preferredWorkType": "Ni nga bëgg ligéeyee",
+    "budgetLevel": "Koppar ngir njàng",
+    "deviceAccess": "Jumtukaay yi nga am",
+    "weeklyHours": "Waxtu yi nga am ci ayu-bess"
+  },
+  "options": {
+    "maturity": {
+      "Explorer": "Gëstukaat — Xamuma ban ligéey laa gën a bëgg",
+      "Beginner": "Tàmblikat — Tànn naa wàll waaye laaj naa ndimbal",
+      "Learner": "Jàngkat — Mangi jàng xam-xam yu bees",
+      "JobSeeker": "Seetkat — Mangi seet ligéey walla stage",
+      "Professional": "Ligéeykat — Bëgg naa yokk sama xam-xam",
+      "CareerChanger": "Soppikat — Bëgg naa soppi wàllu ligéey",
+      "Entrepreneur": "Boroom kër ligéey — Bëgg naa ubbi sama entreprise"
+    },
+    "workType": {
+      "Local": "Ligéey ci biir réew mi",
+      "Remote": "Ligéey ci kër (Panafrik / Addina)",
+      "Hybrid": "Génn wàll ci kër, génn wàll ci béréb bi"
+    }
+  },
+  "actions": {
+    "generate": "Saytu sama profil ak AI",
+    "quickFill": "Dugal profilu Musa Jallow (Sowwu Afrik)",
+    "uploadCV": "Dugal sa CV (PDF, DOCX, TXT)"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "title": "Évaluation d'orientation professionnelle africaine",
+  "subtitle": "Découvrez des métiers personnalisés calibrés selon le marché de l'emploi de votre pays.",
+  "steps": {
+    "personal": "Profil & Localisation",
+    "education": "Éducation & Formation",
+    "skills": "Compétences actuelles",
+    "interests": "Intérêts & Secteurs",
+    "goals": "Objectifs & Contraintes",
+    "review": "Générer les correspondances"
+  },
+  "fields": {
+    "fullName": "Nom complet",
+    "country": "Pays de référence en Afrique",
+    "location": "Ville / Région",
+    "educationLevel": "Niveau d'études le plus élevé",
+    "institution": "Université / Institut / Établissement",
+    "fieldOfStudy": "Filière / Spécialité",
+    "graduationYear": "Année d'obtention du diplôme",
+    "technicalSkills": "Compétences techniques et pratiques",
+    "softSkills": "Compétences comportementales",
+    "interests": "Centres d'intérêt et passions",
+    "targetIndustries": "Secteurs ciblés",
+    "careerGoal": "Objectif professionnel principal",
+    "maturityStage": "Étape de votre parcours",
+    "preferredPathway": "Voie de formation préférée",
+    "preferredWorkType": "Mode de travail souhaité",
+    "budgetLevel": "Budget de formation",
+    "deviceAccess": "Accès aux équipements",
+    "weeklyHours": "Heures disponibles par semaine"
+  },
+  "options": {
+    "maturity": {
+      "Explorer": "Explorateur — Je ne sais pas encore quelle carrière me convient le mieux",
+      "Beginner": "Débutant — J'ai choisi un domaine mais j'ai besoin d'orientation pour démarrer",
+      "Learner": "Apprenant — Je suis actuellement en formation ou j'acquiers des compétences",
+      "JobSeeker": "En recherche d'emploi — Je cherche activement un stage ou un emploi à temps plein",
+      "Professional": "Professionnel — Je souhaite évoluer ou monter en niveau dans mon domaine",
+      "CareerChanger": "Reconversion — Je souhaite changer de secteur d'activité",
+      "Entrepreneur": "Entrepreneur — Je développe une entreprise, une startup ou une activité freelance"
+    },
+    "workType": {
+      "Local": "Emploi local (dans le pays)",
+      "Remote": "Télétravail (international / panafricain)",
+      "Hybrid": "Hybride (présentiel et télétravail)"
+    }
+  },
+  "actions": {
+    "generate": "Analyser mon profil avec l'IA",
+    "quickFill": "Charger le profil démo (Musa Jallow - Afrique de l'Ouest)",
+    "uploadCV": "Ou préremplir depuis un CV (PDF, DOCX, TXT)"
+  }
+}

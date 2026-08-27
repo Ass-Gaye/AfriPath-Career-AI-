@@ -1,0 +1,23 @@
+{
+  "title": "Ligéey yi la gën a yem",
+  "subtitle": "Ligéey yi AI tànn ngir {{country}} ak Afrik.",
+  "matchScore": "Nattalu yem gi",
+  "salaryLocal": "Fay gi ci sa réew",
+  "salaryUSD": "Fay gi ci USD (télétravail)",
+  "demand": "Laaju ligéey bi",
+  "growthPotential": "Yokkute gu ëllëg",
+  "transitionDifficulty": "Jàfe-jàfe yoon bi",
+  "matchingSkills": "Xam-xam yi nga am ba noppi",
+  "missingSkills": "Xam-xam yi nga wara jàng",
+  "localEmployers": "Kër yi gën a joxe ligéey ci {{country}}",
+  "sampleTitles": "Turu ligéey yi",
+  "whyFits": "Lu tax ligéey bi baax ci yaw",
+  "pathways": "Yooni njàng yi am",
+  "actionPlan": "Li nga wara def leegi",
+  "viewSkillGap": "Xool xam-xam yi manke",
+  "generateRoadmap": "Defar yoonu 90 fan",
+  "selectAsTarget": "Tànn ko niki sa ligéeyu ëllëg",
+  "filterSector": "Tànn ci wàll",
+  "sortScore": "Gën a yem",
+  "sortDemand": "Gën a am laaj"
+}

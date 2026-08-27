@@ -1,0 +1,23 @@
+{
+  "title": "Tableau de bord AfriPath",
+  "welcome": "Ravi de vous revoir, {{name}}",
+  "overview": "Vue d'ensemble",
+  "activeTarget": "Métier cible actif",
+  "readiness": "Niveau de préparation",
+  "progress": "Avancement feuille de route (90 j)",
+  "savedMatches": "Meilleures correspondances",
+  "resumeScore": "Score ATS du CV",
+  "recentActivities": "Activités et étapes récentes",
+  "actions": {
+    "retake": "Repasser l'évaluation",
+    "switchTarget": "Changer de métier cible",
+    "viewRoadmap": "Reprendre la feuille de route",
+    "buildCV": "Modifier le CV optimisé",
+    "exploreJobs": "Voir les offres vérifiées"
+  },
+  "noProfile": {
+    "title": "Aucun profil de carrière pour l'instant",
+    "desc": "Passez l'évaluation de 3 minutes pour débloquer vos correspondances professionnelles et plans personnalisés.",
+    "cta": "Démarrer l'évaluation"
+  }
+}

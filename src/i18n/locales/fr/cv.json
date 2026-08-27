@@ -1,0 +1,25 @@
+{
+  "title": "Générateur de CV ATS par IA",
+  "subtitle": "Générez des CV ciblés et authentiques, optimisés pour les recruteurs africains et internationaux.",
+  "templates": {
+    "modern": "Moderne Standard",
+    "tech": "Technologie / Développeur",
+    "ats": "ATS Épuré & Lisible",
+    "executive": "Exécutif / Synthétique"
+  },
+  "sections": {
+    "personal": "Informations personnelles",
+    "summary": "Résumé professionnel",
+    "education": "Formation & Diplômes",
+    "experience": "Expériences & Stages",
+    "projects": "Projets clés & Réalisations",
+    "skills": "Compétences & Technologies",
+    "certifications": "Certifications"
+  },
+  "atsScore": "Score de compatibilité ATS",
+  "enhanceAI": "Optimiser avec l'IA",
+  "downloadPDF": "Télécharger en PDF",
+  "exportJSON": "Exporter les données",
+  "targetJob": "Poste ou métier visé",
+  "targetEmployer": "Entreprise visée (facultatif)"
+}

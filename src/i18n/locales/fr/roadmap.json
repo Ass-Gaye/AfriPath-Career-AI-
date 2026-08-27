@@ -1,0 +1,18 @@
+{
+  "title": "Feuille de route d'action sur 90 jours",
+  "subtitle": "Plan hebdomadaire structuré pour accéder au métier de {{targetCareer}}.",
+  "progress": "Progression de la feuille de route",
+  "recommendedHours": "Recommandé : {{hours}} h / semaine",
+  "targetTimeframe": "Durée : 90 Jours (12 Semaines)",
+  "phases": {
+    "month1": "Mois 1 : Fondamentaux et bases techniques",
+    "month2": "Mois 2 : Projets appliqués et cas concrets",
+    "month3": "Mois 3 : Portfolio, réseau professionnel et candidatures"
+  },
+  "week": "Semaine {{number}}",
+  "milestone": "Livrable clé de la semaine",
+  "markComplete": "Marquer comme terminé",
+  "taskCompleted": "Terminé",
+  "generateCV": "Créer le CV optimisé pour ce parcours",
+  "keyOutcomes": "Résultats clés au bout de 90 jours"
+}

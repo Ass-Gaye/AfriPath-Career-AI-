@@ -1,0 +1,23 @@
+{
+  "title": "Your Career Matches",
+  "subtitle": "AI-ranked career paths calibrated for {{country}} and regional African ecosystems.",
+  "matchScore": "Career Match Score",
+  "salaryLocal": "Local Salary Benchmark",
+  "salaryUSD": "USD Global Remote Benchmark",
+  "demand": "Market Demand",
+  "growthPotential": "Growth Potential",
+  "transitionDifficulty": "Difficulty to Transition",
+  "matchingSkills": "Your Matching Skills",
+  "missingSkills": "Key Skill Gaps",
+  "localEmployers": "Top Hiring Organizations in {{country}}",
+  "sampleTitles": "Common Job Titles",
+  "whyFits": "Why This Path Fits You",
+  "pathways": "Supported Learning Pathways",
+  "actionPlan": "Recommended Immediate Next Steps",
+  "viewSkillGap": "Diagnose Skill Gap",
+  "generateRoadmap": "Build 90-Day Roadmap",
+  "selectAsTarget": "Set as Active Career Target",
+  "filterSector": "Filter by Sector",
+  "sortScore": "Sort by Match Score",
+  "sortDemand": "Sort by Market Demand"
+}

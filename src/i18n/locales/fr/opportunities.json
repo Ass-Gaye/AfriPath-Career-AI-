@@ -1,0 +1,14 @@
+{
+  "title": "Opportunités vérifiées en Afrique",
+  "subtitle": "Sélection d'emplois, stages, bourses d'études et programmes de formation à travers l'Afrique.",
+  "searchPlaceholder": "Rechercher par poste, compétence (ex: React, SQL), entreprise ou ville...",
+  "filterType": "Type d'opportunité",
+  "filterSector": "Secteur d'activité",
+  "filterWorkplace": "Mode de travail",
+  "deadline": "Date limite de candidature",
+  "applyNow": "Postuler sur le site du recruteur",
+  "verifiedBadge": "Vérifié par AfriPath",
+  "salary": "Indemnité / Salaire",
+  "skillsRequired": "Compétences requises",
+  "noResults": "Aucune opportunité ne correspond à vos filtres. Essayez d'élargir votre recherche."
+}

@@ -1,0 +1,25 @@
+{
+  "title": "AI ATS CV Builder",
+  "subtitle": "Generate tailored, anti-hallucination resumes optimized for African and global recruiters.",
+  "templates": {
+    "modern": "Modern Standard",
+    "tech": "Tech / Developer",
+    "ats": "Minimal ATS Clean",
+    "executive": "Executive Compact"
+  },
+  "sections": {
+    "personal": "Personal Information",
+    "summary": "Professional Summary",
+    "education": "Education & TVET",
+    "experience": "Work & Internship Experience",
+    "projects": "Key Projects & Portfolio",
+    "skills": "Skills & Technologies",
+    "certifications": "Certifications"
+  },
+  "atsScore": "ATS Match Rating",
+  "enhanceAI": "Enhance Bullet with AI",
+  "downloadPDF": "Download PDF",
+  "exportJSON": "Export Data",
+  "targetJob": "Target Job Title",
+  "targetEmployer": "Target Employer (Optional)"
+}

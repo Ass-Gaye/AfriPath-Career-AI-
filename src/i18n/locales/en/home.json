@@ -1,0 +1,56 @@
+{
+  "hero": {
+    "badge": "Pan-African Career Intelligence Platform",
+    "title": "Your Future Starts With A Path.",
+    "subtitle": "Explore careers, analyze skill gaps, discover verified local & remote opportunities, and build actionable 90-day roadmaps tailored to your country in Africa.",
+    "findCareer": "Find My Career Path",
+    "exploreHubs": "Explore Africa Job Hubs",
+    "chatAdvisor": "Chat with AI Advisor",
+    "stats": {
+      "countries": "African Markets",
+      "careers": "Mapped Career Roles",
+      "curriculums": "Verified Skills & Tasks",
+      "accuracy": "AI Recommendation Precision"
+    }
+  },
+  "intelligenceLoop": {
+    "badge": "The AfriPath Intelligence Loop",
+    "title": "A Proven 4-Step Career Acceleration Engine",
+    "subtitle": "Built specifically for African youths, university graduates, TVET trainees, and professionals navigating local and global markets.",
+    "step1": {
+      "title": "1. Multi-Dimensional Assessment",
+      "desc": "Input your educational background, current practical skills, constraints, and interests across 12 African economic sectors."
+    },
+    "step2": {
+      "title": "2. Localized Market Matching",
+      "desc": "Receive ranked career recommendations benchmarked to real salary rates, verified employers, and demand across your chosen African country."
+    },
+    "step3": {
+      "title": "3. Precise Skill Gap Diagnosis",
+      "desc": "Identify exact technical, soft, and vocational skill gaps with African and global free learning resources, weekly estimates, and milestones."
+    },
+    "step4": {
+      "title": "4. 90-Day Execution Roadmap",
+      "desc": "Follow a weekly milestone-driven execution plan, generate ATS-optimized CVs, and apply directly to verified local and remote jobs."
+    }
+  },
+  "sectors": {
+    "badge": "High-Growth Sectors",
+    "title": "Explore Africa's Booming Industries",
+    "subtitle": "Discover market demand, average salaries, and key employers in high-opportunity African economic sectors.",
+    "viewRoles": "View High-Demand Roles",
+    "rolesCount": "Mapped roles"
+  },
+  "regional": {
+    "badge": "Regional Ecosystems",
+    "title": "Pan-African & Local Job Hubs",
+    "subtitle": "Compare salaries, key tech & industrial hubs, and top employers from Banjul and Dakar to Lagos, Nairobi, and Kigali.",
+    "viewMarket": "Explore Market",
+    "selectedCountry": "Current Selected Market: {{country}}"
+  },
+  "cta": {
+    "title": "Ready to discover your career path in Africa?",
+    "subtitle": "Join thousands of African students, graduates, and professionals building their futures with AfriPath AI.",
+    "button": "Take Free Career Assessment"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "title": "Verified African Opportunities",
+  "subtitle": "Curated jobs, internships, scholarships, and training programs across Africa.",
+  "searchPlaceholder": "Search by role, skill (e.g. React, SQL), company, or city...",
+  "filterType": "Opportunity Type",
+  "filterSector": "Economic Sector",
+  "filterWorkplace": "Workplace Mode",
+  "deadline": "Application Deadline",
+  "applyNow": "Apply on Employer Site",
+  "verifiedBadge": "Verified by AfriPath",
+  "salary": "Stipend / Salary",
+  "skillsRequired": "Required Skills",
+  "noResults": "No opportunities found matching your filters. Try adjusting your search query."
+}

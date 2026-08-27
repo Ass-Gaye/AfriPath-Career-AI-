@@ -1,0 +1,22 @@
+{
+  "brand": "AfriPath AI",
+  "tagline": "Your Career. Your Skills. Your Future.",
+  "home": "Home",
+  "assessment": "Career Assessment",
+  "dashboard": "Dashboard",
+  "matches": "Career Matches",
+  "skillGap": "Skill Gap Analysis",
+  "roadmap": "90-Day Roadmap",
+  "regionalMap": "Africa Job Hubs",
+  "advisor": "AI Career Advisor",
+  "cvBuilder": "AI CV Builder",
+  "opportunities": "Opportunities",
+  "adminTranslations": "Translation Manager",
+  "settings": "Settings & Preferences",
+  "login": "Sign In",
+  "signup": "Get Started",
+  "logout": "Log Out",
+  "welcomeUser": "Hello, {{name}}",
+  "marketSwitch": "Switch Market Context",
+  "viewProfile": "View Profile"
+}

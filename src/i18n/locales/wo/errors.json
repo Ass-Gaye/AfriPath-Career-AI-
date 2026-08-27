@@ -1,0 +1,10 @@
+{
+  "fetchFailed": "Mënul a jëli xibaar yi. Seetal sa internet.",
+  "requiredField": "Bii cër am na solo.",
+  "invalidEmail": "Dugalal kàllaama email bu baax.",
+  "passwordTooShort": "Baatu-jàll bi wara am 6 araf lumu néew néew.",
+  "passwordsMismatch": "Baatu-jàll yi yemul.",
+  "sessionExpired": "Sa waxtu jeex na. Duggatal.",
+  "generalError": "Am na njuumte. Jéematal.",
+  "missingTranslation": "Làkk bi manke na ci: {{key}} (Dellu ci Angale)"
+}

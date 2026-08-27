@@ -18,19 +18,27 @@ import {
   ShieldCheck,
   Eye,
   CheckCircle2,
+  Globe2,
+  Briefcase,
+  Layers,
 } from 'lucide-react';
 import {
   UserProfile,
   EducationLevel,
   CVData,
+  CareerPathwayType,
+  CareerGoalType,
+  CareerMaturityStage,
+  CareerSector,
 } from '../types/career';
 import {
   GAMBIAN_INSTITUTIONS,
   GAMBIAN_LOCATIONS,
   COMMON_TECHNICAL_SKILLS,
   COMMON_SOFT_SKILLS,
-  INDUSTRY_INTERESTS,
 } from '../data/gambiaData';
+import { AFRICAN_COUNTRIES, getCountryByName } from '../data/countriesData';
+import { CAREER_SECTORS } from '../data/careerTaxonomy';
 import { parseCVFile, fetchGeneratedCV, AuthUser } from '../services/api';
 
 interface OnboardingWizardProps {
@@ -114,7 +122,10 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     id: authUser?.id || `user-${Date.now()}`,
     name: authUser?.fullName || '',
     age: 22,
-    location: 'Kanifing / KMC',
+    country: 'The Gambia',
+    countryCode: 'GM',
+    location: 'Kanifing / KMC, The Gambia',
+    targetLocations: ['The Gambia', 'Remote (Global/Pan-African)'],
     educationLevel: 'Bachelor’s Degree',
     institution: 'University of The Gambia (UTG)',
     fieldOfStudy: '',
@@ -123,10 +134,21 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     softSkills: [],
     interests: [],
     careerGoal: '',
+    careerGoalType: 'Employment',
+    maturityStage: 'Student',
+    preferredPathway: 'University / Degree',
     targetIndustries: [],
     experienceYears: 'Less than 1 year',
     preferredWorkType: 'Flexible',
+    constraints: {
+      budgetLevel: 'Low / Free Only',
+      timeAvailableWeeklyHours: 20,
+      deviceAccess: 'Laptop / Desktop',
+      internetReliability: 'Moderate / 4G',
+    },
   });
+
+  const selectedCountryConfig = getCountryByName(formData.country || 'The Gambia');
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -154,22 +176,17 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     });
   };
 
-  const toggleInterest = (interest: string) => {
-    setFormData((prev) => {
-      const exists = prev.interests.includes(interest);
-      return {
+  const handleCountryChange = (countryName: string) => {
+    const matched = getCountryByName(countryName);
+    if (matched) {
+      setFormData((prev) => ({
         ...prev,
-        interests: exists
-          ? prev.interests.filter((i) => i !== interest)
-          : [...prev.interests, interest],
-      };
-    });
-  };
-
-  const handleAddCustomSkill = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (customTechInput.trim()) {
-      addSkillDirectly(customTechInput, 'tech');
+        country: matched.name,
+        countryCode: matched.code,
+        location: matched.name === 'The Gambia' ? 'Kanifing / KMC, The Gambia' : `${matched.name}`,
+        institution: matched.universitiesAndInstitutes[0] || prev.institution,
+        targetLocations: [matched.name, 'Remote (Global/Pan-African)'],
+      }));
     }
   };
 
@@ -205,7 +222,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   const handleGenerateInstantCV = async () => {
     setIsGeneratingCV(true);
     try {
-      const targetRole = formData.careerGoal || `${formData.fieldOfStudy || 'Tech'} Specialist`;
+      const targetRole = formData.careerGoal || `${formData.fieldOfStudy || 'Career'} Specialist`;
       const cv = await fetchGeneratedCV(formData, targetRole);
       setGeneratedCV(cv);
     } catch (err) {
@@ -222,10 +239,10 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
       if (!formData.name.trim()) newErrors.name = 'Full name is required';
       if (!formData.age) newErrors.age = 'Age is required';
     } else if (currentStep === 2) {
-      if (!formData.fieldOfStudy.trim()) newErrors.fieldOfStudy = 'Field of study is required';
+      if (!formData.fieldOfStudy.trim()) newErrors.fieldOfStudy = 'Field of study or specialty is required';
     } else if (currentStep === 3) {
       if (formData.currentSkills.length === 0) {
-        newErrors.skills = 'Select at least 1 technical skill';
+        newErrors.skills = 'Select or type at least 1 skill';
       }
     }
 
@@ -296,27 +313,36 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
       {/* Step Container Card */}
       <div className="p-6 sm:p-7 rounded-2xl bg-slate-900 border border-slate-800 shadow-sm">
-        {/* STEP 1: Personal Info */}
+        {/* STEP 1: Personal Info & Country Selection */}
         {step === 1 && (
           <div className="space-y-5">
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
               <div className="flex items-center gap-2.5">
                 <User className="w-5 h-5 text-emerald-400" />
                 <div>
-                  <h2 className="text-base font-bold text-white">Personal Information</h2>
-                  <p className="text-xs text-slate-400">Basic details to localize recommendations.</p>
+                  <h2 className="text-base font-bold text-white">Personal Information & Region</h2>
+                  <p className="text-xs text-slate-400">Localize career matching and market insights across Africa.</p>
                 </div>
               </div>
             </div>
 
-            {/* Quick CV Helper Banner */}
-            <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-3 text-xs">
-              <div className="flex items-center gap-2">
-                <FileCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span className="text-slate-300">
-                  Have a CV or want AI to build one? You can configure it in Step 4.
-                </span>
-              </div>
+            {/* Country Selector */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1 flex items-center gap-1.5">
+                <Globe2 className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Primary Country of Residence / Focus</span>
+              </label>
+              <select
+                value={formData.country || 'The Gambia'}
+                onChange={(e) => handleCountryChange(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                {AFRICAN_COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.name}>
+                    {c.flag} {c.name} ({c.region} Africa • {c.currencyCode})
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -349,80 +375,129 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
-                Location in The Gambia
-              </label>
-              <select
-                value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              >
-                {GAMBIAN_LOCATIONS.map((loc) => (
-                  <option key={loc} value={loc}>
-                    {loc}
-                  </option>
-                ))}
-              </select>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  Location / City
+                </label>
+                <input
+                  type="text"
+                  list="city-suggestions"
+                  placeholder="e.g. Kanifing, Dakar, Lagos, Accra..."
+                  value={formData.location}
+                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+                <datalist id="city-suggestions">
+                  {GAMBIAN_LOCATIONS.map((loc) => (
+                    <option key={loc} value={loc} />
+                  ))}
+                </datalist>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  Education Level
+                </label>
+                <select
+                  value={formData.educationLevel}
+                  onChange={(e) =>
+                    setFormData({ ...formData, educationLevel: e.target.value as EducationLevel })
+                  }
+                  className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                >
+                  <option value="Bachelor’s Degree">Bachelor’s Degree (University)</option>
+                  <option value="Diploma / TVET Certificate">Diploma / TVET / Technical Certificate</option>
+                  <option value="High School / WASSCE">High School / Secondary / WASSCE</option>
+                  <option value="Master’s Degree">Master’s / Postgraduate Degree</option>
+                  <option value="Self-Taught / Bootcamps">Self-Taught / Apprenticeship / Bootcamps</option>
+                </select>
+              </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
-                Education Level
-              </label>
-              <select
-                value={formData.educationLevel}
-                onChange={(e) =>
-                  setFormData({ ...formData, educationLevel: e.target.value as EducationLevel })
-                }
-                className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              >
-                <option value="Bachelor’s Degree">Bachelor’s Degree (University)</option>
-                <option value="Diploma / TVET Certificate">Diploma / TVET Certificate (GTTI/MDI)</option>
-                <option value="High School / WASSCE">High School / WASSCE Graduate</option>
-                <option value="Master’s Degree">Master’s Degree</option>
-                <option value="Self-Taught / Bootcamps">Self-Taught / Bootcamp / Online Learner</option>
-              </select>
+            {/* Career Stage & Goal Type */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-800">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  Current Career Stage
+                </label>
+                <select
+                  value={formData.maturityStage || 'Student'}
+                  onChange={(e) =>
+                    setFormData({ ...formData, maturityStage: e.target.value as CareerMaturityStage })
+                  }
+                  className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                >
+                  <option value="Student">Current Student / Undergraduate</option>
+                  <option value="JobSeeker">Job Seeker / Fresh Graduate</option>
+                  <option value="CareerSwitcher">Career Switcher / Pivoting</option>
+                  <option value="Upskilling">Mid-Career Upskilling</option>
+                  <option value="Entrepreneur">Aspiring Founder / Business Owner</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  Primary Goal
+                </label>
+                <select
+                  value={formData.careerGoalType || 'Employment'}
+                  onChange={(e) =>
+                    setFormData({ ...formData, careerGoalType: e.target.value as CareerGoalType })
+                  }
+                  className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                >
+                  <option value="Employment">Formal Employment / Corporate</option>
+                  <option value="Freelance">Remote Freelance & Contracts</option>
+                  <option value="Entrepreneurship">Starting a Business / Enterprise</option>
+                  <option value="Further Studies / Research">Postgraduate / Academic Research</option>
+                </select>
+              </div>
             </div>
           </div>
         )}
 
-        {/* STEP 2: Academic Background */}
+        {/* STEP 2: Education, Institutions & Sectors */}
         {step === 2 && (
           <div className="space-y-5">
             <div className="flex items-center gap-2.5 pb-3 border-b border-slate-800">
               <GraduationCap className="w-5 h-5 text-emerald-400" />
               <div>
-                <h2 className="text-base font-bold text-white">Education & Background</h2>
-                <p className="text-xs text-slate-400">Where you studied or obtained training.</p>
+                <h2 className="text-base font-bold text-white">Education & Sector Focus</h2>
+                <p className="text-xs text-slate-400">Specify your training, institution, and career sector interests.</p>
               </div>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1">
-                Institution Name
+                Institution or Training Center Name
               </label>
-              <select
+              <input
+                type="text"
+                list="inst-suggestions"
+                placeholder="e.g. University of The Gambia (UTG), GTTI, MDI, ALX Africa..."
                 value={formData.institution}
                 onChange={(e) => setFormData({ ...formData, institution: e.target.value })}
                 className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              >
-                {GAMBIAN_INSTITUTIONS.map((inst) => (
-                  <option key={inst} value={inst}>
-                    {inst}
-                  </option>
+              />
+              <datalist id="inst-suggestions">
+                {selectedCountryConfig?.universitiesAndInstitutes.map((inst) => (
+                  <option key={inst} value={inst} />
                 ))}
-              </select>
+                {GAMBIAN_INSTITUTIONS.map((inst) => (
+                  <option key={inst} value={inst} />
+                ))}
+              </datalist>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Field of Study / Major <span className="text-rose-400">*</span>
+                  Field of Study / Discipline <span className="text-rose-400">*</span>
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. BSc Computer Science"
+                  placeholder="e.g. Computer Science, Nursing, Accounting, Solar PV..."
                   value={formData.fieldOfStudy}
                   onChange={(e) => setFormData({ ...formData, fieldOfStudy: e.target.value })}
                   className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
@@ -434,113 +509,95 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Completion Year
+                  Preferred Pathway
                 </label>
-                <input
-                  type="text"
-                  placeholder="2025"
-                  value={formData.graduationYear}
-                  onChange={(e) => setFormData({ ...formData, graduationYear: e.target.value })}
+                <select
+                  value={formData.preferredPathway || 'University / Degree'}
+                  onChange={(e) =>
+                    setFormData({ ...formData, preferredPathway: e.target.value as CareerPathwayType })
+                  }
                   className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
+                >
+                  <option value="University / Degree">University / Academic Degree</option>
+                  <option value="TVET / Vocational">TVET / Vocational Diploma</option>
+                  <option value="Apprenticeship / Trade">Apprenticeship & Skilled Trade</option>
+                  <option value="Self-Taught & Portfolio">Self-Taught & Verified Portfolio</option>
+                  <option value="Bootcamp">Accelerated Bootcamp & Certification</option>
+                </select>
               </div>
             </div>
 
+            {/* Target Career Sectors */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
-                Project / Work Experience
+              <label className="block text-xs font-semibold text-slate-300 mb-2 flex items-center gap-1.5">
+                <Briefcase className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Target Career Sectors & Interests</span>
               </label>
-              <select
-                value={formData.experienceYears}
-                onChange={(e) => setFormData({ ...formData, experienceYears: e.target.value })}
-                className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              >
-                <option value="No formal experience (Fresh graduate)">No formal experience (Fresh graduate)</option>
-                <option value="1 year (Academic & Freelance web projects)">1 year (Academic & Freelance projects)</option>
-                <option value="1-2 years experience">1-2 years experience</option>
-                <option value="3+ years experience">3+ years experience</option>
-              </select>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {CAREER_SECTORS.map((sector) => {
+                  const isSelected = (formData.targetIndustries || []).includes(sector.name);
+                  return (
+                    <button
+                      key={sector.id}
+                      type="button"
+                      onClick={() => {
+                        setFormData((prev) => {
+                          const current = prev.targetIndustries || [];
+                          const updated = current.includes(sector.name)
+                            ? current.filter((s) => s !== sector.name)
+                            : [...current, sector.name];
+                          return { ...prev, targetIndustries: updated };
+                        });
+                      }}
+                      className={`p-2.5 rounded-xl text-left transition border text-xs flex flex-col justify-between ${
+                        isSelected
+                          ? 'bg-emerald-950/60 border-emerald-500 text-white shadow-sm ring-1 ring-emerald-500/30'
+                          : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-base">{sector.icon}</span>
+                        {isSelected && <Check className="w-3 h-3 text-emerald-400" />}
+                      </div>
+                      <span className="font-semibold text-[11px] leading-tight text-slate-200">
+                        {sector.name}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}
 
-        {/* STEP 3: Current Skills */}
+        {/* STEP 3: Current Skills (Live Typing + Preset Chips) */}
         {step === 3 && (
           <div className="space-y-5">
             <div className="flex items-center gap-2.5 pb-3 border-b border-slate-800">
               <Wrench className="w-5 h-5 text-emerald-400" />
               <div>
                 <h2 className="text-base font-bold text-white">Your Current Skills</h2>
-                <p className="text-xs text-slate-400">Select skills you currently possess or have practiced.</p>
+                <p className="text-xs text-slate-400">Type any skills live or tap presets to add them instantly.</p>
               </div>
             </div>
 
-            {/* Technical Skills */}
+            {/* LIVE TYPE-TO-ADD TECHNICAL SKILL INPUT */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="block text-xs font-semibold text-slate-300">
-                  Technical & Hard Skills <span className="text-rose-400">*</span>
+                  Technical, Domain & Professional Skills <span className="text-rose-400">*</span>
                 </label>
-                <span className="text-[11px] text-slate-400">
-                  {formData.currentSkills.length} selected
+                <span className="text-[11px] text-slate-400 font-medium">
+                  {formData.currentSkills.length} added
                 </span>
               </div>
 
-              {/* Quick Select Preset Pills */}
-              <div className="flex flex-wrap gap-1.5 mb-2.5">
-                {COMMON_TECHNICAL_SKILLS.map((skill) => {
-                  const selected = formData.currentSkills.includes(skill);
-                  return (
-                    <button
-                      key={skill}
-                      type="button"
-                      onClick={() => toggleTechnicalSkill(skill)}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition flex items-center gap-1 ${
-                        selected
-                          ? 'bg-emerald-600 text-white shadow-sm'
-                          : 'bg-slate-950 text-slate-300 border border-slate-800 hover:border-slate-700'
-                      }`}
-                    >
-                      {selected && <Check className="w-3 h-3" />}
-                      <span>{skill}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Active Selected Skills Chips (including live typed) */}
-              {formData.currentSkills.length > 0 && (
-                <div className="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800 mb-2.5">
-                  <div className="text-[10px] font-semibold uppercase text-slate-400 mb-1.5">
-                    Your Active Technical Skills (Click ✕ to remove):
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {formData.currentSkills.map((skill) => (
-                      <span
-                        key={skill}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-xs font-medium"
-                      >
-                        <span>{skill}</span>
-                        <button
-                          type="button"
-                          onClick={() => removeCustomSkill(skill, 'tech')}
-                          className="text-emerald-400 hover:text-white transition p-0.5"
-                          title="Remove skill"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Live Type-To-Add Input */}
-              <div className="flex gap-2">
+              {/* LIVE INPUT FIELD */}
+              <div className="flex gap-2 mb-3">
                 <div className="relative flex-1">
                   <input
                     type="text"
-                    placeholder="Type any skill and press Enter or comma (e.g. Patient Care, Farm Management, AutoCAD, Tailoring)..."
+                    placeholder="Type ANY skill (e.g. Python, Financial Analysis, Agronomy, Patient Triage, Solar Sizing)..."
                     value={customTechInput}
                     onChange={(e) => {
                       const val = e.target.value;
@@ -557,11 +614,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                         addSkillDirectly(customTechInput, 'tech');
                       }
                     }}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs sm:text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner"
                   />
                   {customTechInput.trim() && (
-                    <span className="absolute right-2.5 top-2 text-[10px] text-emerald-400 bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-800 animate-pulse">
-                      Press Enter to add
+                    <span className="absolute right-2.5 top-2.5 text-[10px] text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800 animate-pulse font-medium">
+                      Press Enter to add live
                     </span>
                   )}
                 </div>
@@ -569,27 +626,142 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                   type="button"
                   onClick={() => addSkillDirectly(customTechInput, 'tech')}
                   disabled={!customTechInput.trim()}
-                  className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:hover:bg-emerald-600 text-white text-xs font-semibold flex items-center gap-1 transition shadow-sm"
+                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:hover:bg-emerald-600 text-white text-xs font-semibold flex items-center gap-1.5 transition shadow-sm shrink-0"
                 >
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className="w-4 h-4" />
                   <span>Add</span>
                 </button>
+              </div>
+
+              {/* Active Selected Skills Chips */}
+              {formData.currentSkills.length > 0 ? (
+                <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 mb-3">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2 flex items-center justify-between">
+                    <span>Your Active Skills ({formData.currentSkills.length}):</span>
+                    <span className="text-slate-500">Tap ✕ to remove</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {formData.currentSkills.map((skill) => (
+                      <span
+                        key={skill}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-950/90 border border-emerald-500/50 text-emerald-300 text-xs font-medium shadow-sm animate-in fade-in"
+                      >
+                        <span>{skill}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeCustomSkill(skill, 'tech')}
+                          className="text-emerald-400 hover:text-white transition p-0.5 hover:bg-emerald-800/40 rounded"
+                          title="Remove skill"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="p-2.5 rounded-xl bg-slate-950/50 border border-dashed border-slate-800 mb-3 text-center text-xs text-slate-500">
+                  Type any skill above or click quick presets below to populate your skillset live.
+                </div>
+              )}
+
+              {/* Quick Select Preset Pills */}
+              <div className="space-y-1.5">
+                <div className="text-[11px] font-semibold text-slate-400">Quick Skill Suggestions:</div>
+                <div className="flex flex-wrap gap-1.5">
+                  {COMMON_TECHNICAL_SKILLS.map((skill) => {
+                    const selected = formData.currentSkills.includes(skill);
+                    return (
+                      <button
+                        key={skill}
+                        type="button"
+                        onClick={() => toggleTechnicalSkill(skill)}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-medium transition flex items-center gap-1 ${
+                          selected
+                            ? 'bg-emerald-600 text-white shadow-sm'
+                            : 'bg-slate-950 text-slate-300 border border-slate-800 hover:border-slate-700'
+                        }`}
+                      >
+                        {selected && <Check className="w-3 h-3" />}
+                        <span>{skill}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
               {errors.skills && <p className="text-xs text-rose-400 mt-1">{errors.skills}</p>}
             </div>
 
-            {/* Soft Skills */}
-            <div>
+            {/* Soft Skills Section */}
+            <div className="pt-3 border-t border-slate-800">
               <div className="flex items-center justify-between mb-1.5">
                 <label className="block text-xs font-semibold text-slate-300">
                   Soft Strengths & Competencies
                 </label>
                 <span className="text-[11px] text-slate-400">
-                  {formData.softSkills.length} selected
+                  {formData.softSkills.length} added
                 </span>
               </div>
 
-              <div className="flex flex-wrap gap-1.5 mb-2.5">
+              {/* Live Soft Skill Input */}
+              <div className="flex gap-2 mb-2.5">
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    placeholder="Type soft skill (e.g. Critical Thinking, Stakeholder Management, Public Speaking)..."
+                    value={customSoftInput}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val.includes(',')) {
+                        const parts = val.split(',');
+                        parts.forEach((p) => addSkillDirectly(p, 'soft'));
+                      } else {
+                        setCustomSoftInput(val);
+                      }
+                    }}
+                    onKeyDown={handleSoftInputKeyDown}
+                    onBlur={() => {
+                      if (customSoftInput.trim()) {
+                        addSkillDirectly(customSoftInput, 'soft');
+                      }
+                    }}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => addSkillDirectly(customSoftInput, 'soft')}
+                  disabled={!customSoftInput.trim()}
+                  className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white text-xs font-semibold flex items-center gap-1 transition shadow-sm"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add</span>
+                </button>
+              </div>
+
+              {/* Active Soft Skills Chips */}
+              {formData.softSkills.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mb-2.5">
+                  {formData.softSkills.map((skill) => (
+                    <span
+                      key={skill}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-950/80 border border-blue-500/40 text-blue-300 text-xs font-medium"
+                    >
+                      <span>{skill}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeCustomSkill(skill, 'soft')}
+                        className="text-blue-400 hover:text-white transition p-0.5"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Soft Skill Quick Presets */}
+              <div className="flex flex-wrap gap-1.5">
                 {COMMON_SOFT_SKILLS.map((skill) => {
                   const selected = formData.softSkills.includes(skill);
                   return (
@@ -609,74 +781,6 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                   );
                 })}
               </div>
-
-              {/* Active Soft Skills Chips */}
-              {formData.softSkills.length > 0 && (
-                <div className="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800 mb-2.5">
-                  <div className="text-[10px] font-semibold uppercase text-slate-400 mb-1.5">
-                    Your Active Soft Skills (Click ✕ to remove):
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {formData.softSkills.map((skill) => (
-                      <span
-                        key={skill}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-950/80 border border-blue-500/40 text-blue-300 text-xs font-medium"
-                      >
-                        <span>{skill}</span>
-                        <button
-                          type="button"
-                          onClick={() => removeCustomSkill(skill, 'soft')}
-                          className="text-blue-400 hover:text-white transition p-0.5"
-                          title="Remove skill"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Live Type-To-Add Soft Skill */}
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <input
-                    type="text"
-                    placeholder="Type soft skills and press Enter or comma (e.g. Critical Thinking, Public Speaking, Conflict Resolution)..."
-                    value={customSoftInput}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val.includes(',')) {
-                        const parts = val.split(',');
-                        parts.forEach((p) => addSkillDirectly(p, 'soft'));
-                      } else {
-                        setCustomSoftInput(val);
-                      }
-                    }}
-                    onKeyDown={handleSoftInputKeyDown}
-                    onBlur={() => {
-                      if (customSoftInput.trim()) {
-                        addSkillDirectly(customSoftInput, 'soft');
-                      }
-                    }}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-                  {customSoftInput.trim() && (
-                    <span className="absolute right-2.5 top-2 text-[10px] text-blue-400 bg-blue-950 px-1.5 py-0.5 rounded border border-blue-800 animate-pulse">
-                      Press Enter to add
-                    </span>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => addSkillDirectly(customSoftInput, 'soft')}
-                  disabled={!customSoftInput.trim()}
-                  className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:hover:bg-blue-600 text-white text-xs font-semibold flex items-center gap-1 transition shadow-sm"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Add</span>
-                </button>
-              </div>
             </div>
           </div>
         )}
@@ -692,6 +796,20 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                   Upload an existing CV or let our AI CV Builder generate an authentic one for you.
                 </p>
               </div>
+            </div>
+
+            {/* Target Goal Input */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">
+                Your Specific Career Ambition / Target Title
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. AI Engineer, Solar Microgrid Technician, Fintech Product Analyst, Clinical Nurse..."
+                value={formData.careerGoal}
+                onChange={(e) => setFormData({ ...formData, careerGoal: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
             </div>
 
             {/* DUAL CV OPTION CHOOSER */}
@@ -754,7 +872,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                     </span>
                   </div>
                   <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                    Don't have a CV? AI generates an authentic, ATS-optimized Gambian CV with 0 hallucinations.
+                    Don't have a CV? AI generates an authentic, ATS-optimized verified CV with 0 hallucinations.
                   </p>
                 </button>
               </div>
@@ -815,7 +933,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                       <span>AI CV Builder Auto-Synthesis</span>
                     </div>
                     <p className="text-[11px] text-slate-400">
-                      Creates a verified CV using your {formData.institution || 'University'} credentials & {formData.currentSkills.length || 0} selected skills.
+                      Creates a verified CV using your {formData.institution || 'University'} credentials & {formData.currentSkills.length || 0} skills.
                     </p>
                   </div>
 
@@ -848,83 +966,25 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                     </p>
                     <div className="flex flex-wrap gap-1 pt-1">
                       {generatedCV.skills.technical.slice(0, 5).map((sk, i) => (
-                        <span key={i} className="px-1.5 py-0.5 rounded bg-slate-950 text-slate-300 text-[10px]">
+                        <span key={i} className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px]">
                           {sk}
                         </span>
                       ))}
                     </div>
                   </div>
                 )}
-
-                {/* Anti-Hallucination Safe Notice & Option Toggle */}
-                <div className="pt-2 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px]">
-                  <div className="flex items-center gap-1.5 text-slate-400">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>100% Anti-Hallucination Safe (Zero fabricated companies or years)</span>
-                  </div>
-
-                  <label className="inline-flex items-center gap-2 text-slate-300 cursor-pointer font-medium">
-                    <input
-                      type="checkbox"
-                      checked={openCVBuilderAfter}
-                      onChange={(e) => setOpenCVBuilderAfter(e.target.checked)}
-                      className="rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-emerald-500"
-                    />
-                    <span>Open in AI CV Builder after setup</span>
-                  </label>
-                </div>
               </div>
             )}
-
-            {/* Industry Interests */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-2">
-                Preferred Industries in The Gambia
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {INDUSTRY_INTERESTS.map((interest) => {
-                  const selected = formData.interests.includes(interest);
-                  return (
-                    <button
-                      key={interest}
-                      type="button"
-                      onClick={() => toggleInterest(interest)}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition flex items-center gap-1 ${
-                        selected
-                          ? 'bg-emerald-600 text-white'
-                          : 'bg-slate-950 text-slate-300 border border-slate-800 hover:border-slate-700'
-                      }`}
-                    >
-                      {selected && <Check className="w-3 h-3" />}
-                      <span>{interest}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Career Goal */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
-                Your Primary Career Goal / Desired Role
-              </label>
-              <textarea
-                rows={2}
-                placeholder="e.g. Become a Full-Stack Software Developer or AI Specialist working on Gambian fintech platforms."
-                value={formData.careerGoal}
-                onChange={(e) => setFormData({ ...formData, careerGoal: e.target.value })}
-                className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              />
-            </div>
           </div>
         )}
 
-        {/* Footer Navigation */}
-        <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+        {/* Wizard Footer Controls */}
+        <div className="flex items-center justify-between pt-6 mt-6 border-t border-slate-800">
           {step > 1 ? (
             <button
+              type="button"
               onClick={handleBack}
-              className="inline-flex items-center gap-1 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition"
+              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition flex items-center gap-1.5"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back</span>
@@ -934,28 +994,15 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
           )}
 
           <button
+            type="button"
             onClick={handleNext}
-            className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-semibold transition shadow-sm"
+            className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-sm"
           >
-            {step === 4 ? (
-              <>
-                <Sparkles className="w-4 h-4 text-emerald-200" />
-                <span>
-                  {openCVBuilderAfter
-                    ? 'Save Profile & Launch AI CV Builder'
-                    : 'Generate Recommendations'}
-                </span>
-              </>
-            ) : (
-              <>
-                <span>Next</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </>
-            )}
+            <span>{step === 4 ? 'Complete Profile & Get Intelligence' : 'Continue'}</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
     </div>
   );
 };
-

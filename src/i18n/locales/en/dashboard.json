@@ -1,0 +1,23 @@
+{
+  "title": "AfriPath Career Dashboard",
+  "welcome": "Welcome back, {{name}}",
+  "overview": "Career Overview",
+  "activeTarget": "Active Target Career",
+  "readiness": "Readiness Score",
+  "progress": "90-Day Roadmap Progress",
+  "savedMatches": "Top Career Matches",
+  "resumeScore": "ATS CV Score",
+  "recentActivities": "Recent Actions & Milestones",
+  "actions": {
+    "retake": "Retake Assessment",
+    "switchTarget": "Change Active Target Career",
+    "viewRoadmap": "Resume 90-Day Plan",
+    "buildCV": "Edit ATS Resume",
+    "exploreJobs": "View Verified Openings"
+  },
+  "noProfile": {
+    "title": "No Career Profile Yet",
+    "desc": "Take the 3-minute assessment to unlock AI-powered career matches and customized learning plans.",
+    "cta": "Start Assessment Now"
+  }
+}

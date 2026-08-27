@@ -1,0 +1,12 @@
+{
+  "title": "Conseiller Carrière IA AfriPath",
+  "subtitle": "Orientation professionnelle 24/7 adaptée aux réalités de l'emploi en {{country}} et en Afrique.",
+  "inputPlaceholder": "Posez une question sur les métiers, salaires, compétences ou le marché africain...",
+  "send": "Envoyer",
+  "clearChat": "Effacer la conversation",
+  "voiceRead": "Écouter la réponse",
+  "stopVoice": "Arrêter la lecture",
+  "quickReplies": "Suggestions de questions :",
+  "initialGreeting": "Bonjour ! Je suis votre Conseiller Carrière IA AfriPath. Je vous accompagne avec des données concrètes sur les grilles salariales, les compétences recherchées et les opportunités d'embauche en {{country}} et en Afrique. Comment puis-je vous aider aujourd'hui ?",
+  "disclaimer": "AfriPath AI propose des conseils d'orientation et des estimations salariales. Veuillez toujours vérifier les exigences précises auprès des recruteurs."
+}

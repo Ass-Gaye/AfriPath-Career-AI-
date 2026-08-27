@@ -1,6 +1,7 @@
 /**
- * Gambia Career AI
- * National Career Intelligence Platform for The Gambia
+ * AfriPath AI
+ * Pan-African Career Intelligence Platform
+ * "Your Career. Your Skills. Your Future."
  */
 
 import React, { useState, useEffect } from 'react';
@@ -11,12 +12,13 @@ import { Dashboard } from './components/Dashboard';
 import { CareerReport } from './components/CareerReport';
 import { SkillGapView } from './components/SkillGapView';
 import { RoadmapView } from './components/RoadmapView';
-import { GambiaCareerMap } from './components/GambiaCareerMap';
+import { RegionalCareerMap } from './components/RegionalCareerMap';
 import { MentorChat } from './components/MentorChat';
 import { ReportModal } from './components/ReportModal';
 import { AICVBuilder } from './components/AICVBuilder';
 import { AuthModal, AuthMode } from './components/AuthModal';
 import { SettingsModal, SettingsTab } from './components/SettingsModal';
+import { TranslationAdminModal } from './components/TranslationAdminModal';
 import {
   UserProfile,
   CareerMatch,
@@ -46,7 +48,7 @@ import {
   AuthUser,
   CompleteUserData,
 } from './services/api';
-import { AlertCircle, CheckCircle2, Sparkles, X } from 'lucide-react';
+import { CheckCircle2, Sparkles, X } from 'lucide-react';
 
 export default function App() {
   // Navigation & Core App State
@@ -60,6 +62,7 @@ export default function App() {
   const [completedTaskIds, setCompletedTaskIds] = useState<string[]>(['w1-t1', 'w1-t2', 'w1-t3', 'w2-t1']);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isDemoUser, setIsDemoUser] = useState<boolean>(false);
+  const [mentorInitialQuery, setMentorInitialQuery] = useState<string | null>(null);
 
   // Authentication State
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -72,6 +75,7 @@ export default function App() {
 
   // Modals & Banners
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
+  const [isTranslationAdminOpen, setIsTranslationAdminOpen] = useState<boolean>(false);
   const [systemBanner, setSystemBanner] = useState<{ type: 'success' | 'info'; message: string } | null>(null);
 
   // Check persistent session on initial mount
@@ -126,7 +130,7 @@ export default function App() {
       setActiveTab('dashboard');
       setSystemBanner({
         type: 'success',
-        message: `Welcome back, ${user.fullName}! Your saved career profile and roadmaps are ready.`,
+        message: `Welcome back, ${user.fullName}! Your AfriPath career profile and roadmaps are ready.`,
       });
     } else {
       // New user registration -> proceed to Career Profile Setup
@@ -139,7 +143,7 @@ export default function App() {
       setActiveTab('assessment');
       setSystemBanner({
         type: 'success',
-        message: `Account created for ${user.fullName}. Let's set up your Gambian career profile.`,
+        message: `Account created for ${user.fullName}. Let's set up your personalized career journey.`,
       });
     }
 
@@ -180,18 +184,6 @@ export default function App() {
     setCompletedTaskIds(['w1-t1', 'w1-t2', 'w1-t3', 'w2-t1']);
     setIsLoading(false);
     setActiveTab('dashboard');
-  };
-
-  // Reset current session demo
-  const handleResetDemoUser = () => {
-    setUserProfile(null);
-    setCareerMatches([]);
-    setSkillGap(null);
-    setRoadmap(null);
-    setCvData(null);
-    setIsDemoUser(false);
-    setCompletedTaskIds([]);
-    setActiveTab('landing');
   };
 
   // Process Onboarding Submission
@@ -319,7 +311,7 @@ export default function App() {
     // Redirect to Career Profile Setup
     setActiveTab('assessment');
 
-    // Show prompt's exact requirement notification
+    // Show confirmation notification
     setSystemBanner({
       type: 'success',
       message: "Your career profile has been successfully reset. Let's create your new career journey.",
@@ -340,6 +332,12 @@ export default function App() {
   const handleOpenSettings = (tab: SettingsTab = 'profile') => {
     setSettingsModalTab(tab);
     setSettingsModalOpen(true);
+  };
+
+  // Open Mentor with Query helper
+  const handleOpenMentorWithQuery = (query: string) => {
+    setMentorInitialQuery(query);
+    setActiveTab('mentor');
   };
 
   return (
@@ -381,6 +379,7 @@ export default function App() {
         onLogout={handleLogout}
         onLoadDemoUser={handleLoadDemoUser}
         isDemoUser={isDemoUser}
+        onOpenTranslationAdmin={() => setIsTranslationAdminOpen(true)}
       />
 
       {/* Main View Router */}
@@ -397,6 +396,7 @@ export default function App() {
             onLoadDemoUser={handleLoadDemoUser}
             onExploreJobs={() => setActiveTab('gambia-map')}
             onOpenAuth={handleOpenAuth}
+            onOpenMentorWithQuery={handleOpenMentorWithQuery}
           />
         )}
 
@@ -477,8 +477,9 @@ export default function App() {
         )}
 
         {activeTab === 'gambia-map' && (
-          <GambiaCareerMap
+          <RegionalCareerMap
             userProfile={userProfile}
+            countryCode={userProfile?.countryCode || 'GM'}
             onGenerateCVForJob={(jobTitle) => {
               setTargetCareer(jobTitle);
               setActiveTab('cv-builder');
@@ -487,7 +488,11 @@ export default function App() {
         )}
 
         {activeTab === 'mentor' && (
-          <MentorChat userProfile={userProfile} targetCareer={targetCareer} />
+          <MentorChat
+            userProfile={userProfile}
+            targetCareer={targetCareer}
+            initialQuery={mentorInitialQuery}
+          />
         )}
       </main>
 
@@ -521,6 +526,12 @@ export default function App() {
         profile={userProfile}
         onProfileUpdated={handleProfileUpdated}
         onResetComplete={handleResetComplete}
+      />
+
+      {/* Translation Admin Studio Modal */}
+      <TranslationAdminModal
+        isOpen={isTranslationAdminOpen}
+        onClose={() => setIsTranslationAdminOpen(false)}
       />
     </div>
   );

@@ -1,0 +1,23 @@
+{
+  "title": "Analyse des écarts de compétences",
+  "subtitle": "Objectif ciblé : {{targetCareer}} en {{country}}",
+  "readinessScore": "Niveau de préparation global",
+  "ownedSkills": "Compétences déjà maîtrisées",
+  "skillsToAcquire": "Compétences à acquérir pour combler l'écart",
+  "estimatedTime": "Temps total estimé",
+  "priority": {
+    "Critical": "Priorité critique",
+    "High": "Priorité haute",
+    "Medium": "Priorité moyenne"
+  },
+  "category": {
+    "Technical": "Compétence technique",
+    "Soft": "Compétence humaine / relationnelle",
+    "Tool": "Outil / Framework",
+    "Domain": "Domaine métier",
+    "Vocational": "Pratique / Professionnelle"
+  },
+  "recommendedResources": "Ressources gratuites et certifiées sélectionnées",
+  "africanProvider": "Fournisseur africain",
+  "proceedToRoadmap": "Générer la feuille de route d'action sur 90 jours"
+}

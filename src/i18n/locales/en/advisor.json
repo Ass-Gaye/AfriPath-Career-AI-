@@ -1,0 +1,12 @@
+{
+  "title": "AfriPath AI Career Mentor",
+  "subtitle": "24/7 AI-powered career counseling customized for {{country}} and African job markets.",
+  "inputPlaceholder": "Ask anything about careers, salaries, skills, or job search in Africa...",
+  "send": "Send",
+  "clearChat": "Clear Conversation",
+  "voiceRead": "Listen to Voice",
+  "stopVoice": "Stop Voice",
+  "quickReplies": "Suggested Inquiries:",
+  "initialGreeting": "Hello! I am your AfriPath AI Career Mentor. I provide grounded guidance on salaries, skill roadmaps, and local hiring trends across {{country}} and Africa. What would you like to explore today?",
+  "disclaimer": "AfriPath AI offers career guidance and salary benchmarks. Always verify specific job openings directly with employers."
+}
