@@ -551,3 +551,119 @@ export async function fetchOpportunities(
     return REAL_GAMBIA_JOB_LISTINGS;
   }
 }
+
+// ==========================================
+// REAL-TIME SKILL GAP PIPELINE CLIENT CALLS
+// ==========================================
+
+export async function fetchDetailedSkillGaps(
+  profile: UserProfile,
+  targetCareer: string,
+  customEvidence?: any[],
+  assessments?: Record<string, number>
+): Promise<any> {
+  const response = await fetch('/api/skill-gap', {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ profile, targetCareer, customEvidence, assessments }),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to fetch skill gap analysis: ${response.statusText}`);
+  }
+  const data = await response.json();
+  return data;
+}
+
+export async function submitSkillEvidence(
+  skillName: string,
+  sourceType: string,
+  description: string,
+  verifiedScore?: number
+): Promise<any> {
+  const response = await fetch('/api/skill-evidence', {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ skillName, sourceType, description, verifiedScore }),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to record skill evidence');
+  }
+  return response.json();
+}
+
+export async function submitSkillAssessment(
+  skillName: string,
+  score: number,
+  details?: any
+): Promise<any> {
+  const response = await fetch('/api/skill-assessment', {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ skillName, score, details }),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to record assessment score');
+  }
+  return response.json();
+}
+
+// ==========================================
+// INSTANT CV GENERATION & VALIDATION CLIENT CALLS
+// ==========================================
+
+export async function generateInstantCV(
+  profile: UserProfile,
+  targetCareer: string,
+  targetCompany?: string,
+  additionalInfo?: string
+): Promise<CVData> {
+  const response = await fetch('/api/cv/generate', {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ profile, targetCareer, targetCompany, additionalInfo }),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to generate CV: ${response.statusText}`);
+  }
+  const data = await response.json();
+  return data.cv;
+}
+
+export async function validateCVDocument(cvData: CVData, profile?: UserProfile): Promise<any> {
+  const response = await fetch(`/api/cv/${cvData.id || 'current'}/validate`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ cvData, profile }),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to validate CV document');
+  }
+  const data = await response.json();
+  return data.validation;
+}
+
+export async function polishCVWording(cvData: CVData): Promise<CVData> {
+  const response = await fetch(`/api/cv/${cvData.id || 'current'}/regenerate-wording`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ cvData }),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to polish CV wording');
+  }
+  const data = await response.json();
+  return data.cv;
+}
+
+export async function confirmUserCV(cvData: CVData): Promise<any> {
+  const response = await fetch(`/api/cv/${cvData.id || 'current'}/confirm`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ cvData }),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to confirm CV');
+  }
+  return response.json();
+}
+

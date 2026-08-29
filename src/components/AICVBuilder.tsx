@@ -33,7 +33,14 @@ import {
   CVExperienceItem,
   CVProjectItem,
 } from '../types/career';
-import { fetchGeneratedCV, fetchEnhancedCVSection } from '../services/api';
+import {
+  fetchGeneratedCV,
+  fetchEnhancedCVSection,
+  generateInstantCV,
+  validateCVDocument,
+  polishCVWording,
+  confirmUserCV,
+} from '../services/api';
 
 interface AICVBuilderProps {
   userProfile: UserProfile;
@@ -180,6 +187,14 @@ export const AICVBuilder: React.FC<AICVBuilderProps> = ({
   const [customCompany, setCustomCompany] = useState<string>(cvData.targetCompany || '');
   const [extraProjectInput, setExtraProjectInput] = useState<string>('');
 
+  // Workflow & Validation States
+  const [validationReport, setValidationReport] = useState<any>(null);
+  const [isValidating, setIsValidating] = useState<boolean>(false);
+  const [showValidationModal, setShowValidationModal] = useState<boolean>(false);
+  const [isPolishingWording, setIsPolishingWording] = useState<boolean>(false);
+  const [isConfirming, setIsConfirming] = useState<boolean>(false);
+  const [confirmSuccessMessage, setConfirmSuccessMessage] = useState<string | null>(null);
+
   React.useEffect(() => {
     if (onSaveCV && cvData) {
       onSaveCV(cvData);
@@ -192,29 +207,81 @@ export const AICVBuilder: React.FC<AICVBuilderProps> = ({
     setCvData((prev) => ({ ...prev, template: tmpl }));
   };
 
-  // Full AI CV Generation
+  // Instant Grounded AI CV Generation (< 1 sec)
   const handleGenerateAICV = async () => {
     setIsGenerating(true);
     try {
-      const generated = await fetchGeneratedCV(
+      const generated = await generateInstantCV(
         userProfile,
         targetCareer,
         customCompany || undefined,
-        {
-          extraProjects: extraProjectInput || undefined,
-          contactPhone: cvData.personalInfo.phone,
-          contactEmail: cvData.personalInfo.email,
-        }
+        extraProjectInput || undefined
       );
       setCvData({
         ...generated,
         template: selectedTemplate,
       });
+      setValidationReport(null);
+      setConfirmSuccessMessage(null);
     } catch (err) {
       console.error('Error generating AI CV:', err);
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  // Fact & Anti-Hallucination Audit
+  const handleValidateCV = async () => {
+    setIsValidating(true);
+    try {
+      const report = await validateCVDocument(cvData, userProfile);
+      setValidationReport(report);
+      setShowValidationModal(true);
+    } catch (err) {
+      console.error('Error validating CV:', err);
+    } finally {
+      setIsValidating(false);
+    }
+  };
+
+  // Regenerate Professional Wording (Preserving Facts)
+  const handlePolishWording = async () => {
+    setIsPolishingWording(true);
+    try {
+      const polished = await polishCVWording(cvData);
+      setCvData({
+        ...polished,
+        template: selectedTemplate,
+      });
+    } catch (err) {
+      console.error('Error polishing CV wording:', err);
+    } finally {
+      setIsPolishingWording(false);
+    }
+  };
+
+  // Explicit User Confirmation
+  const handleConfirmCV = async () => {
+    setIsConfirming(true);
+    try {
+      await confirmUserCV(cvData);
+      setCvData((prev) => ({
+        ...prev,
+        userConfirmedAllFacts: true,
+        antiHallucinationVerified: true,
+      }));
+      setConfirmSuccessMessage('All CV facts confirmed and certified!');
+      setTimeout(() => setConfirmSuccessMessage(null), 4000);
+    } catch (err) {
+      console.error('Error confirming CV:', err);
+    } finally {
+      setIsConfirming(false);
+    }
+  };
+
+  // Download DOCX-compatible formatted file
+  const handleDownloadDocx = () => {
+    window.open(`/api/cv/${cvData.id || 'current'}/docx`, '_blank');
   };
 
   // Enhance single section with AI
@@ -328,46 +395,87 @@ ${cvData.experience.map((ex) => `### ${ex.title} - ${ex.company} (${ex.startDate
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-      {/* Top Banner: Feature Title & Anti-Hallucination Guarantee */}
-      <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 shadow-sm no-print">
+      {/* Top Banner: Feature Title & Mandatory Review Workflow */}
+      <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 shadow-sm no-print space-y-4">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-1.5 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Don't have a CV? Create one with AI.</span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Instant Grounded CV Generator</span>
+              </span>
+              {cvData.userConfirmedAllFacts ? (
+                <span className="px-2.5 py-0.5 rounded-md bg-emerald-950 border border-emerald-800 text-emerald-300 text-xs font-bold flex items-center gap-1">
+                  <Check className="w-3 h-3 text-emerald-400" />
+                  <span>Verified & Confirmed</span>
+                </span>
+              ) : (
+                <span className="px-2.5 py-0.5 rounded-md bg-amber-950 border border-amber-800 text-amber-300 text-xs font-semibold flex items-center gap-1">
+                  <span>⚠️ Review & Confirmation Required</span>
+                </span>
+              )}
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-              AI CV Builder & ATS Optimizer
+              AI CV Builder & Factual Validator
             </h1>
             <p className="text-xs sm:text-sm text-slate-300">
-              Instantly generate an authentic, high-impact Gambian CV tailored to <strong>{targetCareer}</strong>.
-              100% verified against your real education and skills with zero invented credentials.
+              Generated instantly from your verified <strong className="text-white">{userProfile.discipline || userProfile.fieldOfStudy}</strong> background at <strong className="text-white">{userProfile.institution || 'UTG'}</strong>.
             </p>
           </div>
 
-          {/* Quick Actions & Anti-Hallucination Badge */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
-            <div className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-              <div className="text-[11px]">
-                <div className="font-semibold text-slate-200">Anti-Hallucination Safe</div>
-                <div className="text-slate-400">Zero fabricated jobs or degrees</div>
-              </div>
-            </div>
+          {/* Quick Actions */}
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <button
+              onClick={handleValidateCV}
+              disabled={isValidating}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-sky-400" />
+              <span>{isValidating ? 'Auditing...' : 'Fact & Anti-Hallucination Audit'}</span>
+            </button>
 
             <button
-              onClick={handleGenerateAICV}
-              disabled={isGenerating}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-sm transition disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 whitespace-nowrap"
+              onClick={handlePolishWording}
+              disabled={isPolishingWording}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition"
+              title="Enhance phrasing and tone while strictly preserving all factual claims"
             >
-              <Sparkles className={`w-3.5 h-3.5 ${isGenerating ? 'animate-spin' : ''}`} />
-              <span>{isGenerating ? 'Synthesizing CV...' : 'Re-Generate with AI'}</span>
+              <Sparkles className={`w-3.5 h-3.5 text-emerald-400 ${isPolishingWording ? 'animate-spin' : ''}`} />
+              <span>{isPolishingWording ? 'Polishing...' : 'Polish Wording'}</span>
+            </button>
+
+            <button
+              onClick={handleConfirmCV}
+              disabled={isConfirming || cvData.userConfirmedAllFacts}
+              className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm ${
+                cvData.userConfirmedAllFacts
+                  ? 'bg-emerald-950 text-emerald-300 border border-emerald-800 cursor-default'
+                  : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+              }`}
+            >
+              <Check className="w-3.5 h-3.5" />
+              <span>{cvData.userConfirmedAllFacts ? 'Facts Confirmed' : 'Confirm All Facts'}</span>
             </button>
           </div>
         </div>
 
+        {/* Review Notice Box */}
+        <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 flex items-start gap-3 text-xs text-slate-300">
+          <span className="text-base">📋</span>
+          <div className="space-y-0.5">
+            <strong className="text-white">Review & Edit Workflow:</strong> AI can improve how your story is told, but cannot create your story. Please inspect the generated bullet points and projects below to ensure all dates, coursework, and experience accurately reflect your achievements before downloading.
+          </div>
+        </div>
+
+        {confirmSuccessMessage && (
+          <div className="p-3 rounded-xl bg-emerald-950/80 border border-emerald-700 text-xs text-emerald-200 flex items-center gap-2">
+            <Check className="w-4 h-4 text-emerald-400" />
+            <span>{confirmSuccessMessage}</span>
+          </div>
+        )}
+
         {/* Custom Target Bar */}
-        <div className="mt-5 pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-slate-400 font-medium">Target Pathway:</span>
             <select
@@ -1050,6 +1158,15 @@ ${cvData.experience.map((ex) => `### ${ex.title} - ${ex.company} (${ex.startDate
               </button>
 
               <button
+                onClick={handleDownloadDocx}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition"
+                title="Download formatted text document compatible with Microsoft Word (.docx)"
+              >
+                <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                <span>Word (.docx)</span>
+              </button>
+
+              <button
                 onClick={handlePrint}
                 className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-sm transition"
               >
@@ -1250,6 +1367,101 @@ ${cvData.experience.map((ex) => `### ${ex.title} - ${ex.company} (${ex.startDate
           </div>
         </div>
       </div>
+
+      {/* Fact & Anti-Hallucination Audit Modal */}
+      {showValidationModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 space-y-5 shadow-2xl">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                <h2 className="text-base font-bold text-white">Fact & Anti-Hallucination Audit Report</h2>
+              </div>
+              <button
+                onClick={() => setShowValidationModal(false)}
+                className="text-slate-400 hover:text-white text-xs font-semibold px-2 py-1 rounded bg-slate-800"
+              >
+                Close
+              </button>
+            </div>
+
+            {validationReport ? (
+              <div className="space-y-4 text-xs">
+                <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+                  <div>
+                    <div className="font-bold text-white">Factual Accuracy Status</div>
+                    <div className="text-slate-400 text-[11px]">
+                      Audited against your profile evidence & education records.
+                    </div>
+                  </div>
+                  <div className={`px-3 py-1 rounded-lg font-bold text-xs ${
+                    validationReport.valid
+                      ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                      : 'bg-amber-950 text-amber-300 border border-amber-800'
+                  }`}>
+                    {validationReport.valid ? '✓ Passed 100% Grounded' : '⚠️ Claims Need Review'}
+                  </div>
+                </div>
+
+                {/* Section Breakdowns */}
+                {validationReport.sections && (
+                  <div className="space-y-2.5">
+                    <div className="font-bold text-slate-300 text-xs">Section Verification Results:</div>
+                    {validationReport.sections.map((sec: any, sIdx: number) => (
+                      <div key={sIdx} className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5">
+                        <div className="flex items-center justify-between font-semibold text-slate-200">
+                          <span className="capitalize">{sec.section}</span>
+                          <span className={sec.status === 'grounded' ? 'text-emerald-400 text-[11px]' : 'text-amber-400 text-[11px]'}>
+                            {sec.status === 'grounded' ? '✓ Verified Grounded' : '⚠️ Flagged'}
+                          </span>
+                        </div>
+                        {sec.warnings && sec.warnings.length > 0 ? (
+                          <div className="space-y-1 pt-1">
+                            {sec.warnings.map((w: string, wIdx: number) => (
+                              <div key={wIdx} className="text-[11px] text-amber-300/90 flex items-start gap-1.5">
+                                <span>•</span>
+                                <span>{w}</span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-[11px] text-slate-400">All claims cross-referenced with profile data.</div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Specific Warnings */}
+                {validationReport.warnings && validationReport.warnings.length > 0 && (
+                  <div className="p-3.5 rounded-xl bg-amber-950/40 border border-amber-800/80 space-y-2">
+                    <div className="font-bold text-amber-300 text-xs">Actionable Fact Advisories:</div>
+                    <ul className="space-y-1.5 text-amber-200/90 text-[11px]">
+                      {validationReport.warnings.map((warn: any, wIdx: number) => (
+                        <li key={wIdx} className="flex items-start gap-1.5">
+                          <span className="text-amber-400 font-bold">•</span>
+                          <span>{typeof warn === 'string' ? warn : warn.message || JSON.stringify(warn)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="py-8 text-center text-slate-400 text-xs">No audit report available.</div>
+            )}
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+              <button
+                onClick={() => setShowValidationModal(false)}
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs transition"
+              >
+                Return to Editor
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

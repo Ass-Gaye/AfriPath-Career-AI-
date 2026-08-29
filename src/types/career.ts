@@ -193,6 +193,68 @@ export interface CareerMatch {
   actionPlanNextSteps?: string[];
 }
 
+export type GapClassification =
+  | 'NO_GAP'
+  | 'MINOR_GAP'
+  | 'MODERATE_GAP'
+  | 'SIGNIFICANT_GAP'
+  | 'INSUFFICIENT_EVIDENCE'
+  | 'TRANSFERABLE_FOUNDATION';
+
+export interface EvaluatedGapItem {
+  id: string;
+  competencyName: string;
+  importance: 'HIGH' | 'MEDIUM' | 'LOW';
+  category: 'Technical' | 'Soft' | 'Domain' | 'Tool' | 'Vocational';
+  requiredProficiency: number;
+  requiredProficiencyLabel: string;
+  currentProficiency: number;
+  currentProficiencyLabel: string;
+  userConfidence: 'HIGH' | 'MEDIUM' | 'LOW' | 'UNKNOWN';
+  classification: GapClassification;
+  displayStatusBadge: string;
+  reasonExplanation: string;
+  evidenceUsed: string[];
+  recommendedAction: string;
+  transferableFromSource?: string;
+  recommendedResources: {
+    title: string;
+    provider: string;
+    url: string;
+    isFree: boolean;
+    type: string;
+    africanProvider?: boolean;
+  }[];
+  assessmentAvailable?: boolean;
+  assessmentQuestions?: {
+    id: string;
+    question: string;
+    options: string[];
+    correctIndex: number;
+    explanation: string;
+  }[];
+}
+
+export interface DetailedSkillGapReport {
+  targetCareer: string;
+  pathway: string;
+  fieldOfStudy: string;
+  discipline: string;
+  readinessScore: number;
+  topPriorities: EvaluatedGapItem[];
+  meetsRequirements: EvaluatedGapItem[];
+  insufficientEvidenceItems: EvaluatedGapItem[];
+  additionalAreas: EvaluatedGapItem[];
+  skillRecommendations: {
+    skillName: string;
+    reason: string;
+    category: string;
+  }[];
+  executiveSummary: string;
+  totalCompetenciesEvaluated: number;
+  unmetPriorityCount: number;
+}
+
 export interface SkillGapItem {
   skill: string;
   category: 'Technical' | 'Soft' | 'Tool' | 'Domain' | 'Vocational';
@@ -217,6 +279,7 @@ export interface SkillGapAnalysis {
   overallReadinessScore: number;
   aiSummary: string;
   transferableStrengths?: string[];
+  detailedReport?: DetailedSkillGapReport;
 }
 
 export interface RoadmapWeek {

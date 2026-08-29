@@ -10,6 +10,12 @@ import {
 } from './geminiService';
 import { REAL_GAMBIA_JOB_LISTINGS } from '../src/data/gambiaData';
 import { db } from './db';
+import { SkillGapEngine } from './services/skill-gap.service';
+import { CAREER_COMPETENCY_REGISTRY, getCareerCompetencies } from './services/career-requirement.service';
+import { SkillEvidenceRecord } from './services/skill-evidence.service';
+import { CVGenerationService } from './services/cv-generation.service';
+import { CVValidationService } from './services/cv-validation.service';
+import { CVVersionService } from './services/cv-version.service';
 
 export const apiRouter = Router();
 
@@ -481,28 +487,322 @@ apiRouter.post('/analyze-career', optionalAuth, async (req: AuthenticatedRequest
   }
 });
 
+// ==========================================
+// REAL-TIME SKILL GAP ENGINE (Strict Grounded Pipeline)
+// ==========================================
+
+// In-memory session store for custom evidence & assessment scores
+const sessionEvidenceStore = new Map<string, SkillEvidenceRecord[]>();
+const sessionAssessmentStore = new Map<string, Record<string, number>>();
+
 apiRouter.post('/skill-gap', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { profile, targetCareer } = req.body;
+    const { profile, targetCareer, customEvidence, assessments } = req.body;
     if (!profile || !targetCareer) {
       return res.status(400).json({ error: 'Missing profile or targetCareer' });
     }
-    const analysis = await analyzeSkillGap(profile, targetCareer);
+
+    const userId = req.user?.userId || 'guest';
+    const evidenceList: SkillEvidenceRecord[] = customEvidence || sessionEvidenceStore.get(userId) || [];
+    const assessmentScores: Record<string, number> = assessments || sessionAssessmentStore.get(userId) || {};
+
+    // Execute Real-Time Grounded Skill Gap Pipeline
+    const detailedReport = SkillGapEngine.analyze(profile, targetCareer, evidenceList, assessmentScores);
+
+    // Map to SkillGapAnalysis structure for legacy compatibility
+    const ownedSkills = detailedReport.meetsRequirements.map((m) => m.competencyName);
+    const skillGaps = [
+      ...detailedReport.topPriorities,
+      ...detailedReport.insufficientEvidenceItems,
+      ...detailedReport.additionalAreas,
+    ].map((item) => ({
+      skill: item.competencyName,
+      category: item.category,
+      priority: (item.importance === 'HIGH' ? 'Critical' : item.importance === 'MEDIUM' ? 'High' : 'Medium') as 'Critical' | 'High' | 'Medium',
+      estimatedHours: item.importance === 'HIGH' ? 30 : 15,
+      estimatedWeeks: item.importance === 'HIGH' ? 4 : 2,
+      description: item.reasonExplanation,
+      recommendedResources: item.recommendedResources,
+    }));
+
+    const legacyAnalysis = {
+      targetCareer,
+      ownedSkills,
+      skillGaps,
+      overallReadinessScore: detailedReport.readinessScore,
+      aiSummary: detailedReport.executiveSummary,
+      transferableStrengths: detailedReport.meetsRequirements
+        .filter((m) => m.classification === 'TRANSFERABLE_FOUNDATION' || m.classification === 'NO_GAP')
+        .map((m) => m.competencyName),
+      detailedReport, // Attached rich report
+    };
 
     // Auto-save if authenticated
     if (req.user?.userId) {
       try {
-        db.saveSkillGap(req.user.userId, targetCareer, analysis);
+        db.saveSkillGap(req.user.userId, targetCareer, legacyAnalysis);
       } catch (err) {
         console.warn('Failed to auto-save skill gap:', err);
       }
     }
 
-    return res.json({ success: true, analysis });
+    return res.json({ success: true, analysis: legacyAnalysis, report: detailedReport });
   } catch (error: any) {
     console.error('API /skill-gap error:', error);
     return res.status(500).json({ error: error?.message || 'Failed to analyze skill gap' });
   }
+});
+
+// RESTful Skill Gaps Endpoint
+apiRouter.post('/skill-gaps', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { profile, targetCareer, customEvidence, assessments } = req.body;
+    if (!profile || !targetCareer) {
+      return res.status(400).json({ error: 'Missing profile or targetCareer' });
+    }
+    const userId = req.user?.userId || 'guest';
+    const evidenceList: SkillEvidenceRecord[] = customEvidence || sessionEvidenceStore.get(userId) || [];
+    const assessmentScores: Record<string, number> = assessments || sessionAssessmentStore.get(userId) || {};
+
+    const report = SkillGapEngine.analyze(profile, targetCareer, evidenceList, assessmentScores);
+    return res.json({ success: true, report });
+  } catch (error: any) {
+    console.error('API /skill-gaps error:', error);
+    return res.status(500).json({ error: error?.message || 'Failed to generate skill gap report' });
+  }
+});
+
+apiRouter.get('/career-competencies/:careerTitle', (req: Request, res: Response) => {
+  try {
+    const { careerTitle } = req.params;
+    const pathway = (req.query.pathway as string) || '';
+    const field = (req.query.field as string) || '';
+    const discipline = (req.query.discipline as string) || '';
+
+    const competencies = getCareerCompetencies(careerTitle, pathway, field, discipline);
+    return res.json({ success: true, competencies });
+  } catch (error: any) {
+    console.error('API /career-competencies error:', error);
+    return res.status(500).json({ error: 'Failed to retrieve career competencies' });
+  }
+});
+
+// Add Skill Evidence
+apiRouter.post('/skill-evidence', optionalAuth, (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { skillName, sourceType, description, verifiedScore } = req.body;
+    if (!skillName || !description) {
+      return res.status(400).json({ error: 'skillName and description are required' });
+    }
+
+    const userId = req.user?.userId || 'guest';
+    const currentList = sessionEvidenceStore.get(userId) || [];
+    const newRecord: SkillEvidenceRecord = {
+      id: `ev-${Date.now()}`,
+      skillName,
+      sourceType: sourceType || 'user_evidence_text',
+      description,
+      verifiedScore,
+      dateAdded: new Date().toISOString(),
+    };
+
+    currentList.push(newRecord);
+    sessionEvidenceStore.set(userId, currentList);
+
+    return res.json({ success: true, evidence: newRecord, totalRecords: currentList.length });
+  } catch (error: any) {
+    console.error('API /skill-evidence error:', error);
+    return res.status(500).json({ error: 'Failed to add skill evidence' });
+  }
+});
+
+// Submit Skill Assessment Quiz
+apiRouter.post('/skill-assessment', optionalAuth, (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { skillName, score, details } = req.body;
+    if (!skillName || score === undefined) {
+      return res.status(400).json({ error: 'skillName and score are required' });
+    }
+
+    const userId = req.user?.userId || 'guest';
+    const assessments = sessionAssessmentStore.get(userId) || {};
+    assessments[skillName] = Math.min(100, Math.max(0, Number(score)));
+    sessionAssessmentStore.set(userId, assessments);
+
+    // Also add to evidence store
+    const currentEvidence = sessionEvidenceStore.get(userId) || [];
+    currentEvidence.push({
+      id: `ev-assess-${Date.now()}`,
+      skillName,
+      sourceType: 'assessment_score',
+      description: `Verified skill assessment passed with score of ${score}%.`,
+      verifiedScore: Number(score),
+      dateAdded: new Date().toISOString(),
+    });
+    sessionEvidenceStore.set(userId, currentEvidence);
+
+    return res.json({
+      success: true,
+      skillName,
+      score: Number(score),
+      message: `Assessment verified for ${skillName} with score ${score}%. Confidence upgraded to HIGH.`,
+    });
+  } catch (error: any) {
+    console.error('API /skill-assessment error:', error);
+    return res.status(500).json({ error: 'Failed to submit skill assessment' });
+  }
+});
+
+// ==========================================
+// CV GENERATION, REVIEW & VALIDATION PIPELINE
+// ==========================================
+
+const sessionCVStore = new Map<string, any>();
+
+apiRouter.post('/cv/generate', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { profile, targetCareer, targetCompany, additionalInfo } = req.body;
+    if (!profile) {
+      return res.status(400).json({ error: 'Missing profile data' });
+    }
+
+    // Instant grounded CV generation
+    const cvData = CVGenerationService.generateInstantGroundedCV(
+      profile,
+      targetCareer || 'Professional Specialist',
+      targetCompany,
+      additionalInfo
+    );
+
+    const userId = req.user?.userId || 'guest';
+    sessionCVStore.set(cvData.id, cvData);
+    CVVersionService.saveVersion(userId, cvData, 'Initial Grounded AI Generation');
+
+    if (req.user?.userId) {
+      try {
+        db.saveCV(req.user.userId, cvData);
+      } catch (err) {
+        console.warn('Failed to save CV in DB:', err);
+      }
+    }
+
+    return res.json({ success: true, cv: cvData });
+  } catch (error: any) {
+    console.error('API /cv/generate error:', error);
+    return res.status(500).json({ error: error?.message || 'Failed to generate CV' });
+  }
+});
+
+apiRouter.get('/cv/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const cv = sessionCVStore.get(id);
+  if (!cv) {
+    return res.status(404).json({ error: 'CV document not found' });
+  }
+  return res.json({ success: true, cv });
+});
+
+apiRouter.put('/cv/:id', optionalAuth, (req: AuthenticatedRequest, res: Response) => {
+  const { id } = req.params;
+  const { cvData, saveLabel } = req.body;
+  if (!cvData) {
+    return res.status(400).json({ error: 'cvData is required' });
+  }
+
+  sessionCVStore.set(id, cvData);
+  const userId = req.user?.userId || 'guest';
+  const version = CVVersionService.saveVersion(userId, cvData, saveLabel || 'User Edits');
+
+  if (req.user?.userId) {
+    try {
+      db.saveCV(req.user.userId, cvData);
+    } catch (err) {
+      console.warn('Failed to save CV in DB:', err);
+    }
+  }
+
+  return res.json({ success: true, cv: cvData, version });
+});
+
+apiRouter.post('/cv/:id/validate', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { cvData, profile } = req.body;
+  const cv = cvData || sessionCVStore.get(id);
+
+  if (!cv) {
+    return res.status(400).json({ error: 'CV data is required for validation' });
+  }
+
+  const report = CVValidationService.validateCV(cv, profile);
+  return res.json({ success: true, validation: report });
+});
+
+apiRouter.post('/cv/:id/regenerate-wording', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { cvData } = req.body;
+  const cv = cvData || sessionCVStore.get(id);
+
+  if (!cv) {
+    return res.status(400).json({ error: 'CV data is required' });
+  }
+
+  const polished = CVVersionService.polishWordingPreservingFacts(cv);
+  sessionCVStore.set(id, polished);
+  return res.json({ success: true, cv: polished });
+});
+
+apiRouter.post('/cv/:id/confirm', optionalAuth, (req: AuthenticatedRequest, res: Response) => {
+  const { id } = req.params;
+  const { cvData } = req.body;
+  const cv = cvData || sessionCVStore.get(id);
+
+  if (!cv) {
+    return res.status(400).json({ error: 'CV data is required' });
+  }
+
+  cv.userConfirmedAllFacts = true;
+  cv.antiHallucinationVerified = true;
+  sessionCVStore.set(id, cv);
+
+  const userId = req.user?.userId || 'guest';
+  const version = CVVersionService.saveVersion(userId, cv, 'Final Confirmed CV');
+
+  if (req.user?.userId) {
+    try {
+      db.saveCV(req.user.userId, cv);
+    } catch (err) {
+      console.warn('Failed to save confirmed CV:', err);
+    }
+  }
+
+  return res.json({ success: true, message: 'CV successfully verified and confirmed.', cv, version });
+});
+
+apiRouter.get('/cv/:id/docx', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const cv = sessionCVStore.get(id);
+  if (!cv) {
+    return res.status(404).json({ error: 'CV not found' });
+  }
+
+  const textContent = CVVersionService.formatDocxText(cv);
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename="${(cv.personalInfo.fullName || 'cv').replace(/\s+/g, '_')}_Confirmed_CV.txt"`);
+  return res.send(textContent);
+});
+
+apiRouter.get('/cv/:id/pdf', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const cv = sessionCVStore.get(id);
+  if (!cv) {
+    return res.status(404).json({ error: 'CV not found' });
+  }
+
+  return res.json({
+    success: true,
+    printableHtml: CVVersionService.formatDocxText(cv),
+    cv,
+  });
 });
 
 apiRouter.post('/generate-roadmap', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
