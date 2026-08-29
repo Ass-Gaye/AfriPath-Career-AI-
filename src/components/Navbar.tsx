@@ -107,7 +107,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Zone 1: AfriPath AI Brand Logo */}
         <button
           onClick={() => setActiveTab((authUser || userProfile) ? 'dashboard' : 'landing')}
-          className="flex items-center text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-xl py-1 transition hover:opacity-90 shrink-0"
+          className="flex items-center text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-xl py-1 transition hover:opacity-90 shrink min-w-0"
         >
           <div className="sm:hidden">
             <AfriPathLogo size="sm" showTagline={false} />
@@ -169,7 +169,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <div className="w-5 h-5 rounded-full bg-emerald-500 text-slate-950 font-bold flex items-center justify-center text-[10px] shrink-0">
                   {displayName.charAt(0).toUpperCase()}
                 </div>
-                <span className="truncate max-w-[70px] sm:max-w-[110px]">{displayName}</span>
+                <span className="truncate max-w-[65px] sm:max-w-[110px]">{displayName}</span>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
               </button>
 
@@ -307,20 +307,20 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="flex items-center gap-1 sm:gap-2 shrink-0 flex-nowrap">
               <button
                 onClick={() => onOpenAuth('login')}
-                className="px-2 sm:px-3 py-1.5 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1 sm:gap-1.5 shrink-0 whitespace-nowrap"
+                className="px-1.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1 shrink-0 whitespace-nowrap"
               >
                 <LogIn className="w-3.5 h-3.5 shrink-0" />
-                <span className="hidden sm:inline">{t('navigation:login', 'Log In')}</span>
-                <span className="sm:hidden">Login</span>
+                <span className="hidden xs:inline sm:inline">{t('navigation:login', 'Log In')}</span>
+                <span className="xs:hidden sm:hidden">Login</span>
               </button>
 
               <button
                 onClick={() => onOpenAuth('signup')}
-                className="px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-semibold transition shadow-sm flex items-center gap-1 sm:gap-1.5 shrink-0 whitespace-nowrap"
+                className="px-2 sm:px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-[11px] sm:text-xs font-semibold transition shadow-sm flex items-center gap-1 shrink-0 whitespace-nowrap"
               >
                 <UserPlus className="w-3.5 h-3.5 shrink-0" />
-                <span className="hidden sm:inline">{t('navigation:signup', 'Sign Up')}</span>
-                <span className="sm:hidden">Join</span>
+                <span className="hidden xs:inline sm:inline">{t('navigation:signup', 'Sign Up')}</span>
+                <span className="xs:hidden sm:hidden">Join</span>
               </button>
             </div>
           )}

@@ -74,12 +74,100 @@ async function executeWithRetryAndFallback<T>(
 function generateDynamicCareerMatchesFallback(profile: UserProfile): CareerMatch[] {
   const skillsStr = (profile.currentSkills || []).join(' ').toLowerCase();
   const fieldStr = (profile.fieldOfStudy || '').toLowerCase();
+  const discStr = (profile.discipline || '').toLowerCase();
+  const pathwayStr = (profile.preferredPathway || '').toLowerCase();
   const goalStr = (profile.careerGoal || '').toLowerCase();
   const country = profile.country || 'The Gambia';
 
-  const isDataOrAI = skillsStr.includes('python') || skillsStr.includes('data') || skillsStr.includes('sql') || fieldStr.includes('data') || goalStr.includes('ai');
-  const isWebDev = skillsStr.includes('javascript') || skillsStr.includes('react') || skillsStr.includes('html') || fieldStr.includes('computer') || fieldStr.includes('it');
-  const isBusinessOrEcon = fieldStr.includes('econ') || fieldStr.includes('business') || fieldStr.includes('finance') || fieldStr.includes('account');
+  const isAgri = fieldStr.includes('agri') || fieldStr.includes('crop') || fieldStr.includes('soil') || discStr.includes('agri') || discStr.includes('horti');
+  const isHealth = fieldStr.includes('nurs') || fieldStr.includes('health') || fieldStr.includes('med') || discStr.includes('clinic') || discStr.includes('pharma');
+  const isEngineering = fieldStr.includes('engine') || fieldStr.includes('civil') || fieldStr.includes('electr') || fieldStr.includes('solar') || discStr.includes('solar') || discStr.includes('power');
+  const isBusinessOrEcon = fieldStr.includes('econ') || fieldStr.includes('business') || fieldStr.includes('finance') || fieldStr.includes('account') || discStr.includes('audit');
+  const isDataOrAI = skillsStr.includes('python') || skillsStr.includes('data') || skillsStr.includes('sql') || fieldStr.includes('data') || discStr.includes('ai') || discStr.includes('machine learning');
+  const isWebDev = skillsStr.includes('javascript') || skillsStr.includes('react') || skillsStr.includes('html') || fieldStr.includes('computer') || fieldStr.includes('it') || discStr.includes('software') || discStr.includes('web');
+
+  if (isAgri) {
+    return [
+      {
+        id: 'agritech-specialist',
+        title: 'Agribusiness & Precision Farming Specialist',
+        matchScore: 95,
+        industry: 'Agriculture, Agribusiness & Fisheries',
+        tagline: `Modernize crop yields, irrigation systems, and agro-value chains in ${country}.`,
+        reason: `Your training in ${profile.fieldOfStudy || 'Agriculture'} (${profile.discipline || 'Agronomy'}) matches regional agricultural modernization and export initiatives.`,
+        marketDemandGambia: 'Very High',
+        salaryRangeGMD: 'GMD 30,000 - 60,000 / month (Local)',
+        salaryRangeUSD: '$700 - $2,200 / month (Regional / NGO)',
+        matchingSkills: profile.currentSkills.length > 0 ? profile.currentSkills.slice(0, 4) : ['Soil Science', 'Crop Protection', 'Yield Optimization'],
+        missingSkills: ['Drip Irrigation Tech', 'GIS & Satellite Crop Mapping', 'Agri-Fintech Bookkeeping'],
+        gambianEmployers: ['Ministry of Agriculture', 'FAO Regional', 'NARI', 'Tropics Agribusiness', 'Horticulture Export Scaleups'],
+        growthPotential: 'High national priority with extensive development funding and export demand.',
+        difficultyToTransition: 'Low',
+        sampleJobTitles: ['Agronomist', 'Agribusiness Manager', 'Farm Operations Lead'],
+      },
+      {
+        id: 'agro-supply-chain',
+        title: 'Agri-Food Supply Chain & Cold Chain Lead',
+        matchScore: 88,
+        industry: 'Agriculture, Agribusiness & Fisheries',
+        tagline: `Streamline post-harvest logistics, storage, and food distribution across ${country}.`,
+        reason: 'Reduce post-harvest loss and coordinate distribution networks for local and regional markets.',
+        marketDemandGambia: 'High',
+        salaryRangeGMD: 'GMD 28,000 - 52,000 / month',
+        salaryRangeUSD: '$650 - $1,800 / month',
+        matchingSkills: ['Supply Chain Logistics', 'Quality Control', 'Farmer Outreach'],
+        missingSkills: ['Cold Storage Management', 'HACCP Safety Certification', 'Digital Inventory Systems'],
+        gambianEmployers: ['WFP', 'Agro-processing hubs', 'National Food Security Agency', 'Major Exporters'],
+        growthPotential: 'Strong continuous expansion as regional road links and trade corridors scale.',
+        difficultyToTransition: 'Low',
+        sampleJobTitles: ['Post-Harvest Logistics Officer', 'Quality Assurance Specialist', 'Cold Chain Coordinator'],
+      },
+    ];
+  }
+
+  if (isHealth) {
+    return [
+      {
+        id: 'clinical-nurse-specialist',
+        title: 'Clinical Care & Public Health Practitioner',
+        matchScore: 96,
+        industry: 'Healthcare & Life Sciences',
+        tagline: `Deliver quality diagnostic care, patient triage, and health program administration in ${country}.`,
+        reason: `Your education in ${profile.fieldOfStudy || 'Nursing / Medicine'} directly aligns with critical healthcare system requirements.`,
+        marketDemandGambia: 'Very High',
+        salaryRangeGMD: 'GMD 25,000 - 55,000 / month',
+        salaryRangeUSD: '$600 - $2,500 / month (NGO / International)',
+        matchingSkills: profile.currentSkills.length > 0 ? profile.currentSkills.slice(0, 4) : ['Patient Triage', 'Clinical Documentation', 'Infection Control'],
+        missingSkills: ['Electronic Medical Records (OpenMRS)', 'Public Health Data Surveillance', 'Emergency Triage Protocols'],
+        gambianEmployers: ['Edward Francis Small Teaching Hospital (EFSTH)', 'MRC Unit The Gambia', 'Afrimed Clinic', 'Ministry of Health', 'WHO Africa'],
+        growthPotential: 'Evergreen healthcare demand with opportunities for regional WHO/UN and NGO roles.',
+        difficultyToTransition: 'Low',
+        sampleJobTitles: ['Registered Nurse', 'Public Health Officer', 'Clinical Coordinator'],
+      },
+    ];
+  }
+
+  if (isEngineering) {
+    return [
+      {
+        id: 'solar-renewable-engineer',
+        title: 'Solar PV & Renewable Energy Systems Engineer',
+        matchScore: 94,
+        industry: 'Skilled Trades & Vocational',
+        tagline: `Design, install, and optimize mini-grids, commercial solar PV, and battery energy storage across ${country}.`,
+        reason: `Your engineering discipline in ${profile.discipline || profile.fieldOfStudy || 'Renewable Energy'} matches Africa's accelerated clean energy transition.`,
+        marketDemandGambia: 'Very High',
+        salaryRangeGMD: 'GMD 35,000 - 75,000 / month',
+        salaryRangeUSD: '$900 - $2,800 / month',
+        matchingSkills: profile.currentSkills.length > 0 ? profile.currentSkills.slice(0, 4) : ['Solar System Sizing', 'Electrical Schematics', 'Inverter Configuration'],
+        missingSkills: ['PVsyst Simulation Software', 'Grid-Tie Safety Protocols', 'Lithium Storage Management'],
+        gambianEmployers: ['NAWEC', 'Unique Energy', 'Gambia Solar Co.', 'West African Power Pool', 'Off-Grid Mini-Grid Developers'],
+        growthPotential: 'Massive solar investments by national utilities and international climate funds.',
+        difficultyToTransition: 'Low',
+        sampleJobTitles: ['Solar Project Engineer', 'Microgrid Specialist', 'Renewable Energy Analyst'],
+      },
+    ];
+  }
 
   if (isBusinessOrEcon) {
     return [
@@ -87,9 +175,9 @@ function generateDynamicCareerMatchesFallback(profile: UserProfile): CareerMatch
         id: 'fintech-analyst',
         title: 'Fintech & Digital Payments Analyst',
         matchScore: 94,
-        industry: 'Fintech & Financial Services',
+        industry: 'Business, Finance & Banking',
         tagline: `Lead financial modernization and digital payment ecosystems across ${country} and Africa.`,
-        reason: `Your background in ${profile.fieldOfStudy || 'finance'} at ${profile.institution || 'university'} paired with your analytical skills makes you ideal for fintech transformations.`,
+        reason: `Your background in ${profile.fieldOfStudy || 'finance'} (${profile.discipline || 'Accounting / Finance'}) paired with your analytical skills makes you ideal for fintech transformations.`,
         marketDemandGambia: 'Very High',
         salaryRangeGMD: 'GMD 35,000 - 65,000 / month (Local)',
         salaryRangeUSD: '$800 - $2,400 / month (Remote / Pan-African)',
@@ -104,7 +192,7 @@ function generateDynamicCareerMatchesFallback(profile: UserProfile): CareerMatch
         id: 'data-business-analyst',
         title: 'Business & Operations Intelligence Analyst',
         matchScore: 89,
-        industry: 'Telecom & Enterprise Tech',
+        industry: 'Business, Finance & Banking',
         tagline: `Transform commercial and telecom data into strategic executive decisions in ${country}.`,
         reason: `Leverage your ${profile.fieldOfStudy || 'business'} foundation to help leading African enterprises optimize their operations.`,
         marketDemandGambia: 'High',
@@ -121,7 +209,7 @@ function generateDynamicCareerMatchesFallback(profile: UserProfile): CareerMatch
         id: 'digital-product-manager',
         title: 'Associate Product Manager (Tech & Mobile)',
         matchScore: 85,
-        industry: 'Software & Digital Services',
+        industry: 'Technology & AI',
         tagline: 'Bridge business strategy, user experience, and developer delivery for African apps.',
         reason: 'Your blend of analytical thinking and ambition positions you to manage software lifecycles.',
         marketDemandGambia: 'Growing',
@@ -142,7 +230,7 @@ function generateDynamicCareerMatchesFallback(profile: UserProfile): CareerMatch
       id: 'fullstack-web-dev',
       title: 'Full-Stack Web & Mobile Developer',
       matchScore: isWebDev ? 96 : 91,
-      industry: 'Software & Information Technology',
+      industry: 'Technology & AI',
       tagline: `Build scalable modern web platforms, APIs, and mobile systems for ${country} and global startups.`,
       reason: `Your skills in ${(profile.currentSkills || []).slice(0, 3).join(', ') || 'software development'} align directly with high-demand web development roles across African tech hubs and remote international startups.`,
       marketDemandGambia: 'Very High',
@@ -159,7 +247,7 @@ function generateDynamicCareerMatchesFallback(profile: UserProfile): CareerMatch
       id: 'ai-data-engineer',
       title: 'AI & Data Solutions Engineer',
       matchScore: isDataOrAI ? 95 : 88,
-      industry: 'Artificial Intelligence & Data',
+      industry: 'Technology & AI',
       tagline: 'Harness LLMs, automation pipelines, and machine learning to modernize African businesses and public systems.',
       reason: 'Your technical aptitude and problem-solving background position you at the cutting edge of AI adoption in Africa.',
       marketDemandGambia: 'Growing',
@@ -176,7 +264,7 @@ function generateDynamicCareerMatchesFallback(profile: UserProfile): CareerMatch
       id: 'fintech-software-engineer',
       title: 'Fintech & Payment Systems Engineer',
       matchScore: 89,
-      industry: 'Financial Technology',
+      industry: 'Technology & AI',
       tagline: 'Architect secure payment gateways, USSD banking interfaces, and digital remittance integrations.',
       reason: `Fintech is among the fastest growing tech segments in ${country} and across Africa.`,
       marketDemandGambia: 'Very High',
@@ -377,6 +465,8 @@ USER PROFILE:
 - Education Level: ${profile.educationLevel || 'Bachelor’s Degree'}
 - Institution: ${profile.institution || 'University'}
 - Field of Study: ${profile.fieldOfStudy || 'Computer Science'}
+- Discipline / Specialization: ${profile.discipline || 'General'}
+- Preferred Pathway: ${profile.preferredPathway || 'University / Degree'}
 - Graduation Year: ${profile.graduationYear || '2025'}
 - Technical & Hard Skills: ${(profile.currentSkills || []).join(', ') || 'General IT & Computer Skills'}
 - Soft Skills: ${(profile.softSkills || []).join(', ') || 'Communication, Problem Solving'}
@@ -989,6 +1079,8 @@ USER PROFILE DATA:
 - Country: ${country}
 - Location: ${profile.location || country}
 - Education: ${profile.educationLevel} in ${profile.fieldOfStudy} at ${profile.institution}
+- Discipline / Specialization: ${profile.discipline || 'General'}
+- Preferred Pathway: ${profile.preferredPathway || 'University / Degree'}
 - Graduation Year: ${profile.graduationYear || '2025'}
 - Current Verified Hard Skills: ${(profile.currentSkills || []).join(', ')}
 - Soft Skills: ${(profile.softSkills || []).join(', ')}

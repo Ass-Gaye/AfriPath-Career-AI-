@@ -43,7 +43,7 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({
     );
   }
 
-  const allTasks = roadmap.months.flatMap((m) => m.weeks.flatMap((w) => w.tasks));
+  const allTasks = (roadmap?.months || []).flatMap((m) => (m.weeks || []).flatMap((w) => w.tasks || []));
   const totalTasks = allTasks.length;
   const completedCount = completedTaskIds.length;
   const progressPercent = Math.round((completedCount / (totalTasks || 1)) * 100);
@@ -64,8 +64,8 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({
 
   const displayedMonths =
     activeMonthTab === 0
-      ? roadmap.months
-      : roadmap.months.filter((m) => m.month === activeMonthTab);
+      ? (roadmap?.months || [])
+      : (roadmap?.months || []).filter((m) => m.month === activeMonthTab);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">

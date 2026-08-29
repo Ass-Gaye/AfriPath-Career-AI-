@@ -150,7 +150,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                {skillGap.skillGaps.map((gap, idx) => (
+                {(skillGap.skillGaps || []).map((gap, idx) => (
                   <div
                     key={idx}
                     className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1"
@@ -177,7 +177,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
-                {roadmap.months.map((m) => (
+                {(roadmap.months || []).map((m) => (
                   <div
                     key={m.month}
                     className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1"

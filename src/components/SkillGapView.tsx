@@ -42,11 +42,11 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
     );
   }
 
-  const filteredGaps = skillGap.skillGaps.filter(
+  const filteredGaps = (skillGap?.skillGaps || []).filter(
     (g) => priorityFilter === 'All' || g.priority === priorityFilter
   );
 
-  const totalEstimatedHours = skillGap.skillGaps.reduce((acc, curr) => acc + curr.estimatedHours, 0);
+  const totalEstimatedHours = (skillGap?.skillGaps || []).reduce((acc, curr) => acc + (curr.estimatedHours || 0), 0);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
@@ -93,12 +93,12 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
 
         <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-amber-400 font-bold text-base">
-            {skillGap.skillGaps.length}
+            {skillGap.skillGaps?.length || 0}
           </div>
           <div>
             <div className="text-[11px] text-slate-400 font-medium">Skills to Acquire</div>
             <div className="text-xs font-bold text-white">
-              {skillGap.skillGaps.filter((g) => g.priority === 'Critical').length} Critical Priorities
+              {(skillGap.skillGaps || []).filter((g) => g.priority === 'Critical').length} Critical Priorities
             </div>
           </div>
         </div>
@@ -128,13 +128,13 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
         <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
           <h2 className="text-sm font-bold text-white flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            <span>Skills You Already Have ({skillGap.ownedSkills.length})</span>
+            <span>Skills You Already Have ({skillGap.ownedSkills?.length || 0})</span>
           </h2>
           <p className="text-xs text-slate-400">
             These competencies directly transfer to your target role:
           </p>
           <div className="space-y-1.5 pt-1">
-            {skillGap.ownedSkills.map((s, idx) => (
+            {(skillGap.ownedSkills || []).map((s, idx) => (
               <div
                 key={idx}
                 className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs font-medium text-slate-200 flex items-center gap-2"

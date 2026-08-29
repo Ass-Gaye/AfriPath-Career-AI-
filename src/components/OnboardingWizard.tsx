@@ -38,7 +38,14 @@ import {
   COMMON_SOFT_SKILLS,
 } from '../data/gambiaData';
 import { AFRICAN_COUNTRIES, getCountryByName } from '../data/countriesData';
-import { CAREER_SECTORS } from '../data/careerTaxonomy';
+import {
+  CAREER_SECTORS,
+  FIELDS_OF_STUDY_CONFIG,
+  CAREER_PATHWAYS_LIST,
+  getDisciplinesForField,
+  getPersonalizedSkillSuggestions,
+  getEvidenceBasedCompetencies,
+} from '../data/careerTaxonomy';
 import { parseCVFile, fetchGeneratedCV, AuthUser } from '../services/api';
 
 interface OnboardingWizardProps {
@@ -490,18 +497,37 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
               </datalist>
             </div>
 
+            {/* Field of Study & Discipline */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Field of Study / Discipline <span className="text-rose-400">*</span>
+                  Field of Study <span className="text-rose-400">*</span>
                 </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Computer Science, Nursing, Accounting, Solar PV..."
-                  value={formData.fieldOfStudy}
-                  onChange={(e) => setFormData({ ...formData, fieldOfStudy: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
+                <div className="space-y-1.5">
+                  <input
+                    type="text"
+                    list="field-of-study-suggestions"
+                    placeholder="e.g. Computer Science, Nursing, Accounting..."
+                    value={formData.fieldOfStudy}
+                    onChange={(e) => {
+                      const newField = e.target.value;
+                      const discList = getDisciplinesForField(newField);
+                      setFormData((prev) => ({
+                        ...prev,
+                        fieldOfStudy: newField,
+                        discipline: discList.length > 0 ? discList[0] : prev.discipline,
+                      }));
+                    }}
+                    className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                  <datalist id="field-of-study-suggestions">
+                    {FIELDS_OF_STUDY_CONFIG.map((f) => (
+                      <option key={f.id} value={f.name}>
+                        {f.name} ({f.category})
+                      </option>
+                    ))}
+                  </datalist>
+                </div>
                 {errors.fieldOfStudy && (
                   <p className="text-xs text-rose-400 mt-1">{errors.fieldOfStudy}</p>
                 )}
@@ -509,21 +535,64 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
 
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  Discipline / Specialization
+                </label>
+                {getDisciplinesForField(formData.fieldOfStudy).length > 0 ? (
+                  <select
+                    value={formData.discipline || ''}
+                    onChange={(e) => setFormData({ ...formData, discipline: e.target.value })}
+                    className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  >
+                    <option value="">Select Specialization...</option>
+                    {getDisciplinesForField(formData.fieldOfStudy).map((d) => (
+                      <option key={d} value={d}>
+                        {d}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    placeholder="e.g. Web Development, Audit, Clinical Care..."
+                    value={formData.discipline || ''}
+                    onChange={(e) => setFormData({ ...formData, discipline: e.target.value })}
+                    className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
                   Preferred Pathway
                 </label>
                 <select
-                  value={formData.preferredPathway || 'University / Degree'}
+                  value={formData.preferredPathway || 'Technology'}
                   onChange={(e) =>
                     setFormData({ ...formData, preferredPathway: e.target.value as CareerPathwayType })
                   }
                   className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
-                  <option value="University / Degree">University / Academic Degree</option>
-                  <option value="TVET / Vocational">TVET / Vocational Diploma</option>
-                  <option value="Apprenticeship / Trade">Apprenticeship & Skilled Trade</option>
-                  <option value="Self-Taught & Portfolio">Self-Taught & Verified Portfolio</option>
-                  <option value="Bootcamp">Accelerated Bootcamp & Certification</option>
+                  {CAREER_PATHWAYS_LIST.map((pw) => (
+                    <option key={pw.id} value={pw.name}>
+                      {pw.icon} {pw.title}
+                    </option>
+                  ))}
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  Career Ambition / Target Goal
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Full-Stack Developer, Clinical Nurse, Chartered Accountant..."
+                  value={formData.careerGoal || ''}
+                  onChange={(e) => setFormData({ ...formData, careerGoal: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
               </div>
             </div>
 
@@ -665,30 +734,49 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                 </div>
               )}
 
-              {/* Quick Select Preset Pills */}
-              <div className="space-y-1.5">
-                <div className="text-[11px] font-semibold text-slate-400">Quick Skill Suggestions:</div>
-                <div className="flex flex-wrap gap-1.5">
-                  {COMMON_TECHNICAL_SKILLS.map((skill) => {
-                    const selected = formData.currentSkills.includes(skill);
-                    return (
-                      <button
-                        key={skill}
-                        type="button"
-                        onClick={() => toggleTechnicalSkill(skill)}
-                        className={`px-2.5 py-1 rounded-lg text-xs font-medium transition flex items-center gap-1 ${
-                          selected
-                            ? 'bg-emerald-600 text-white shadow-sm'
-                            : 'bg-slate-950 text-slate-300 border border-slate-800 hover:border-slate-700'
-                        }`}
-                      >
-                        {selected && <Check className="w-3 h-3" />}
-                        <span>{skill}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+              {/* Personalized Skill Suggestions for User's Field & Discipline */}
+              {(() => {
+                const personalized = getPersonalizedSkillSuggestions(
+                  formData.fieldOfStudy,
+                  formData.discipline,
+                  formData.preferredPathway,
+                  formData.currentSkills
+                );
+                const displayField = formData.discipline || formData.fieldOfStudy || 'Your Field';
+
+                return (
+                  <div className="space-y-2 p-3 rounded-xl bg-slate-950/60 border border-slate-800">
+                    <div className="flex items-center justify-between">
+                      <div className="text-[11px] font-semibold text-emerald-400 flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>Recommended for {displayField} ({formData.preferredPathway || 'Pathway'}):</span>
+                      </div>
+                      <span className="text-[10px] text-slate-500">Tap to add</span>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1.5">
+                      {personalized.map((skill) => {
+                        const selected = formData.currentSkills.includes(skill);
+                        return (
+                          <button
+                            key={skill}
+                            type="button"
+                            onClick={() => toggleTechnicalSkill(skill)}
+                            className={`px-2.5 py-1 rounded-lg text-xs font-medium transition flex items-center gap-1 ${
+                              selected
+                                ? 'bg-emerald-600 text-white shadow-sm'
+                                : 'bg-slate-900 text-emerald-300 border border-emerald-500/30 hover:border-emerald-400/60'
+                            }`}
+                          >
+                            {selected ? <Check className="w-3 h-3" /> : <Plus className="w-3 h-3 opacity-60" />}
+                            <span>{skill}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
               {errors.skills && <p className="text-xs text-rose-400 mt-1">{errors.skills}</p>}
             </div>
 
@@ -760,27 +848,43 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                 </div>
               )}
 
-              {/* Soft Skill Quick Presets */}
-              <div className="flex flex-wrap gap-1.5">
-                {COMMON_SOFT_SKILLS.map((skill) => {
-                  const selected = formData.softSkills.includes(skill);
-                  return (
-                    <button
-                      key={skill}
-                      type="button"
-                      onClick={() => toggleSoftSkill(skill)}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition flex items-center gap-1 ${
-                        selected
-                          ? 'bg-blue-600 text-white shadow-sm'
-                          : 'bg-slate-950 text-slate-300 border border-slate-800 hover:border-slate-700'
-                      }`}
-                    >
-                      {selected && <Check className="w-3 h-3" />}
-                      <span>{skill}</span>
-                    </button>
-                  );
-                })}
-              </div>
+              {/* Field-tailored Evidence Competencies & Soft Skills */}
+              {(() => {
+                const evidence = getEvidenceBasedCompetencies(
+                  formData.fieldOfStudy,
+                  formData.discipline,
+                  formData.preferredPathway
+                );
+                const softOptions = Array.from(new Set([...evidence.map((e) => e.name), ...COMMON_SOFT_SKILLS]));
+
+                return (
+                  <div className="space-y-1.5">
+                    <div className="text-[11px] font-semibold text-blue-300">
+                      Recommended Competencies for {formData.fieldOfStudy || 'Your Field'}:
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {softOptions.map((skill) => {
+                        const selected = formData.softSkills.includes(skill);
+                        return (
+                          <button
+                            key={skill}
+                            type="button"
+                            onClick={() => toggleSoftSkill(skill)}
+                            className={`px-2.5 py-1 rounded-lg text-xs font-medium transition flex items-center gap-1 ${
+                              selected
+                                ? 'bg-blue-600 text-white shadow-sm'
+                                : 'bg-slate-900 text-blue-300 border border-blue-500/30 hover:border-blue-400'
+                            }`}
+                          >
+                            {selected ? <Check className="w-3 h-3" /> : <Plus className="w-3 h-3 opacity-60" />}
+                            <span>{skill}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         )}

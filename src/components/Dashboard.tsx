@@ -60,8 +60,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const userCountryName = userProfile.country || countryConfig.name;
 
   // Calculate Roadmap progress
-  const totalTasks = roadmap
-    ? roadmap.months.flatMap((m) => m.weeks.flatMap((w) => w.tasks)).length
+  const totalTasks = roadmap?.months
+    ? roadmap.months.flatMap((m) => (m.weeks || []).flatMap((w) => w.tasks || [])).length
     : 12;
   const completedCount = completedTaskIds.length;
   const roadmapProgressPct = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0;
@@ -76,7 +76,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     matchScore: 92,
   };
   const topMatches = careerMatches.slice(0, 3);
-  const criticalGaps = skillGap?.skillGaps.filter((g) => g.priority === 'Critical') || [];
+  const criticalGaps = (skillGap?.skillGaps || []).filter((g) => g.priority === 'Critical');
 
   // Determine accurate user full & first name
   const candidateName = userProfile.name?.trim() || authUser?.fullName?.trim();

@@ -42,14 +42,14 @@ export const MyPathView: React.FC<MyPathViewProps> = ({
   const { t } = useTranslation(['roadmap', 'common', 'dashboard']);
   const [selectedStage, setSelectedStage] = useState<number>(0);
 
-  // Compute stats
-  const totalTasks = roadmap
-    ? roadmap.phases.reduce((acc, phase) => acc + phase.tasks.length, 0)
+  // Compute stats safely
+  const totalTasks = roadmap?.months
+    ? roadmap.months.reduce((acc, month) => acc + (month.weeks?.reduce((wAcc, w) => wAcc + (w.tasks?.length || 0), 0) || 0), 0)
     : 0;
   const completedCount = completedTaskIds.length;
   const progressPercent = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 35;
 
-  const currentRole = userProfile.currentRole || userProfile.currentEducationLevel || 'Exploring Career Pathways';
+  const currentRole = (userProfile as any).currentRole || userProfile.fieldOfStudy || userProfile.educationLevel || 'Exploring Career Pathways';
 
   // 6 Path Nodes
   const pathStages = [
@@ -62,9 +62,9 @@ export const MyPathView: React.FC<MyPathViewProps> = ({
       details: {
         summary: `You are currently positioned at ${currentRole} in ${userProfile.country || 'Africa'}.`,
         attributes: [
-          `Education: ${userProfile.currentEducationLevel || 'Senior Secondary'}`,
-          `Preferred Work: ${userProfile.preferredWorkEnvironment || 'Hybrid / Remote'}`,
-          `Time Commitment: ${userProfile.weeklyHoursCommitted || 15} hrs/week`,
+          `Education: ${userProfile.educationLevel || 'Senior Secondary'}`,
+          `Preferred Work: ${userProfile.preferredWorkType || 'Hybrid / Remote'}`,
+          `Time Commitment: ${(userProfile as any).weeklyHoursCommitted || userProfile.constraints?.timeAvailableWeeklyHours || 15} hrs/week`,
         ],
       },
     },
@@ -82,16 +82,18 @@ export const MyPathView: React.FC<MyPathViewProps> = ({
     {
       id: 2,
       title: 'Skill Gaps & Analysis',
-      subtitle: `${skillGap?.missingCriticalSkills?.length || 3} Priority Skills to Bridge`,
+      subtitle: `${skillGap?.skillGaps?.length || 3} Priority Skills to Bridge`,
       status: 'active',
       tag: 'Priority Focus',
       details: {
         summary: `Key skills required to qualify for ${targetCareer} across African hiring markets.`,
-        attributes: skillGap?.missingCriticalSkills?.map((s) => s.skill) || [
-          'Advanced Frameworks',
-          'Production Portfolio',
-          'System Architecture',
-        ],
+        attributes: skillGap?.skillGaps && skillGap.skillGaps.length > 0
+          ? skillGap.skillGaps.slice(0, 3).map((s) => s.skill)
+          : [
+              'Advanced Frameworks',
+              'Production Portfolio',
+              'System Architecture',
+            ],
       },
     },
     {

@@ -25,7 +25,23 @@ export type CareerPathwayType =
   | 'Self-Taught & Portfolio'
   | 'Professional Certification Ladder'
   | 'Career Transition & Skill Bridge'
-  | 'Entrepreneurship & Agribusiness';
+  | 'Entrepreneurship & Agribusiness'
+  | 'Technology'
+  | 'Business & Finance'
+  | 'Healthcare'
+  | 'Engineering'
+  | 'Agriculture'
+  | 'Education'
+  | 'Creative & Design'
+  | 'Law & Governance'
+  | 'Media & Communications'
+  | 'Hospitality & Tourism'
+  | 'Skilled Trades'
+  | 'Environment & Sustainability'
+  | 'Logistics & Supply Chain'
+  | 'Research & Academia'
+  | 'Public Service'
+  | 'Not sure yet';
 
 export type CareerGoalType =
   | 'Employment'
@@ -71,6 +87,23 @@ export type EducationLevel =
   | 'Doctorate / PhD'
   | 'Self-Taught / Bootcamps';
 
+export type ContentConfidence =
+  | 'USER_PROVIDED'
+  | 'USER_CONFIRMED'
+  | 'USER_EDITED'
+  | 'AI_REWRITTEN'
+  | 'SUGGESTED'
+  | 'UNVERIFIED';
+
+export interface VerifiedCompetency {
+  id: string;
+  competency: string;
+  evidenceText?: string;
+  isVerified: boolean;
+  sourceType: 'user_claim' | 'experience' | 'education' | 'project';
+  confidence: ContentConfidence;
+}
+
 export interface UserProfile {
   id: string;
   name: string;
@@ -82,9 +115,12 @@ export interface UserProfile {
   educationLevel: EducationLevel;
   institution: string;
   fieldOfStudy: string;
+  discipline?: string; // Sub-specialty (e.g. "Civil Engineering", "Software Engineering", "Accounting")
   graduationYear: string;
-  currentSkills: string[];
-  softSkills: string[];
+  currentSkills: string[]; // Existing verified skills provided by user
+  suggestedSkills?: string[]; // System recommended skills (not yet confirmed)
+  softSkills: string[]; // Verified soft skills
+  verifiedCompetencies?: VerifiedCompetency[];
   interests: string[];
   careerGoal: string; // Free text or CareerGoalType
   careerGoalType?: CareerGoalType;
@@ -276,7 +312,37 @@ export interface RegionalHub {
 
 export interface GambiaTechHub extends RegionalHub {}
 
-export type CVTemplateType = 'modern-standard' | 'tech-developer' | 'minimal-ats' | 'executive-compact';
+export type CVTemplateType =
+  | 'modern-standard'
+  | 'classic'
+  | 'minimal-ats'
+  | 'professional'
+  | 'graduate'
+  | 'creative'
+  | 'technical'
+  | 'tech-developer'
+  | 'executive-compact';
+
+export interface CVChangeRecord {
+  id: string;
+  section: string;
+  field: string;
+  originalText: string;
+  suggestedText: string;
+  rationale?: string;
+  status: 'pending' | 'accepted' | 'rejected' | 'custom_edited';
+}
+
+export interface CVFactCheckItem {
+  id: string;
+  section: string;
+  field: string;
+  claim: string;
+  status: 'verified' | 'unverified' | 'flagged' | 'confirmed_by_user';
+  issueType?: 'unverified_claim' | 'unsupported_metric' | 'missing_evidence' | 'unverified_employer' | 'ok';
+  message: string;
+  severity: 'info' | 'warning' | 'error';
+}
 
 export interface CVEducationItem {
   id: string;
@@ -288,6 +354,7 @@ export interface CVEducationItem {
   gpaOrHonors?: string;
   relevantCoursework?: string[];
   achievements?: string[];
+  confidence?: ContentConfidence;
 }
 
 export interface CVExperienceItem {
@@ -299,6 +366,7 @@ export interface CVExperienceItem {
   endDate: string;
   isCurrent?: boolean;
   bulletPoints: string[];
+  confidence?: ContentConfidence;
 }
 
 export interface CVProjectItem {
@@ -309,6 +377,7 @@ export interface CVProjectItem {
   demoUrl?: string;
   githubUrl?: string;
   bulletPoints: string[];
+  confidence?: ContentConfidence;
 }
 
 export interface CVCertificationItem {
@@ -317,6 +386,7 @@ export interface CVCertificationItem {
   issuer: string;
   issueDate: string;
   credentialUrl?: string;
+  confidence?: ContentConfidence;
 }
 
 export interface CVReferenceItem {
@@ -325,6 +395,7 @@ export interface CVReferenceItem {
   title: string;
   organization: string;
   contact: string;
+  confidence?: ContentConfidence;
 }
 
 export interface CVData {
@@ -342,6 +413,7 @@ export interface CVData {
     githubUrl?: string;
     linkedinUrl?: string;
     summary: string;
+    confidence?: ContentConfidence;
   };
   education: CVEducationItem[];
   experience: CVExperienceItem[];
@@ -362,6 +434,9 @@ export interface CVData {
     keywordMatchRate: number;
   };
   antiHallucinationVerified: boolean;
+  factCheckAudit?: CVFactCheckItem[];
+  pendingChanges?: CVChangeRecord[];
+  userConfirmedAllFacts?: boolean;
 }
 
 
