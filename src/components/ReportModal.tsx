@@ -70,7 +70,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
             <div>
-              <h1 className="text-xl font-bold text-white">Gambia Career AI Report</h1>
+              <h1 className="text-xl font-bold text-white">AfriPath AI Report</h1>
               <p className="text-xs text-slate-400">Personalized Career Intelligence & Skills Audit</p>
             </div>
 
@@ -194,7 +194,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
 
           {/* Footer note */}
           <div className="pt-4 border-t border-slate-800 text-center text-xs text-slate-500">
-            Gambia Career AI • Powered by Google Gemini AI Intelligence
+            AfriPath AI • Powered by Google Gemini AI Intelligence
           </div>
         </div>
       </div>

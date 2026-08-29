@@ -213,7 +213,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <ShieldCheck className="w-5 h-5" />
           </div>
           <h2 className="text-xl font-bold text-white tracking-tight">
-            {mode === 'login' && 'Welcome Back to Gambia Career AI'}
+            {mode === 'login' && 'Welcome Back to AfriPath AI'}
             {mode === 'signup' && 'Create Your Career Account'}
             {mode === 'forgot' && 'Reset Your Password'}
             {mode === 'reset' && 'Set New Password'}

@@ -61,13 +61,12 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     setMoreMenuOpen(false);
   }, [activeTab]);
 
-  // Primary 5 bar items for mobile
+  // Primary 4 bar items + More button (5 items total for perfect mobile width fitting)
   const authenticatedPrimaryTabs = [
     { id: 'dashboard', label: t('navigation:dashboard', 'Dashboard'), icon: TrendingUp },
     { id: 'my-path', label: 'My Path', icon: Compass },
     { id: 'careers', label: 'Careers', icon: Target },
     { id: 'opportunities', label: t('navigation:opportunities', 'Jobs'), icon: Briefcase },
-    { id: 'mentor', label: t('navigation:advisor', 'Advisor'), icon: MessageSquare },
   ];
 
   const publicPrimaryTabs = [
@@ -75,7 +74,6 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     { id: 'careers', label: 'Careers', icon: Target },
     { id: 'skills', label: 'Skills', icon: Zap },
     { id: 'opportunities', label: t('navigation:opportunities', 'Jobs'), icon: Briefcase },
-    { id: 'mentor', label: t('navigation:advisor', 'Advisor'), icon: MessageSquare },
   ];
 
   const primaryTabs = isAuthenticated ? authenticatedPrimaryTabs : publicPrimaryTabs;
@@ -83,6 +81,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   // Secondary items shown in the "More" Drawer
   const secondaryMenuItems = isAuthenticated
     ? [
+        { id: 'mentor', label: 'AI Career Advisor', icon: MessageSquare, desc: 'Chat with real-time coach' },
         { id: 'roadmap', label: '90-Day Roadmap Plan', icon: FileText, desc: 'Weekly milestones & skill sprints' },
         { id: 'cv-builder', label: 'AI CV & Resume Studio', icon: FileCheck, desc: 'Download ATS-ready PDF' },
         { id: 'skills', label: 'Skills Intelligence', icon: Zap, desc: 'Technical & vocational directory' },
@@ -90,6 +89,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         { id: 'admin', label: 'Admin Control Hub', icon: ShieldAlert, desc: 'Taxonomies & translations' },
       ]
     : [
+        { id: 'mentor', label: 'AI Career Advisor', icon: MessageSquare, desc: 'Instant career guidance' },
         { id: 'countries', label: 'African Ecosystems', icon: Globe, desc: '14+ countries education & salary data' },
         { id: 'about', label: 'About AfriPath AI', icon: HelpCircle, desc: 'Mission, vision & partner inquiries' },
       ];
@@ -102,9 +102,9 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
       <nav
         id="mobile-bottom-navigation"
         aria-label="Mobile Navigation"
-        className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-slate-900/95 backdrop-blur-xl border-t border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.5)] px-2 pt-1.5 pb-[max(0.6rem,env(safe-area-inset-bottom))]"
+        className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-slate-900/95 backdrop-blur-xl border-t border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.5)] px-1 sm:px-2 pt-1 pb-[max(0.5rem,env(safe-area-inset-bottom))]"
       >
-        <div className="flex items-center justify-around gap-1 max-w-lg mx-auto">
+        <div className="flex items-center justify-between gap-1 w-full max-w-lg mx-auto">
           {primaryTabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -117,7 +117,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                   setMoreMenuOpen(false);
                   setActiveTab(tab.id);
                 }}
-                className={`relative flex flex-col items-center justify-center flex-1 min-w-[56px] min-h-[48px] py-1.5 px-1 rounded-2xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
+                className={`relative flex flex-col items-center justify-center flex-1 min-w-0 min-h-[48px] py-1 px-0.5 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
                   isActive
                     ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950 font-bold'
                     : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 active:scale-95'
@@ -133,7 +133,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                     isActive ? 'scale-110 stroke-[2.25]' : 'stroke-[1.75]'
                   }`}
                 />
-                <span className="text-[11px] leading-tight mt-0.5 tracking-tight truncate max-w-full font-medium">
+                <span className="text-[10px] xs:text-[11px] leading-tight mt-0.5 tracking-tight truncate max-w-full font-medium text-center">
                   {tab.label}
                 </span>
               </button>
@@ -144,7 +144,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           <button
             id="bottom-nav-more"
             onClick={() => setMoreMenuOpen(!moreMenuOpen)}
-            className={`relative flex flex-col items-center justify-center flex-1 min-w-[56px] min-h-[48px] py-1.5 px-1 rounded-2xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
+            className={`relative flex flex-col items-center justify-center flex-1 min-w-0 min-h-[48px] py-1 px-0.5 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
               moreMenuOpen || isMoreActive
                 ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950 font-bold'
                 : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 active:scale-95'
@@ -158,7 +158,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                 moreMenuOpen || isMoreActive ? 'scale-110 stroke-[2.25]' : 'stroke-[1.75]'
               }`}
             />
-            <span className="text-[11px] leading-tight mt-0.5 tracking-tight truncate font-medium">
+            <span className="text-[10px] xs:text-[11px] leading-tight mt-0.5 tracking-tight truncate font-medium text-center">
               More
             </span>
           </button>

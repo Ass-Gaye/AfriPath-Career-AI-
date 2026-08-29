@@ -50,5 +50,5 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Gambia Career AI Server running on port ${PORT}`);
+  console.log(`AfriPath AI Server running on port ${PORT}`);
 });

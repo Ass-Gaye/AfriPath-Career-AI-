@@ -41,18 +41,18 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
         type="button"
         id="language-selector-button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`inline-flex items-center gap-1.5 rounded-xl transition border focus:outline-none focus:ring-2 focus:ring-emerald-400 ${
+        className={`inline-flex items-center gap-1 sm:gap-1.5 rounded-xl transition border focus:outline-none focus:ring-2 focus:ring-emerald-400 shrink-0 ${
           variant === 'compact'
-            ? 'px-2.5 py-1.5 text-xs font-semibold bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 border-slate-700 shadow-sm'
+            ? 'px-1.5 sm:px-2.5 py-1 sm:py-1.5 text-xs font-semibold bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 border-slate-700 shadow-sm'
             : 'px-3 py-2 text-sm font-medium bg-slate-900/80 hover:bg-slate-800 text-white border-slate-700'
         }`}
         title={t('common:selectLanguage')}
         aria-label={t('common:selectLanguage')}
       >
-        <Globe2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-        <span className="font-bold tracking-tight">{currentLang.flag}</span>
-        <span className="hidden sm:inline-block max-w-[80px] truncate">{currentLang.nativeName}</span>
-        <span className="sm:hidden uppercase text-[10px] tracking-wider font-bold text-slate-300">
+        <Globe2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 hidden sm:inline-block" />
+        <span className="font-bold tracking-tight text-xs sm:text-sm">{currentLang.flag}</span>
+        <span className="hidden md:inline-block max-w-[80px] truncate">{currentLang.nativeName}</span>
+        <span className="hidden sm:inline-block md:hidden uppercase text-[10px] tracking-wider font-bold text-slate-300">
           {currentLang.code}
         </span>
         <ChevronDown className="w-3 h-3 text-slate-400 shrink-0" />
@@ -61,7 +61,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
       {isOpen && (
         <div
           id="language-dropdown-menu"
-          className="absolute right-0 mt-2 w-64 rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-1.5 space-y-1 z-50 animate-in fade-in zoom-in-95"
+          className="absolute right-0 mt-2 w-64 max-w-[calc(100vw-1rem)] rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-1.5 space-y-1 z-50 animate-in fade-in zoom-in-95"
         >
           <div className="px-3 py-2 border-b border-slate-800">
             <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">

@@ -1,0 +1,92 @@
+{
+  "name": "AfriPath AI",
+  "short_name": "AfriPath",
+  "description": "Your Career. Your Skills. Your Future.",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "id": "/?source=pwa",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#090d16",
+  "theme_color": "#059669",
+  "categories": ["education", "productivity", "business"],
+  "dir": "auto",
+  "lang": "en",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Discover Careers",
+      "short_name": "Careers",
+      "description": "Explore 40+ high-growth tech & vocational African careers",
+      "url": "/?tab=careers&source=pwa-shortcut",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Career Assessment",
+      "short_name": "Assessment",
+      "description": "Take the personalized Pan-African skill & ambition assessment",
+      "url": "/?tab=assessment&source=pwa-shortcut",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "AI Career Advisor",
+      "short_name": "AI Advisor",
+      "description": "Chat in real-time with your localized African career mentor",
+      "url": "/?tab=mentor&source=pwa-shortcut",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "My Career Path",
+      "short_name": "My Path",
+      "description": "View your personalized gap analysis, milestones, and target career",
+      "url": "/?tab=my-path&source=pwa-shortcut",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Verified Opportunities",
+      "short_name": "Jobs",
+      "description": "Explore curated African apprenticeships, jobs & internships",
+      "url": "/?tab=opportunities&source=pwa-shortcut",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

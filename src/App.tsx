@@ -27,6 +27,10 @@ import { MyPathView } from './components/MyPathView';
 import { AdminHub } from './components/AdminHub';
 import { AboutContactModal } from './components/AboutContactModal';
 import { MobileBottomNav } from './components/MobileBottomNav';
+import { ConnectionStatusBadge } from './components/ConnectionStatusBadge';
+import { PWAInstallBanner } from './components/PWAInstallBanner';
+import { AppUpdateToast } from './components/AppUpdateToast';
+import { OfflineView } from './components/OfflineView';
 import {
   UserProfile,
   CareerMatch,
@@ -87,8 +91,18 @@ export default function App() {
   const [isAboutModalOpen, setIsAboutModalOpen] = useState<boolean>(false);
   const [systemBanner, setSystemBanner] = useState<{ type: 'success' | 'info'; message: string } | null>(null);
 
-  // Check persistent session on initial mount
+  // Check persistent session & URL query shortcuts on initial mount
   useEffect(() => {
+    // Check URL parameters for PWA shortcuts and direct links
+    const searchParams = new URLSearchParams(window.location.search);
+    const requestedTab = searchParams.get('tab');
+    const isOfflinePath = window.location.pathname === '/offline' || requestedTab === 'offline';
+
+    if (isOfflinePath) {
+      setActiveTab('offline');
+      return;
+    }
+
     async function restoreSession() {
       try {
         const session = await getCurrentUserSession();
@@ -107,14 +121,24 @@ export default function App() {
             if (session.data.careerMatches && session.data.careerMatches[0]?.title) {
               setTargetCareer(session.data.careerMatches[0].title);
             }
-            setActiveTab('dashboard');
+            // If requested a specific tab from PWA shortcut, prefer that tab
+            if (requestedTab) {
+              setActiveTab(requestedTab);
+            } else {
+              setActiveTab('dashboard');
+            }
           } else {
             // Logged in user without completed profile
-            setActiveTab('assessment');
+            setActiveTab(requestedTab || 'assessment');
           }
+        } else if (requestedTab) {
+          setActiveTab(requestedTab);
         }
       } catch (err) {
         console.warn('Could not restore session:', err);
+        if (requestedTab) {
+          setActiveTab(requestedTab);
+        }
       }
     }
     restoreSession();
@@ -348,6 +372,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-white">
+      {/* Network Connectivity Status Badge & Reconnected Toast */}
+      <ConnectionStatusBadge />
+
       {/* Top Notification Banner */}
       {systemBanner && (
         <div
@@ -574,7 +601,20 @@ export default function App() {
             onOpenTranslationModal={() => setIsTranslationAdminOpen(true)}
           />
         )}
+
+        {activeTab === 'offline' && (
+          <OfflineView
+            onNavigate={(tab) => setActiveTab(tab)}
+            hasSavedProfile={Boolean(userProfile)}
+          />
+        )}
       </main>
+
+      {/* Progressive Web App (PWA) Install Prompt Banner */}
+      <PWAInstallBanner />
+
+      {/* Service Worker App Update Notification */}
+      <AppUpdateToast />
 
       {/* Mobile Bottom Navigation Bar with large touch targets & distinct emerald-600 active state */}
       <MobileBottomNav

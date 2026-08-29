@@ -463,7 +463,7 @@ export const MUSA_JALLOW_ROADMAP: CareerRoadmap = {
           tasks: [
             { id: 'w10-t1', title: 'Tailor resume bullets using Action + Context + Impact formula', completed: false, estimatedHours: 4 },
             { id: 'w10-t2', title: 'Optimize LinkedIn profile with relevant keywords & recommendations', completed: false, estimatedHours: 3 },
-            { id: 'w10-t3', title: 'Run CV through Gambia Career AI reviewer for feedback', completed: false, estimatedHours: 3 },
+            { id: 'w10-t3', title: 'Run CV through AfriPath AI reviewer for feedback', completed: false, estimatedHours: 3 },
           ],
         },
         {
@@ -483,7 +483,7 @@ export const MUSA_JALLOW_ROADMAP: CareerRoadmap = {
           focus: 'Direct reach-outs to Gambian tech leads, YEP community, and remote platforms.',
           milestoneDeliverable: 'Submit 10 targeted job/internship applications with personalized cover notes.',
           tasks: [
-            { id: 'w12-t1', title: 'Apply to top verified Gambian job openings on Gambia Career Map', completed: false, estimatedHours: 4 },
+            { id: 'w12-t1', title: 'Apply to top verified African job openings on AfriPath Career Map', completed: false, estimatedHours: 4 },
             { id: 'w12-t2', title: 'Reach out to 5 Gambian tech alumni & recruiters on LinkedIn', completed: false, estimatedHours: 4 },
             { id: 'w12-t3', title: 'Celebrate 90-day graduation and review job readiness score (Target: 95%+)', completed: false, estimatedHours: 4 },
           ],

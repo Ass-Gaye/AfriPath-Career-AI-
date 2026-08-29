@@ -13,8 +13,17 @@ import {
   Sparkles,
   ArrowRight,
   RefreshCcw,
+  Smartphone,
+  Download,
+  Wifi,
+  HardDrive,
+  Check,
+  Globe,
+  ExternalLink,
 } from 'lucide-react';
 import { UserProfile } from '../types/career';
+import { usePWA } from '../hooks/usePWA';
+import { PWAInstallCard } from './PWAInstallCard';
 import {
   GAMBIAN_INSTITUTIONS,
   EDUCATION_LEVELS,
@@ -25,7 +34,7 @@ import {
 } from '../data/gambiaData';
 import { changeUserPassword, resetCareerProfile, saveUserProfile, AuthUser } from '../services/api';
 
-export type SettingsTab = 'profile' | 'security' | 'danger-zone';
+export type SettingsTab = 'profile' | 'security' | 'danger-zone' | 'application';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -47,6 +56,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onResetComplete,
 }) => {
   const [activeTab, setActiveTab] = useState<SettingsTab>(initialTab);
+  const pwa = usePWA();
+  const [storageInfo, setStorageInfo] = useState<{ cachedItems: number; quotaEstimate: string }>({
+    cachedItems: 0,
+    quotaEstimate: 'Calculating...',
+  });
+  const [isClearingCache, setIsClearingCache] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && activeTab === 'application') {
+      pwa.getStorageInfo().then(setStorageInfo);
+    }
+  }, [isOpen, activeTab]);
 
   // Profile Edit State
   const [profileForm, setProfileForm] = useState<UserProfile>(() => {
@@ -322,6 +343,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           >
             <Shield className="w-4 h-4" />
             <span>Security & Password</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('application')}
+            className={`pb-3 px-3 border-b-2 transition flex items-center gap-2 ${
+              activeTab === 'application'
+                ? 'border-emerald-500 text-emerald-400'
+                : 'border-transparent text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Smartphone className="w-4 h-4" />
+            <span>Application & PWA</span>
           </button>
 
           <button
@@ -992,6 +1025,78 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* TAB 4: APPLICATION & PWA */}
+          {activeTab === 'application' && (
+            <div className="space-y-5 animate-in fade-in duration-200 text-xs">
+              <PWAInstallCard />
+
+              <div className="p-4 bg-slate-950/70 border border-slate-800 rounded-2xl space-y-3">
+                <h4 className="font-bold text-white text-sm flex items-center gap-2">
+                  <HardDrive className="w-4 h-4 text-emerald-400" />
+                  <span>Application & Cache Diagnostics</span>
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <div className="p-3 bg-slate-900 border border-slate-800 rounded-xl space-y-1">
+                    <div className="text-slate-400 text-[11px]">PWA Environment</div>
+                    <div className="font-semibold text-white flex items-center gap-1.5">
+                      <span className={`w-2 h-2 rounded-full ${pwa.isInstalled ? 'bg-emerald-400' : 'bg-blue-400'}`} />
+                      <span>{pwa.isInstalled ? 'Standalone Installed App' : 'Browser Web App'}</span>
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-slate-900 border border-slate-800 rounded-xl space-y-1">
+                    <div className="text-slate-400 text-[11px]">Network Connectivity</div>
+                    <div className="font-semibold text-white flex items-center gap-1.5">
+                      <Wifi className={`w-3.5 h-3.5 ${pwa.isOnline ? 'text-emerald-400' : 'text-amber-400'}`} />
+                      <span>{pwa.isOnline ? 'Online (Real-time AI Active)' : 'Offline (Cached Mode)'}</span>
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-slate-900 border border-slate-800 rounded-xl space-y-1">
+                    <div className="text-slate-400 text-[11px]">Application Version</div>
+                    <div className="font-semibold text-white font-mono">v{pwa.version} (Production)</div>
+                  </div>
+
+                  <div className="p-3 bg-slate-900 border border-slate-800 rounded-xl space-y-1">
+                    <div className="text-slate-400 text-[11px]">Offline Cache Storage</div>
+                    <div className="font-semibold text-white">
+                      {storageInfo.cachedItems} cached assets ({storageInfo.quotaEstimate})
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div className="text-slate-400 text-[11px]">
+                    If you experience outdated career data or layout glitches, purge the local service worker cache.
+                  </div>
+                  <button
+                    type="button"
+                    disabled={isClearingCache}
+                    onClick={async () => {
+                      setIsClearingCache(true);
+                      await pwa.clearCacheAndReload();
+                    }}
+                    className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-semibold transition flex items-center gap-2 shrink-0 disabled:opacity-50"
+                  >
+                    <RefreshCcw className={`w-3.5 h-3.5 ${isClearingCache ? 'animate-spin' : ''}`} />
+                    <span>{isClearingCache ? 'Clearing Cache...' : 'Clear Cache & Reload'}</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-4 bg-slate-950/70 border border-slate-800 rounded-2xl space-y-2">
+                <div className="font-semibold text-white text-xs flex items-center gap-2">
+                  <Globe className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Pan-African Offline Resilience</span>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  AfriPath AI is engineered for African bandwidth environments. Core career frameworks, skill gap analyses, Gambian institutional mappings, and offline curriculum roadmaps are cached on your device for instant launch anytime without internet.
+                </p>
+              </div>
             </div>
           )}
         </div>

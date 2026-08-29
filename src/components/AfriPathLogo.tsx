@@ -14,7 +14,7 @@ export const AfriPathLogo: React.FC<AfriPathLogoProps> = ({
   showTagline = false,
 }) => {
   const sizeMap = {
-    sm: { icon: 24, text: 'text-base', tag: 'text-[9px]' },
+    sm: { icon: 24, text: 'text-sm sm:text-base', tag: 'text-[9px]' },
     md: { icon: 32, text: 'text-lg', tag: 'text-[10px]' },
     lg: { icon: 40, text: 'text-2xl', tag: 'text-xs' },
     xl: { icon: 52, text: 'text-3xl', tag: 'text-sm' },

@@ -397,7 +397,7 @@ apiRouter.post('/user/reset-career-profile', authenticateToken, (req: Authentica
 // ==========================================
 
 apiRouter.get('/health', (_req: Request, res: Response) => {
-  res.json({ status: 'ok', service: 'Gambia Career AI API', timestamp: new Date().toISOString() });
+  res.json({ status: 'ok', service: 'AfriPath AI API', timestamp: new Date().toISOString() });
 });
 
 apiRouter.post('/generate-cv', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
