@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Send,
   User,
@@ -12,6 +13,7 @@ import {
 import { ChatMessage, UserProfile } from '../types/career';
 import { sendMentorMessage } from '../services/api';
 import { getCountryByCode } from '../data/countriesData';
+import { useLanguage } from '../context/LanguageContext';
 
 interface MentorChatProps {
   userProfile: UserProfile | null;
@@ -24,6 +26,8 @@ export const MentorChat: React.FC<MentorChatProps> = ({
   targetCareer,
   initialQuery,
 }) => {
+  const { t } = useTranslation(['advisor', 'common']);
+  const { language, isRTL } = useLanguage();
   const countryConfig = getCountryByCode(userProfile?.countryCode || 'GM');
   const userCountryName = userProfile?.country || countryConfig.name;
 
@@ -31,7 +35,11 @@ export const MentorChat: React.FC<MentorChatProps> = ({
     {
       id: 'init-1',
       sender: 'assistant',
-      text: `Hello ${userProfile?.name ? userProfile.name.split(' ')[0] : 'friend'}! I'm your AfriPath AI Career Advisor. Whether you're exploring pathways in ${userCountryName}, looking for remote African opportunities, figuring out what skills to learn, or building your portfolio, I'm here for you. What would you like to explore today?`,
+      text: t(
+        'advisor:initialGreeting',
+        `Hello ${userProfile?.name ? userProfile.name.split(' ')[0] : 'friend'}! I'm your AfriPath AI Career Advisor. Whether you're exploring pathways in ${userCountryName}, looking for remote African opportunities, figuring out what skills to learn, or building your portfolio, I'm here for you. What would you like to explore today?`,
+        { country: userCountryName, name: userProfile?.name ? userProfile.name.split(' ')[0] : 'friend' }
+      ),
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       quickReplies: [
         `What are high-paying careers in ${userCountryName}?`,
@@ -83,7 +91,8 @@ export const MentorChat: React.FC<MentorChatProps> = ({
         [...messages, userMsg],
         query,
         userProfile,
-        targetCareer
+        targetCareer,
+        language
       );
 
       const aiMsg: ChatMessage = {
@@ -283,7 +292,7 @@ export const MentorChat: React.FC<MentorChatProps> = ({
         >
           <input
             type="text"
-            placeholder="Ask anything (e.g. 'What projects should I build for a data analyst portfolio?')..."
+            placeholder={t('advisor:inputPlaceholder', "Ask anything about careers, salaries, skills, or job search in Africa...")}
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             disabled={isTyping}
@@ -292,11 +301,15 @@ export const MentorChat: React.FC<MentorChatProps> = ({
           <button
             type="submit"
             disabled={!inputMessage.trim() || isTyping}
-            className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed shadow-sm flex items-center justify-center"
+            className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed shadow-sm flex items-center justify-center gap-1.5"
           >
             <Send className="w-4 h-4" />
+            <span className="hidden sm:inline">{t('advisor:send', 'Send')}</span>
           </button>
         </form>
+        <p className="text-[10px] text-slate-400 text-center mt-2">
+          {t('advisor:disclaimer', 'AfriPath AI offers career guidance and salary benchmarks. Always verify specific job openings directly with employers.')}
+        </p>
       </div>
     </div>
   );

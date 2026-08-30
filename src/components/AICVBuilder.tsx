@@ -41,6 +41,7 @@ import {
   polishCVWording,
   confirmUserCV,
 } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 
 interface AICVBuilderProps {
   userProfile: UserProfile;
@@ -61,6 +62,8 @@ export const AICVBuilder: React.FC<AICVBuilderProps> = ({
   initialCV,
   onSaveCV,
 }) => {
+  const { t, formatNumber, isRTL, language, getLocalizedCareer } = useLanguage();
+
   // Current CV Data State
   const [cvData, setCvData] = useState<CVData>(() => {
     if (initialCV) return initialCV;
@@ -215,7 +218,8 @@ export const AICVBuilder: React.FC<AICVBuilderProps> = ({
         userProfile,
         targetCareer,
         customCompany || undefined,
-        extraProjectInput || undefined
+        extraProjectInput || undefined,
+        language
       );
       setCvData({
         ...generated,
@@ -248,7 +252,7 @@ export const AICVBuilder: React.FC<AICVBuilderProps> = ({
   const handlePolishWording = async () => {
     setIsPolishingWording(true);
     try {
-      const polished = await polishCVWording(cvData);
+      const polished = await polishCVWording(cvData, language);
       setCvData({
         ...polished,
         template: selectedTemplate,

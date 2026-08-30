@@ -408,7 +408,7 @@ apiRouter.get('/health', (_req: Request, res: Response) => {
 
 apiRouter.post('/generate-cv', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { profile, targetCareer, targetCompany, additionalInfo } = req.body;
+    const { profile, targetCareer, targetCompany, additionalInfo, language = 'en' } = req.body;
     if (!profile) {
       return res.status(400).json({ error: 'Missing profile data in request body' });
     }
@@ -416,7 +416,8 @@ apiRouter.post('/generate-cv', optionalAuth, async (req: AuthenticatedRequest, r
       profile,
       targetCareer || 'Software Developer',
       targetCompany,
-      additionalInfo
+      additionalInfo,
+      language
     );
 
     // Auto-save if authenticated
@@ -807,11 +808,11 @@ apiRouter.get('/cv/:id/pdf', (req: Request, res: Response) => {
 
 apiRouter.post('/generate-roadmap', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { profile, targetCareer } = req.body;
+    const { profile, targetCareer, language = 'en', preferences } = req.body;
     if (!profile || !targetCareer) {
       return res.status(400).json({ error: 'Missing profile or targetCareer' });
     }
-    const roadmap = await generateCareerRoadmap(profile, targetCareer);
+    const roadmap = await generateCareerRoadmap(profile, targetCareer, language, preferences || {});
 
     // Auto-save if authenticated
     if (req.user?.userId) {
@@ -829,13 +830,48 @@ apiRouter.post('/generate-roadmap', optionalAuth, async (req: AuthenticatedReque
   }
 });
 
+// Roadmap task completion & evidence attachment
+apiRouter.post('/roadmap/task-evidence', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { taskId, taskTitle, skillName, evidenceType, urlOrText, addToCV, addToPortfolio } = req.body;
+    if (!taskId || !skillName) {
+      return res.status(400).json({ error: 'taskId and skillName are required' });
+    }
+
+    const userId = req.user?.userId || 'guest';
+    const currentEvidence = sessionEvidenceStore.get(userId) || [];
+    const newRecord: SkillEvidenceRecord = {
+      id: `ev-task-${Date.now()}`,
+      skillName,
+      sourceType: evidenceType === 'certificate' ? 'certification' : 'project_deliverable',
+      description: `Completed roadmap milestone: "${taskTitle || taskId}". Evidence: ${urlOrText}`,
+      verifiedScore: 85,
+      dateAdded: new Date().toISOString(),
+    };
+
+    currentEvidence.push(newRecord);
+    sessionEvidenceStore.set(userId, currentEvidence);
+
+    return res.json({
+      success: true,
+      message: 'Evidence attached to roadmap task and added to candidate verified evidence inventory.',
+      evidence: newRecord,
+      addToCV: !!addToCV,
+      addToPortfolio: !!addToPortfolio,
+    });
+  } catch (error: any) {
+    console.error('API /roadmap/task-evidence error:', error);
+    return res.status(500).json({ error: 'Failed to record task evidence' });
+  }
+});
+
 apiRouter.post('/mentor-chat', async (req: Request, res: Response) => {
   try {
-    const { history = [], message, profile, targetCareer } = req.body;
+    const { history = [], message, profile, targetCareer, language = 'en' } = req.body;
     if (!message) {
       return res.status(400).json({ error: 'Missing message in request body' });
     }
-    const reply = await chatCareerMentor(history, message, profile, targetCareer);
+    const reply = await chatCareerMentor(history, message, profile, targetCareer, language);
     return res.json({ success: true, reply });
   } catch (error: any) {
     console.error('API /mentor-chat error:', error);

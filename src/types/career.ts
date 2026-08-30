@@ -282,19 +282,42 @@ export interface SkillGapAnalysis {
   detailedReport?: DetailedSkillGapReport;
 }
 
+export interface RoadmapTask {
+  id: string;
+  title: string;
+  description?: string;
+  skillCompetency?: string;
+  reason?: string;
+  activityType?: 'LEARN' | 'PRACTICE' | 'BUILD' | 'ASSESS' | 'DOCUMENT' | 'DEMONSTRATE' | 'APPLY' | 'NETWORK' | 'PREPARE' | 'REVIEW';
+  difficulty?: 'Beginner' | 'Intermediate' | 'Advanced';
+  estimatedHours: number;
+  expectedOutcome?: string;
+  resourceTitle?: string;
+  resourceLink?: string;
+  resourceProvider?: string;
+  completionCriteria?: string;
+  completed: boolean;
+  status?: 'not_started' | 'in_progress' | 'completed' | 'skipped';
+  taskType?: 'Theory' | 'Hands-on Practice' | 'Portfolio Project' | 'Networking / Community';
+  attachedEvidence?: {
+    type: 'project_link' | 'certificate' | 'github_repo' | 'work_sample' | 'notes';
+    title: string;
+    urlOrText: string;
+    date: string;
+  };
+  canAddToCV?: boolean;
+  addedToCV?: boolean;
+  canAddToPortfolio?: boolean;
+  addedToPortfolio?: boolean;
+}
+
 export interface RoadmapWeek {
   weekNumber: number;
   title: string;
   focus: string;
-  tasks: {
-    id: string;
-    title: string;
-    completed: boolean;
-    estimatedHours: number;
-    resourceLink?: string;
-    taskType?: 'Theory' | 'Hands-on Practice' | 'Portfolio Project' | 'Networking / Community';
-  }[];
+  tasks: RoadmapTask[];
   milestoneDeliverable: string;
+  milestoneDeliverableType?: 'Project' | 'Assessment' | 'Certification' | 'Portfolio Artifact' | 'CV Milestone';
 }
 
 export interface RoadmapMonth {
@@ -302,6 +325,7 @@ export interface RoadmapMonth {
   phaseName: string;
   theme: string;
   description: string;
+  durationDays?: number;
   weeks: RoadmapWeek[];
 }
 
@@ -309,9 +333,34 @@ export interface CareerRoadmap {
   targetCareer: string;
   targetTimeframeDays: number;
   pathwayType?: CareerPathwayType;
+  startingLevel?: 'Beginner' | 'Intermediate' | 'Advanced' | 'Career Changer';
+  weeklyHoursRecommended: number;
+  learningPreference?: string;
+  phaseAllocation?: {
+    phase1Days: number;
+    phase2Days: number;
+    phase3Days: number;
+    focusSummary: string;
+  };
+  topPriorities?: string[];
+  transferableFoundationsUsed?: string[];
+  beforeAfterGaps?: {
+    skill: string;
+    beforeLevel: string;
+    targetLevel: string;
+    projectedAfterLevel: string;
+    resolvedInMonth: number;
+  }[];
+  todayAction?: {
+    taskId: string;
+    weekNumber: number;
+    title: string;
+    reason: string;
+    estimatedMinutes: number;
+    skill: string;
+  };
   months: RoadmapMonth[];
   keyOutcomes: string[];
-  weeklyHoursRecommended: number;
   disclaimer?: string;
 }
 

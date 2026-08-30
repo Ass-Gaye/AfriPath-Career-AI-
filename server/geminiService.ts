@@ -359,94 +359,22 @@ function generateDynamicSkillGapFallback(profile: UserProfile, targetCareer: str
   };
 }
 
-/**
- * Dynamic Roadmap Fallback Generator
- */
-function generateDynamicRoadmapFallback(profile: UserProfile, targetCareer: string): CareerRoadmap {
-  const careerName = targetCareer || 'Modern Tech Professional';
-  const country = profile.country || 'Africa';
+import { RoadmapEngineService, RoadmapGenerationOptions } from './services/roadmap-engine.service';
 
-  return {
-    targetCareer: `${careerName} (90-Day Execution Roadmap)`,
-    targetTimeframeDays: 90,
-    weeklyHoursRecommended: 15,
-    keyOutcomes: [
-      'Master core production stack and modern development toolchains',
-      `Build and deploy 3 real-world portfolio projects with ${country} and international relevance`,
-      'Complete interview readiness, technical testing, and professional CV preparation',
-      `Secure interviews with leading employers in ${country} and remote African tech hubs`,
-    ],
-    months: [
-      {
-        month: 1,
-        phaseName: 'Phase 1: Foundations & Core Tooling',
-        theme: 'Core Mastery & Clean Code Discipline',
-        description: 'Bridge critical skill gaps, set up professional development environment, and master daily Git workflows.',
-        weeks: [
-          {
-            weekNumber: 1,
-            title: 'Toolchain Setup & Development Rigor',
-            focus: 'Modern toolchains, clean folder structures, and GitHub version control mastery.',
-            milestoneDeliverable: 'Configured GitHub profile with clean README and first automated CI pipeline repository.',
-            tasks: [
-              { id: 'w1-1', title: 'Set up VS Code with ESLint, Prettier, and standard tech project boilerplate', completed: true, estimatedHours: 4 },
-              { id: 'w1-2', title: 'Review core programming paradigms and complete 10 algorithm drills', completed: true, estimatedHours: 6 },
-              { id: 'w1-3', title: 'Publish a clean, documented template repository to GitHub', completed: false, estimatedHours: 5 },
-            ],
-          },
-          {
-            weekNumber: 2,
-            title: 'Modern Architecture & Type Safety',
-            focus: 'Type safety, modular component hierarchy, and strict API error boundaries.',
-            milestoneDeliverable: 'A type-safe application module with strict validation and error handling.',
-            tasks: [
-              { id: 'w2-1', title: 'Convert a standard JavaScript project into strict TypeScript with custom interfaces', completed: false, estimatedHours: 6 },
-              { id: 'w2-2', title: 'Implement structured error handling and API retry patterns', completed: false, estimatedHours: 4 },
-              { id: 'w2-3', title: 'Build a reusable component library with responsive mobile-first Tailwind design', completed: false, estimatedHours: 5 },
-            ],
-          },
-        ],
-      },
-      {
-        month: 2,
-        phaseName: 'Phase 2: Applied Domain Projects',
-        theme: `Real-World Project Development (${country} & African Context)`,
-        description: 'Build two production-grade applications that solve recognizable regional challenges.',
-        weeks: [
-          {
-            weekNumber: 5,
-            title: 'Project 1: Market & Price Intelligence Portal',
-            focus: 'Real-time data aggregation, search filtering, and responsive mobile layouts.',
-            milestoneDeliverable: `Live interactive web app tracking commodity prices across regional markets in ${country}.`,
-            tasks: [
-              { id: 'w5-1', title: 'Architect wireframes and database models for local commodity prices', completed: false, estimatedHours: 5 },
-              { id: 'w5-2', title: 'Build search, filtering by region, and historical price trend charts', completed: false, estimatedHours: 6 },
-              { id: 'w5-3', title: 'Add offline caching support for low-bandwidth mobile users', completed: false, estimatedHours: 4 },
-            ],
-          },
-        ],
-      },
-      {
-        month: 3,
-        phaseName: 'Phase 3: Portfolio, Job Search & Interview Mastery',
-        theme: 'Transition to High-Value Employment',
-        description: 'Polish online presence, prepare technical interviews, and initiate direct outreach to regional employers and remote recruiters.',
-        weeks: [
-          {
-            weekNumber: 9,
-            title: 'Personal Portfolio & CV Optimization',
-            focus: 'Impact-driven resume crafting tailored to African corporate and international remote standards.',
-            milestoneDeliverable: 'Polished one-page tech CV and live portfolio website with custom domain.',
-            tasks: [
-              { id: 'w9-1', title: 'Revamp CV using action-verb impact metrics', completed: false, estimatedHours: 5 },
-              { id: 'w9-2', title: 'Deploy clean personal portfolio featuring the 2 flagship projects', completed: false, estimatedHours: 6 },
-              { id: 'w9-3', title: 'Optimize LinkedIn profile headline, summary, and verified skill badges', completed: false, estimatedHours: 4 },
-            ],
-          },
-        ],
-      },
-    ],
-  };
+/**
+ * Dynamic Roadmap Fallback Generator using Grounded Roadmap Engine
+ */
+function generateDynamicRoadmapFallback(
+  profile: UserProfile,
+  targetCareer: string,
+  language = 'en',
+  options: RoadmapGenerationOptions = {}
+): CareerRoadmap {
+  return RoadmapEngineService.generateRoadmap(
+    profile,
+    targetCareer,
+    { language, ...options }
+  );
 }
 
 export async function analyzeCareerProfile(profile: UserProfile): Promise<CareerMatch[]> {
@@ -622,31 +550,52 @@ Generate:
   );
 }
 
-export async function generateCareerRoadmap(profile: UserProfile, targetCareer: string): Promise<CareerRoadmap> {
+export async function generateCareerRoadmap(
+  profile: UserProfile,
+  targetCareer: string,
+  language = 'en',
+  options: RoadmapGenerationOptions = {}
+): Promise<CareerRoadmap> {
   return executeWithRetryAndFallback<CareerRoadmap>(
     async (model) => {
       const ai = getAIClient()!;
       const country = profile.country || 'Africa';
+
+      const langInstruction =
+        language === 'ar'
+          ? 'CRITICAL: Output all titles, descriptions, reasons, focus areas, phase names, themes, milestone deliverables, and tasks in Arabic (العربية).'
+          : language === 'fr'
+          ? 'CRITICAL: Output all titles, descriptions, reasons, focus areas, phase names, themes, milestone deliverables, and tasks in French (Français).'
+          : language === 'wo'
+          ? 'CRITICAL: Output all titles, descriptions, reasons, and tasks in Wolof/French professional blend suitable for Senegal/Gambia.'
+          : 'Output in clear, professional English.';
+
       const prompt = `Design a comprehensive, realistic, and highly motivating 90-Day (12-Week) career roadmap for this student/job seeker aiming to become a "${targetCareer}".
 
 USER PROFILE:
 - Name: ${profile.name}
 - Country: ${country}
 - Education: ${profile.educationLevel} in ${profile.fieldOfStudy} (${profile.institution})
-- Current Skills: ${(profile.currentSkills || []).join(', ')}
+- Current Verified Skills: ${(profile.currentSkills || []).join(', ')}
 - Goal: ${profile.careerGoal}
 - Target Career: ${targetCareer}
+- Preferred Pathway: ${profile.preferredPathway || 'University / Degree'}
+- Weekly Availability: ${options.weeklyHours || profile.constraints?.timeAvailableWeeklyHours || 10} hours/week
+- Learning Preference: ${options.learningPreference || 'Projects & Practice'}
 
-Roadmap Architecture:
-- Month 1 (Weeks 1-4): Foundation & Core Tooling (Bridge missing fundamentals, hands-on drills).
-- Month 2 (Weeks 5-8): Applied Domain Skills & Real-World Projects (Tailored with ${country} or African community use cases).
-- Month 3 (Weeks 9-12): Portfolio Polish, Regional & Remote Job Hunting, CV & Interview Mastery.`;
+CRITICAL ROADMAP RULES:
+1. NEVER recommend beginner courses for skills the user already mastered (${(profile.currentSkills || []).join(', ')}). Instead, recommend advanced application in real projects.
+2. For missing high-priority skills, provide clear "reason" explaining why this task is assigned.
+3. Include diverse activityTypes: 'LEARN', 'PRACTICE', 'BUILD', 'ASSESS', 'DOCUMENT', 'DEMONSTRATE', 'APPLY', 'NETWORK', 'PREPARE', 'REVIEW'.
+4. Ground real-world projects in ${country} or Pan-African business contexts.
+
+${langInstruction}`;
 
       const response = await ai.models.generateContent({
         model,
         contents: prompt,
         config: {
-          systemInstruction: 'You are AfriPath AI Roadmap Architect. Return valid structured JSON for a 90-day roadmap.',
+          systemInstruction: `You are AfriPath AI Roadmap Architect. Return valid structured JSON for a 90-day roadmap. ${langInstruction}`,
           responseMimeType: 'application/json',
           thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
           responseSchema: {
@@ -654,7 +603,9 @@ Roadmap Architecture:
             properties: {
               targetCareer: { type: Type.STRING },
               targetTimeframeDays: { type: Type.INTEGER },
+              startingLevel: { type: Type.STRING },
               weeklyHoursRecommended: { type: Type.INTEGER },
+              learningPreference: { type: Type.STRING },
               keyOutcomes: { type: Type.ARRAY, items: { type: Type.STRING } },
               months: {
                 type: Type.ARRAY,
@@ -665,6 +616,7 @@ Roadmap Architecture:
                     phaseName: { type: Type.STRING },
                     theme: { type: Type.STRING },
                     description: { type: Type.STRING },
+                    durationDays: { type: Type.INTEGER },
                     weeks: {
                       type: Type.ARRAY,
                       items: {
@@ -674,6 +626,7 @@ Roadmap Architecture:
                           title: { type: Type.STRING },
                           focus: { type: Type.STRING },
                           milestoneDeliverable: { type: Type.STRING },
+                          milestoneDeliverableType: { type: Type.STRING },
                           tasks: {
                             type: Type.ARRAY,
                             items: {
@@ -681,9 +634,20 @@ Roadmap Architecture:
                               properties: {
                                 id: { type: Type.STRING },
                                 title: { type: Type.STRING },
-                                completed: { type: Type.BOOLEAN },
+                                description: { type: Type.STRING },
+                                skillCompetency: { type: Type.STRING },
+                                reason: { type: Type.STRING },
+                                activityType: { type: Type.STRING },
+                                difficulty: { type: Type.STRING },
                                 estimatedHours: { type: Type.INTEGER },
+                                expectedOutcome: { type: Type.STRING },
+                                completionCriteria: { type: Type.STRING },
+                                resourceTitle: { type: Type.STRING },
                                 resourceLink: { type: Type.STRING },
+                                resourceProvider: { type: Type.STRING },
+                                completed: { type: Type.BOOLEAN },
+                                canAddToCV: { type: Type.BOOLEAN },
+                                canAddToPortfolio: { type: Type.BOOLEAN },
                               },
                               required: ['id', 'title', 'completed', 'estimatedHours'],
                             },
@@ -704,11 +668,19 @@ Roadmap Architecture:
 
       const parsed = JSON.parse(response.text || '{}');
       if (parsed.months && parsed.months.length > 0) {
-        return parsed as CareerRoadmap;
+        // Enforce fallback metadata enrichment if needed
+        const baseFallback = RoadmapEngineService.generateRoadmap(profile, targetCareer, { language, ...options });
+        return {
+          ...baseFallback,
+          ...parsed,
+          todayAction: baseFallback.todayAction,
+          beforeAfterGaps: baseFallback.beforeAfterGaps,
+          phaseAllocation: baseFallback.phaseAllocation,
+        } as CareerRoadmap;
       }
       throw new Error('Incomplete roadmap response');
     },
-    () => generateDynamicRoadmapFallback(profile, targetCareer)
+    () => generateDynamicRoadmapFallback(profile, targetCareer, language, options)
   );
 }
 
@@ -716,18 +688,54 @@ export async function chatCareerMentor(
   history: { sender: 'user' | 'assistant'; text: string }[],
   userMessage: string,
   profile?: UserProfile | null,
-  targetCareer?: string | null
+  targetCareer?: string | null,
+  language = 'en'
 ): Promise<{ text: string; quickReplies: string[] }> {
   const country = profile?.country || 'Africa';
-  const fallbackReply = () => ({
-    text: `Hello ${profile?.name || 'there'}! I'm your AfriPath AI Career Advisor. Based on your path towards ${targetCareer || 'your career goal'}, I recommend prioritizing practical projects like a localized market price tracker, fintech integration, or SMS notification service in ${country}. Employers look closely at demonstrated problem solving! How can I assist your journey today?`,
-    quickReplies: [
-      `What are top in-demand skills in ${country}?`,
-      'Should I learn Python or JavaScript first?',
-      'How can I get remote work from Africa?',
-      'What portfolio projects impress hiring managers?',
-    ],
-  });
+
+  const fallbackReply = () => {
+    if (language === 'ar') {
+      return {
+        text: `مرحباً ${profile?.name || 'صديقي'}! أنا مستشارك المهني في منصة AfriPath AI. بناءً على مسارك نحو ${targetCareer || 'هدفك المهني'}، أوصيك بالتركيز على مشاريع عملية واقعية في ${country}. يهتم أصحاب العمل دائماً بالحلول التطبيقية الملموسة. كيف يمكنني مساعدتك اليوم؟`,
+        quickReplies: [
+          `ما هي المهارات الأكثر طلباً في ${country}؟`,
+          'كيف أستعد لمقابلات العمل التقنية في أفريقيا؟',
+          'كيف أحصل على فرص عمل عن بُعد دولية وإقليمية؟',
+          'ما هي المشاريع التي تبرز سيرتي الذاتية؟',
+        ],
+      };
+    }
+    if (language === 'fr') {
+      return {
+        text: `Bonjour ${profile?.name || 'cher ami'} ! Je suis votre conseiller de carrière AfriPath AI. Pour votre parcours vers ${targetCareer || 'votre objectif professionnel'}, je vous recommande de prioriser des projets pratiques en ${country}. Les recruteurs recherchent des compétences concrètes ! Comment puis-je vous aider aujourd'hui ?`,
+        quickReplies: [
+          `Quelles sont les compétences les plus demandées en ${country} ?`,
+          'Comment trouver un emploi en télétravail en Afrique ?',
+          'Quels projets mettre en avant dans mon portfolio ?',
+          'Comment préparer un entretien d’embauche ?',
+        ],
+      };
+    }
+    if (language === 'wo') {
+      return {
+        text: `Na nga def ${profile?.name || 'sama xarit'} ! Man la sa Conseiller de Carrière ci AfriPath AI. Ci sa yoon bu jëm ci ${targetCareer || 'sa ligéey'}, maa ngi la ciy digal nga defar porosey yu am njariñ ci ${country}. Naka laa la mën a jàppalee tey ?`,
+        quickReplies: [
+          `Ban xarala la gën a am solo ci ${country} ?`,
+          'Naka lañuy wuree ligéey ci internet ?',
+          'Ban porosey lay defar ngir wone sama mën-mën ?',
+        ],
+      };
+    }
+    return {
+      text: `Hello ${profile?.name || 'there'}! I'm your AfriPath AI Career Advisor. Based on your path towards ${targetCareer || 'your career goal'}, I recommend prioritizing practical projects like a localized market price tracker, fintech integration, or SMS notification service in ${country}. Employers look closely at demonstrated problem solving! How can I assist your journey today?`,
+      quickReplies: [
+        `What are top in-demand skills in ${country}?`,
+        'Should I learn Python or JavaScript first?',
+        'How can I get remote work from Africa?',
+        'What portfolio projects impress hiring managers?',
+      ],
+    };
+  };
 
   return executeWithRetryAndFallback<{ text: string; quickReplies: string[] }>(
     async (model) => {
@@ -742,11 +750,22 @@ export async function chatCareerMentor(
 - Current Target Career: ${targetCareer || 'Technology Pathway'}`
         : 'User Profile: African job seeker exploring career options.';
 
+      const langInstruction =
+        language === 'ar'
+          ? 'CRITICAL: You MUST respond ENTIRELY in Arabic (العربية). Maintain professional standard Arabic phrasing while keeping technical names (like Python, SQL, React) in their clear form. Use right-to-left friendly formatting.'
+          : language === 'fr'
+          ? 'CRITICAL: You MUST respond ENTIRELY in French (Français). Use professional and encouraging tone appropriate for African Francophone and Pan-African contexts.'
+          : language === 'wo'
+          ? 'CRITICAL: You MUST respond in Wolof where appropriate (blended naturally with French/English professional terms for clarity).'
+          : 'Respond in clear, professional English.';
+
       const systemInstruction = `You are the AfriPath AI Career Advisor, an intelligent Pan-African career mentor.
 You have deep expertise in African educational systems, leading employers across East, West, North, and Southern Africa (Telcos, Fintechs, Banks, Startups, NGOs), and international remote work opportunities.
 Your tone is warm, empowering, highly practical, realistic, and inspiring.
 Always ground your answers in actionable advice with realistic African context (compensation benchmarks, local networking, portfolio tips).
 Keep responses concise, clear, and structured with bullet points where appropriate.
+
+${langInstruction}
 
 Context:
 ${userContext}`;
@@ -1057,12 +1076,22 @@ export async function generateTailoredCV(
     contactEmail?: string;
     githubUsername?: string;
     linkedinUrl?: string;
-  }
+  },
+  language = 'en'
 ): Promise<CVData> {
   return executeWithRetryAndFallback<CVData>(
     async (model) => {
       const ai = getAIClient()!;
       const country = profile.country || 'Africa';
+
+      const langInstruction =
+        language === 'ar'
+          ? 'CRITICAL: Generate all text, summary, project titles/descriptions, experience bullet points, coursework, achievements, and ATS feedback in Arabic (العربية).'
+          : language === 'fr'
+          ? 'CRITICAL: Generate all text, summary, project descriptions, experience bullet points, coursework, achievements, and ATS feedback in French (Français).'
+          : language === 'wo'
+          ? 'CRITICAL: Generate text with appropriate African professional French/Wolof blend.'
+          : 'Generate in clear, professional English.';
 
       const prompt = `You are the Lead Executive CV Architect for "AfriPath AI".
 Generate a complete, ATS-optimized, high-impact professional CV for this African candidate tailored specifically for the target role: "${targetCareer}" ${targetCompany ? `at "${targetCompany}"` : ''}.
@@ -1072,6 +1101,7 @@ CRITICAL ANTI-HALLUCINATION RULES (MANDATORY):
 2. If the candidate has 0 or minimal formal work experience, frame their degree coursework, academic capstone projects, lab practicals, volunteer initiatives, and self-taught projects professionally.
 3. Every project and experience bullet point MUST start with a strong action verb (Engineered, Architected, Designed, Built, Optimized, Analyzed, Spearheaded, Collaborated, Implemented) following the STAR format.
 4. Emphasize relevant African context (${country}, local universities, tech hubs, and verified languages).
+5. ${langInstruction}
 
 USER PROFILE DATA:
 - Full Name: ${profile.name}

@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { UserProfile, SkillGapAnalysis, CareerMatch, EvaluatedGapItem } from '../types/career';
 import { submitSkillAssessment, submitSkillEvidence } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 
 interface SkillGapViewProps {
   userProfile: UserProfile;
@@ -39,6 +40,7 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
   isLoading,
   onRefreshGapAnalysis,
 }) => {
+  const { t, formatNumber, isRTL, language, getLocalizedCareer } = useLanguage();
   const [activeTab, setActiveTab] = useState<'priorities' | 'insufficient' | 'meets' | 'recommendations'>('priorities');
   const [assessmentModalItem, setAssessmentModalItem] = useState<EvaluatedGapItem | null>(null);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
@@ -55,9 +57,23 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
         <div className="inline-block p-4 rounded-2xl bg-slate-900 border border-slate-800 text-emerald-400">
           <Sparkles className="w-8 h-8 animate-spin" />
         </div>
-        <h2 className="text-lg font-bold text-white">Running Real-Time Skill Gap Pipeline...</h2>
+        <h2 className="text-lg font-bold text-white">
+          {language === 'ar'
+            ? 'جاري تشغيل تحليل فجوة المهارات في الوقت الفعلي...'
+            : language === 'fr'
+            ? 'Exécution du pipeline d’analyse des écarts de compétences...'
+            : language === 'wo'
+            ? 'Maa ngiy xool xarala yi manke...'
+            : 'Running Real-Time Skill Gap Pipeline...'}
+        </h2>
         <p className="text-xs text-slate-400">
-          Comparing verified evidence against competency models for {targetCareer}.
+          {language === 'ar'
+            ? `مقارنة الأدلة المعتمدة مع نماذج الكفاءة لمهنة ${targetCareer}`
+            : language === 'fr'
+            ? `Comparaison des compétences vérifiées avec les exigences pour ${targetCareer}.`
+            : language === 'wo'
+            ? `Di méngal xam-xam yi nga am ak lañ laaj ci ${targetCareer}.`
+            : `Comparing verified evidence against competency models for ${targetCareer}.`}
         </p>
       </div>
     );
@@ -129,20 +145,25 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl sm:text-2xl font-bold text-white">
-              Real-Time Skill Gap Diagnostics
+              {t('skills:title', 'Real-Time Skill Gap Diagnostics')}
             </h1>
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800/40">
-              Grounded Pipeline
+              {language === 'ar' ? 'نموذج مبني على الأدلة' : language === 'fr' ? 'Pipeline Vérifié' : 'Grounded Pipeline'}
             </span>
           </div>
           <p className="text-xs sm:text-sm text-slate-400 mt-1">
-            Grounded comparison for <span className="text-white font-medium">{userProfile.name}</span> •{' '}
-            <span className="text-slate-300">{userProfile.discipline || userProfile.fieldOfStudy}</span> ({userProfile.institution || 'UTG'}).
+            {t('skills:subtitle', {
+              targetCareer: getLocalizedCareer(targetCareer).name || targetCareer,
+              country: userProfile.country || 'Gambia',
+              defaultValue: `Grounded comparison for ${userProfile.name} • ${userProfile.discipline || userProfile.fieldOfStudy} (${userProfile.institution || 'UTG'}).`
+            })}
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <label className="text-xs text-slate-400 font-medium whitespace-nowrap">Target Career:</label>
+          <label className="text-xs text-slate-400 font-medium whitespace-nowrap">
+            {language === 'ar' ? 'المهنة المستهدفة:' : language === 'fr' ? 'Métier visé :' : language === 'wo' ? 'Ligéey bi:' : 'Target Career:'}
+          </label>
           <select
             value={targetCareer}
             onChange={(e) => onSelectTargetCareer(e.target.value)}
@@ -150,7 +171,7 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
           >
             {careerMatches.map((c) => (
               <option key={c.id} value={c.title}>
-                {c.title} ({c.matchScore}%)
+                {getLocalizedCareer(c.title).name || c.title} ({formatNumber(c.matchScore)}%)
               </option>
             ))}
           </select>
@@ -161,47 +182,61 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-emerald-400 font-bold text-lg">
-            {skillGap.overallReadinessScore}%
+            {formatNumber(skillGap.overallReadinessScore)}%
           </div>
           <div>
-            <div className="text-[11px] text-slate-400 font-medium">Verified Readiness</div>
+            <div className="text-[11px] text-slate-400 font-medium">
+              {t('skills:readinessScore', 'Verified Readiness')}
+            </div>
             <div className="text-xs font-bold text-white">
               {skillGap.overallReadinessScore >= 75
-                ? 'Strong Job Readiness'
+                ? (language === 'ar' ? 'جاهزية قوية للعمل' : language === 'fr' ? 'Excellente préparation' : 'Strong Job Readiness')
                 : skillGap.overallReadinessScore >= 50
-                ? 'Solid Fundamentals'
-                : 'Emerging Foundation'}
+                ? (language === 'ar' ? 'أساسيات متينة' : language === 'fr' ? 'Bases solides' : 'Solid Fundamentals')
+                : (language === 'ar' ? 'أساس قيد التطوير' : language === 'fr' ? 'Bases en cours d’acquisition' : 'Emerging Foundation')}
             </div>
           </div>
         </div>
 
         <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-amber-400 font-bold text-lg">
-            {topPriorities.length}
+            {formatNumber(topPriorities.length)}
           </div>
           <div>
-            <div className="text-[11px] text-slate-400 font-medium">Top Priority Gaps</div>
-            <div className="text-xs font-bold text-white">Require Bridging</div>
+            <div className="text-[11px] text-slate-400 font-medium">
+              {language === 'ar' ? 'فجوات ذات أولوية' : language === 'fr' ? 'Écarts prioritaires' : 'Top Priority Gaps'}
+            </div>
+            <div className="text-xs font-bold text-white">
+              {language === 'ar' ? 'تتطلب تدريباً' : language === 'fr' ? 'À combler' : 'Require Bridging'}
+            </div>
           </div>
         </div>
 
         <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-emerald-400 font-bold text-lg">
-            {meetsItems.length}
+            {formatNumber(meetsItems.length)}
           </div>
           <div>
-            <div className="text-[11px] text-slate-400 font-medium">Meets Requirements</div>
-            <div className="text-xs font-bold text-white">Verified Proficiency</div>
+            <div className="text-[11px] text-slate-400 font-medium">
+              {t('skills:ownedSkills', 'Meets Requirements')}
+            </div>
+            <div className="text-xs font-bold text-white">
+              {language === 'ar' ? 'كفاءة موثقة' : language === 'fr' ? 'Compétence vérifiée' : 'Verified Proficiency'}
+            </div>
           </div>
         </div>
 
         <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-sky-400 font-bold text-lg">
-            {insufficientItems.length}
+            {formatNumber(insufficientItems.length)}
           </div>
           <div>
-            <div className="text-[11px] text-slate-400 font-medium">Needs Evidence</div>
-            <div className="text-xs font-bold text-white">Take Assessment</div>
+            <div className="text-[11px] text-slate-400 font-medium">
+              {language === 'ar' ? 'تحتاج إلى إثبات' : language === 'fr' ? 'Besoin de preuves' : 'Needs Evidence'}
+            </div>
+            <div className="text-xs font-bold text-white">
+              {language === 'ar' ? 'إجراء تقييم سريع' : language === 'fr' ? 'Faire le test' : 'Take Assessment'}
+            </div>
           </div>
         </div>
       </div>
@@ -210,7 +245,15 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
       <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-1.5">
         <div className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
           <Sparkles className="w-3.5 h-3.5" />
-          <span>Diagnostic Assessment Summary</span>
+          <span>
+            {language === 'ar'
+              ? 'ملخص التقييم التشخيصي'
+              : language === 'fr'
+              ? 'Résumé du diagnostic des compétences'
+              : language === 'wo'
+              ? 'Tënk bu tënk xarala yi'
+              : 'Diagnostic Assessment Summary'}
+          </span>
         </div>
         <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
           {report?.executiveSummary || skillGap.aiSummary}
@@ -228,7 +271,13 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
           }`}
         >
           <AlertTriangle className="w-3.5 h-3.5" />
-          <span>Top Priority Gaps ({topPriorities.length})</span>
+          <span>
+            {language === 'ar'
+              ? `الفجوات ذات الأولوية (${formatNumber(topPriorities.length)})`
+              : language === 'fr'
+              ? `Écarts prioritaires (${formatNumber(topPriorities.length)})`
+              : `Top Priority Gaps (${topPriorities.length})`}
+          </span>
         </button>
 
         <button
@@ -240,7 +289,13 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
           }`}
         >
           <HelpCircle className="w-3.5 h-3.5" />
-          <span>Insufficient Evidence ({insufficientItems.length})</span>
+          <span>
+            {language === 'ar'
+              ? `أدلة غير كافية (${formatNumber(insufficientItems.length)})`
+              : language === 'fr'
+              ? `Preuves insuffisantes (${formatNumber(insufficientItems.length)})`
+              : `Insufficient Evidence (${insufficientItems.length})`}
+          </span>
         </button>
 
         <button
@@ -252,7 +307,13 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
           }`}
         >
           <CheckCircle2 className="w-3.5 h-3.5" />
-          <span>Meets Requirements ({meetsItems.length})</span>
+          <span>
+            {language === 'ar'
+              ? `تفي بالمتطلبات (${formatNumber(meetsItems.length)})`
+              : language === 'fr'
+              ? `Exigences satisfaites (${formatNumber(meetsItems.length)})`
+              : `Meets Requirements (${meetsItems.length})`}
+          </span>
         </button>
 
         <button
@@ -264,7 +325,13 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
           }`}
         >
           <Zap className="w-3.5 h-3.5" />
-          <span>Targeted Recommendations ({recommendations.length})</span>
+          <span>
+            {language === 'ar'
+              ? `توصيات مستهدفة (${formatNumber(recommendations.length)})`
+              : language === 'fr'
+              ? `Recommandations ciblées (${formatNumber(recommendations.length)})`
+              : `Targeted Recommendations (${recommendations.length})`}
+          </span>
         </button>
       </div>
 
@@ -276,9 +343,19 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
             {topPriorities.length === 0 ? (
               <div className="p-8 rounded-2xl bg-slate-900 border border-slate-800 text-center space-y-2">
                 <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto" />
-                <h3 className="text-sm font-bold text-white">No Critical Priority Gaps Detected!</h3>
+                <h3 className="text-sm font-bold text-white">
+                  {language === 'ar'
+                    ? 'لم يتم رصد أي فجوات حرجة!'
+                    : language === 'fr'
+                    ? 'Aucun écart critique détecté !'
+                    : 'No Critical Priority Gaps Detected!'}
+                </h3>
                 <p className="text-xs text-slate-400">
-                  Your verified experience and training meet or exceed the primary requirements for {targetCareer}.
+                  {language === 'ar'
+                    ? `خبرتك وتدريبك المعتمد يفي بمتطلبات مهنة ${targetCareer}.`
+                    : language === 'fr'
+                    ? `Votre expérience et formation répondent déjà aux exigences principales pour ${targetCareer}.`
+                    : `Your verified experience and training meet or exceed the primary requirements for ${targetCareer}.`}
                 </p>
               </div>
             ) : (
@@ -300,11 +377,13 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
 
                     <div className="flex items-center gap-3 text-xs">
                       <span className="text-slate-400">
-                        Current: <strong className="text-amber-400">{item.currentProficiencyLabel}</strong>
+                        {language === 'ar' ? 'المستوى الحالي:' : language === 'fr' ? 'Niveau actuel :' : 'Current:'}{' '}
+                        <strong className="text-amber-400">{item.currentProficiencyLabel}</strong>
                       </span>
                       <span className="text-slate-600">→</span>
                       <span className="text-slate-400">
-                        Target: <strong className="text-emerald-400">{item.requiredProficiencyLabel}</strong>
+                        {language === 'ar' ? 'المستوى المستهدف:' : language === 'fr' ? 'Objectif :' : 'Target:'}{' '}
+                        <strong className="text-emerald-400">{item.requiredProficiencyLabel}</strong>
                       </span>
                     </div>
                   </div>
@@ -316,7 +395,7 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
                     <div className="p-3 rounded-xl bg-slate-950 border border-slate-800/80 text-xs text-slate-400 space-y-1">
                       <div className="font-semibold text-slate-300 text-[11px] flex items-center gap-1.5">
                         <FileCheck className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>Evidence Analyzed:</span>
+                        <span>{language === 'ar' ? 'الأدلة التي تم تحليلها:' : language === 'fr' ? 'Preuves analysées :' : 'Evidence Analyzed:'}</span>
                       </div>
                       <ul className="list-disc list-inside space-y-0.5 pl-1">
                         {item.evidenceUsed.map((ev, eIdx) => (
@@ -330,7 +409,7 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
                   <div className="pt-3 border-t border-slate-800 space-y-2">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <div className="text-xs text-emerald-400 font-medium">
-                        💡 <strong>Recommended Action:</strong> {item.recommendedAction}
+                        💡 <strong>{language === 'ar' ? 'الإجراء الموصى به:' : language === 'fr' ? 'Action recommandée :' : 'Recommended Action:'}</strong> {item.recommendedAction}
                       </div>
 
                       <div className="flex items-center gap-2">
@@ -340,7 +419,7 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
                             className="px-3 py-1 rounded-lg bg-emerald-950 border border-emerald-800/60 text-emerald-300 hover:bg-emerald-900 text-xs font-semibold transition flex items-center gap-1"
                           >
                             <Award className="w-3 h-3" />
-                            <span>Take Assessment</span>
+                            <span>{language === 'ar' ? 'إجراء التقييم' : language === 'fr' ? 'Passer l’évaluation' : 'Take Assessment'}</span>
                           </button>
                         )}
                         <button
@@ -348,7 +427,7 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
                           className="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition flex items-center gap-1"
                         >
                           <PlusCircle className="w-3 h-3" />
-                          <span>Add Evidence</span>
+                          <span>{language === 'ar' ? 'إضافة دليل أو مشروع' : language === 'fr' ? 'Ajouter une preuve' : 'Add Evidence'}</span>
                         </button>
                       </div>
                     </div>
@@ -387,7 +466,12 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
         {activeTab === 'insufficient' && (
           <div className="space-y-4">
             <div className="p-4 rounded-2xl bg-sky-950/40 border border-sky-800/40 text-xs text-sky-200 leading-relaxed">
-              <strong>Understanding "Insufficient Evidence":</strong> AfriPath AI does not assume you have a gap simply because a skill was not listed. Rather than penalizing you, you can verify your proficiency by taking our 3-minute quiz or documenting relevant projects.
+              <strong>{language === 'ar' ? 'توضيح "أدلة غير كافية":' : language === 'fr' ? 'Comprendre « Preuves insuffisantes » :' : 'Understanding "Insufficient Evidence":'}</strong>{' '}
+              {language === 'ar'
+                ? 'لا تفترض المنصة وجود فجوة لمجرد عدم ذكر المهارة في ملفك. بدلاً من ذلك، يمكنك تأكيد كفاءتك بإجراء اختبار قصير مدته 3 دقائق أو توثيق مشاريعك ذات الصلة.'
+                : language === 'fr'
+                ? 'AfriPath AI ne suppose pas un écart simplement parce qu’une compétence n’était pas listée. Vous pouvez vérifier votre niveau en passant notre test de 3 minutes ou en documentant vos projets.'
+                : 'AfriPath AI does not assume you have a gap simply because a skill was not listed. Rather than penalizing you, you can verify your proficiency by taking our 3-minute quiz or documenting relevant projects.'}
             </div>
 
             {insufficientItems.map((item) => (
@@ -398,13 +482,14 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <span className="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-sky-950 text-sky-300 border border-sky-800/40">
-                      Insufficient Evidence
+                      {language === 'ar' ? 'أدلة غير كافية' : language === 'fr' ? 'Preuves insuffisantes' : 'Insufficient Evidence'}
                     </span>
                     <h3 className="text-sm font-bold text-white">{item.competencyName}</h3>
                   </div>
 
                   <span className="text-xs text-slate-400">
-                    Pathway Requirement: <strong className="text-slate-200">{item.requiredProficiencyLabel}</strong>
+                    {language === 'ar' ? 'متطلبات المسار:' : language === 'fr' ? 'Exigence du parcours :' : 'Pathway Requirement:'}{' '}
+                    <strong className="text-slate-200">{item.requiredProficiencyLabel}</strong>
                   </span>
                 </div>
 
@@ -417,7 +502,7 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
                       className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-sm"
                     >
                       <Award className="w-3.5 h-3.5" />
-                      <span>Take 3-Min Assessment</span>
+                      <span>{language === 'ar' ? 'إجراء اختبار مدته 3 دقائق' : language === 'fr' ? 'Faire le test (3 min)' : 'Take 3-Min Assessment'}</span>
                     </button>
                   )}
 
@@ -426,7 +511,7 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
                     className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition flex items-center gap-1.5"
                   >
                     <PlusCircle className="w-3.5 h-3.5" />
-                    <span>Add Project or Course Evidence</span>
+                    <span>{language === 'ar' ? 'إضافة دليل مشروع أو دورة' : language === 'fr' ? 'Ajouter une preuve de projet' : 'Add Project or Course Evidence'}</span>
                   </button>
                 </div>
               </div>
@@ -438,7 +523,12 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
         {activeTab === 'meets' && (
           <div className="space-y-4">
             <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-800/40 text-xs text-emerald-200 leading-relaxed">
-              <strong>Verified Pathway Alignment:</strong> The following competencies meet or exceed the expected level for your target role based on your academic training, verified projects, and assessments.
+              <strong>{language === 'ar' ? 'توافق موثق للمسار المهني:' : language === 'fr' ? 'Alignement validé :' : 'Verified Pathway Alignment:'}</strong>{' '}
+              {language === 'ar'
+                ? 'الكفاءات التالية تفي بمتطلبات دورك المستهدف أو تتجاوزها بناءً على تدريبك الأكاديمي ومشاريعك المعتمدة.'
+                : language === 'fr'
+                ? 'Les compétences suivantes répondent ou dépassent le niveau attendu pour votre rôle cible d’après vos projets et évaluations.'
+                : 'The following competencies meet or exceed the expected level for your target role based on your academic training, verified projects, and assessments.'}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -453,7 +543,7 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
                       <span>{item.competencyName}</span>
                     </h3>
                     <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800/40">
-                      Meets Requirement
+                      {language === 'ar' ? 'تفي بالمتطلبات' : language === 'fr' ? 'Conforme aux exigences' : 'Meets Requirement'}
                     </span>
                   </div>
 
@@ -474,7 +564,12 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
         {activeTab === 'recommendations' && (
           <div className="space-y-4">
             <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-xs text-slate-300 leading-relaxed">
-              <strong>Targeted Growth Accelerators:</strong> These are high-yield complementary skills tailored to your {userProfile.discipline || userProfile.fieldOfStudy} background that distinguish candidates in the regional job market.
+              <strong>{language === 'ar' ? 'مسرّعات النمو المستهدفة:' : language === 'fr' ? 'Accélérateurs de croissance :' : 'Targeted Growth Accelerators:'}</strong>{' '}
+              {language === 'ar'
+                ? `هذه مهارات تكميلية عالية القيمة مخصصة لخلفيتك في ${userProfile.discipline || userProfile.fieldOfStudy} تميز المرشحين في سوق العمل الإقليمي.`
+                : language === 'fr'
+                ? `Ces compétences complémentaires à fort impact adaptées à votre parcours en ${userProfile.discipline || userProfile.fieldOfStudy} vous démarquent sur le marché.`
+                : `These are high-yield complementary skills tailored to your ${userProfile.discipline || userProfile.fieldOfStudy} background that distinguish candidates in the regional job market.`}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -503,9 +598,19 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
       {/* Action to Launch Roadmap */}
       <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-8">
         <div>
-          <h3 className="text-sm font-bold text-white">Translate your diagnostics into a personalized roadmap</h3>
+          <h3 className="text-sm font-bold text-white">
+            {language === 'ar'
+              ? 'حوّل هذا التشخيص إلى خطة طريق تنفيذية مخصصة'
+              : language === 'fr'
+              ? 'Transformez ce diagnostic en feuille de route personnalisée'
+              : 'Translate your diagnostics into a personalized roadmap'}
+          </h3>
           <p className="text-xs text-slate-400 mt-0.5">
-            Access weekly milestones, structured projects, and verified milestones for {targetCareer}.
+            {language === 'ar'
+              ? `احصل على معالم أسبوعية ومشاريع عملية موجهة لمهنة ${targetCareer}.`
+              : language === 'fr'
+              ? `Accédez aux étapes hebdomadaires et projets concrets pour ${targetCareer}.`
+              : `Access weekly milestones, structured projects, and verified milestones for ${targetCareer}.`}
           </p>
         </div>
 
@@ -513,8 +618,8 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
           onClick={onNavigateToRoadmap}
           className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition shadow-sm shrink-0"
         >
-          <span>Launch 90-Day Roadmap</span>
-          <ArrowRight className="w-3.5 h-3.5" />
+          <span>{t('skills:proceedToRoadmap', 'Launch 90-Day Roadmap')}</span>
+          <ArrowRight className={`w-3.5 h-3.5 ${isRTL ? 'rotate-180' : ''}`} />
         </button>
       </div>
 
@@ -526,7 +631,7 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
               <div className="flex items-center gap-2">
                 <Award className="w-5 h-5 text-emerald-400" />
                 <h2 className="text-base font-bold text-white">
-                  Skill Assessment: {assessmentModalItem.competencyName}
+                  {language === 'ar' ? 'تقييم المهارة:' : language === 'fr' ? 'Évaluation de compétence :' : 'Skill Assessment:'} {assessmentModalItem.competencyName}
                 </h2>
               </div>
               <button
@@ -540,14 +645,18 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
             {!quizSubmitted ? (
               <div className="space-y-4">
                 <p className="text-xs text-slate-300">
-                  Answer the following questions to verify your practical competency level in{' '}
+                  {language === 'ar'
+                    ? `أجب عن الأسئلة التالية للتحقق من مستوى كفاءتك العملية في `
+                    : language === 'fr'
+                    ? `Répondez aux questions suivantes pour valider votre niveau pratique en `
+                    : `Answer the following questions to verify your practical competency level in `}
                   <span className="text-white font-semibold">{assessmentModalItem.competencyName}</span>.
                 </p>
 
                 {(assessmentModalItem.assessmentQuestions || []).map((q, qIdx) => (
                   <div key={q.id} className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2.5">
                     <div className="text-xs font-semibold text-white">
-                      {qIdx + 1}. {q.question}
+                      {formatNumber(qIdx + 1)}. {q.question}
                     </div>
                     <div className="space-y-1.5">
                       {q.options.map((opt, optIdx) => (
@@ -581,7 +690,7 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
                     onClick={() => setAssessmentModalItem(null)}
                     className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-300 transition"
                   >
-                    Cancel
+                    {language === 'ar' ? 'إلغاء' : language === 'fr' ? 'Annuler' : 'Cancel'}
                   </button>
                   <button
                     onClick={handleSubmitQuiz}
@@ -591,28 +700,35 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
                     }
                     className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-xs font-bold text-white transition"
                   >
-                    Submit Answers
+                    {language === 'ar' ? 'إرسال الإجابات' : language === 'fr' ? 'Valider les réponses' : 'Submit Answers'}
                   </button>
                 </div>
               </div>
             ) : (
               <div className="text-center py-6 space-y-4">
                 <div className="w-16 h-16 rounded-full bg-emerald-950 border border-emerald-700 flex items-center justify-center text-emerald-400 font-bold text-2xl mx-auto">
-                  {quizScore}%
+                  {formatNumber(quizScore || 0)}%
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">Assessment Complete</h3>
+                  <h3 className="text-base font-bold text-white">
+                    {language === 'ar' ? 'اكتمل التقييم بنجاح' : language === 'fr' ? 'Évaluation terminée' : 'Assessment Complete'}
+                  </h3>
                   <p className="text-xs text-slate-400 mt-1">
-                    Your score has been verified. Your proficiency confidence for{' '}
-                    <span className="text-white font-medium">{assessmentModalItem.competencyName}</span> is now upgraded to{' '}
-                    <span className="text-emerald-400 font-bold">HIGH</span>.
+                    {language === 'ar'
+                      ? `تم التحقق من نتيجتك. تم ترقية درجة الثقة في مهارة `
+                      : language === 'fr'
+                      ? `Votre score est vérifié. La confiance en votre compétence en `
+                      : `Your score has been verified. Your proficiency confidence for `}
+                    <span className="text-white font-medium">{assessmentModalItem.competencyName}</span>{' '}
+                    {language === 'ar' ? 'إلى ' : language === 'fr' ? 'est maintenant ' : 'is now upgraded to '}
+                    <span className="text-emerald-400 font-bold">{language === 'ar' ? 'عالية' : language === 'fr' ? 'ÉLEVÉE' : 'HIGH'}</span>.
                   </p>
                 </div>
                 <button
                   onClick={() => setAssessmentModalItem(null)}
                   className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white transition"
                 >
-                  Return to Gap Analysis
+                  {language === 'ar' ? 'العودة لتحليل الفجوات' : language === 'fr' ? 'Retour au diagnostic' : 'Return to Gap Analysis'}
                 </button>
               </div>
             )}
@@ -628,7 +744,7 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
               <div className="flex items-center gap-2">
                 <FileCheck className="w-5 h-5 text-emerald-400" />
                 <h2 className="text-base font-bold text-white">
-                  Add Evidence: {evidenceModalItem.competencyName}
+                  {language === 'ar' ? 'إضافة دليل كفاءة:' : language === 'fr' ? 'Ajouter une preuve :' : 'Add Evidence:'} {evidenceModalItem.competencyName}
                 </h2>
               </div>
               <button
@@ -641,27 +757,41 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block text-slate-300 font-semibold mb-1">Evidence Type</label>
+                <label className="block text-slate-300 font-semibold mb-1">
+                  {language === 'ar' ? 'نوع الدليل' : language === 'fr' ? 'Type de preuve' : 'Evidence Type'}
+                </label>
                 <select
                   value={evidenceSource}
                   onChange={(e: any) => setEvidenceSource(e.target.value)}
                   className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
-                  <option value="project_deliverable">Hands-on Project / Deliverable</option>
-                  <option value="work_experience">Internship / Work Experience</option>
-                  <option value="certification">Course / Certification Credential</option>
+                  <option value="project_deliverable">
+                    {language === 'ar' ? 'مشروع عملي / مخرج ملموس' : language === 'fr' ? 'Projet pratique / Livrable' : 'Hands-on Project / Deliverable'}
+                  </option>
+                  <option value="work_experience">
+                    {language === 'ar' ? 'تدريب عملي / خبرة مهنية' : language === 'fr' ? 'Stage / Expérience professionnelle' : 'Internship / Work Experience'}
+                  </option>
+                  <option value="certification">
+                    {language === 'ar' ? 'شهادة أو دورة معتمدة' : language === 'fr' ? 'Certification / Cours validé' : 'Course / Certification Credential'}
+                  </option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-slate-300 font-semibold mb-1">
-                  Describe what you built or accomplished
+                  {language === 'ar' ? 'صف ما قمت ببنائه أو إنجازه' : language === 'fr' ? 'Décrivez ce que vous avez réalisé' : 'Describe what you built or accomplished'}
                 </label>
                 <textarea
                   rows={4}
                   value={evidenceText}
                   onChange={(e) => setEvidenceText(e.target.value)}
-                  placeholder="e.g. Built student database using PostgreSQL, wrote complex joins, and prepared monthly reports."
+                  placeholder={
+                    language === 'ar'
+                      ? 'مثال: قمت ببناء قاعدة بيانات طلابية باستخدام PostgreSQL وكتابة استعلامات متقدمة...'
+                      : language === 'fr'
+                      ? 'ex. Création d’une base de données avec PostgreSQL, rédaction de requêtes complexes...'
+                      : 'e.g. Built student database using PostgreSQL, wrote complex joins, and prepared monthly reports.'
+                  }
                   className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 leading-relaxed"
                 />
               </div>
@@ -672,14 +802,16 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
                 onClick={() => setEvidenceModalItem(null)}
                 className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-300 transition"
               >
-                Cancel
+                {language === 'ar' ? 'إلغاء' : language === 'fr' ? 'Annuler' : 'Cancel'}
               </button>
               <button
                 onClick={handleAddEvidence}
                 disabled={!evidenceText.trim() || isSubmitting}
                 className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-xs font-bold text-white transition flex items-center gap-1.5"
               >
-                {isSubmitting ? 'Saving...' : 'Save Evidence'}
+                {isSubmitting
+                  ? (language === 'ar' ? 'جاري الحفظ...' : language === 'fr' ? 'Enregistrement...' : 'Saving...')
+                  : (language === 'ar' ? 'حفظ الدليل' : language === 'fr' ? 'Enregistrer la preuve' : 'Save Evidence')}
               </button>
             </div>
           </div>

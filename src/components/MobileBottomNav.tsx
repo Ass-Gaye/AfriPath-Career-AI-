@@ -64,15 +64,15 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   // Primary 4 bar items + More button (5 items total for perfect mobile width fitting)
   const authenticatedPrimaryTabs = [
     { id: 'dashboard', label: t('navigation:dashboard', 'Dashboard'), icon: TrendingUp },
-    { id: 'my-path', label: 'My Path', icon: Compass },
-    { id: 'careers', label: 'Careers', icon: Target },
+    { id: 'my-path', label: t('navigation:myPath', 'My Path'), icon: Compass },
+    { id: 'careers', label: t('navigation:careers', 'Careers'), icon: Target },
     { id: 'opportunities', label: t('navigation:opportunities', 'Jobs'), icon: Briefcase },
   ];
 
   const publicPrimaryTabs = [
     { id: 'landing', label: t('navigation:home', 'Home'), icon: Compass },
-    { id: 'careers', label: 'Careers', icon: Target },
-    { id: 'skills', label: 'Skills', icon: Zap },
+    { id: 'careers', label: t('navigation:careers', 'Careers'), icon: Target },
+    { id: 'skills', label: t('navigation:skills', 'Skills'), icon: Zap },
     { id: 'opportunities', label: t('navigation:opportunities', 'Jobs'), icon: Briefcase },
   ];
 
@@ -81,17 +81,17 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   // Secondary items shown in the "More" Drawer
   const secondaryMenuItems = isAuthenticated
     ? [
-        { id: 'mentor', label: 'AI Career Advisor', icon: MessageSquare, desc: 'Chat with real-time coach' },
-        { id: 'roadmap', label: '90-Day Roadmap Plan', icon: FileText, desc: 'Weekly milestones & skill sprints' },
-        { id: 'cv-builder', label: 'AI CV & Resume Studio', icon: FileCheck, desc: 'Download ATS-ready PDF' },
-        { id: 'skills', label: 'Skills Intelligence', icon: Zap, desc: 'Technical & vocational directory' },
-        { id: 'countries', label: 'African Ecosystems', icon: Globe, desc: 'Universities, TVET & salaries' },
-        { id: 'admin', label: 'Admin Control Hub', icon: ShieldAlert, desc: 'Taxonomies & translations' },
+        { id: 'mentor', label: t('navigation:advisor', 'AI Career Advisor'), icon: MessageSquare, desc: t('navigation:advisorDesc', 'Chat with real-time coach') },
+        { id: 'roadmap', label: t('navigation:roadmap', '90-Day Roadmap Plan'), icon: FileText, desc: t('navigation:roadmapDesc', 'Weekly milestones & skill sprints') },
+        { id: 'cv-builder', label: t('navigation:cvBuilder', 'AI CV & Resume Studio'), icon: FileCheck, desc: t('navigation:cvBuilderDesc', 'Download ATS-ready PDF') },
+        { id: 'skills', label: t('navigation:skills', 'Skills Intelligence'), icon: Zap, desc: t('navigation:skillsDesc', 'Technical & vocational directory') },
+        { id: 'countries', label: t('navigation:countries', 'African Ecosystems'), icon: Globe, desc: t('navigation:countriesDesc', 'Universities, TVET & salaries') },
+        { id: 'admin', label: t('navigation:adminHub', 'Admin Control Hub'), icon: ShieldAlert, desc: t('navigation:adminHubDesc', 'Taxonomies & translations') },
       ]
     : [
-        { id: 'mentor', label: 'AI Career Advisor', icon: MessageSquare, desc: 'Instant career guidance' },
-        { id: 'countries', label: 'African Ecosystems', icon: Globe, desc: '14+ countries education & salary data' },
-        { id: 'about', label: 'About AfriPath AI', icon: HelpCircle, desc: 'Mission, vision & partner inquiries' },
+        { id: 'mentor', label: t('navigation:advisor', 'AI Career Advisor'), icon: MessageSquare, desc: t('navigation:advisorDesc', 'Instant career guidance') },
+        { id: 'countries', label: t('navigation:countries', 'African Ecosystems'), icon: Globe, desc: t('navigation:countriesDesc', '14+ countries education & salary data') },
+        { id: 'about', label: t('navigation:about', 'About AfriPath AI'), icon: HelpCircle, desc: t('navigation:aboutDesc', 'Mission, vision & partner inquiries') },
       ];
 
   const isMoreActive = secondaryMenuItems.some((item) => item.id === activeTab);

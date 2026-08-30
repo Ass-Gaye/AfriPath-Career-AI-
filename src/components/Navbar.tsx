@@ -32,6 +32,7 @@ import { LanguageSelector } from './LanguageSelector';
 import { UserProfile } from '../types/career';
 import { AuthUser } from '../services/api';
 import { AuthMode } from './AuthModal';
+import { useLanguage } from '../context/LanguageContext';
 
 interface NavbarProps {
   activeTab: string;
@@ -61,6 +62,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAboutModal,
 }) => {
   const { t } = useTranslation(['navigation', 'common']);
+  const { isRTL } = useLanguage();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -78,20 +80,20 @@ export const Navbar: React.FC<NavbarProps> = ({
   // Dynamic Navigation Items based on auth state
   const publicNavItems = [
     { id: 'landing', label: t('navigation:home', 'Home'), icon: Compass },
-    { id: 'careers', label: 'Careers', icon: Compass },
-    { id: 'skills', label: 'Skills', icon: Zap },
+    { id: 'careers', label: t('navigation:careers', 'Careers'), icon: Compass },
+    { id: 'skills', label: t('navigation:skills', 'Skills'), icon: Zap },
     { id: 'opportunities', label: t('navigation:opportunities', 'Opportunities'), icon: Briefcase },
-    { id: 'countries', label: 'Countries', icon: Globe },
+    { id: 'countries', label: t('navigation:countries', 'Countries'), icon: Globe },
     { id: 'mentor', label: t('navigation:advisor', 'AI Advisor'), icon: MessageSquare },
   ];
 
   const authenticatedNavItems = [
     { id: 'dashboard', label: t('navigation:dashboard', 'Dashboard'), icon: TrendingUp },
-    { id: 'my-path', label: 'My Path', icon: Compass },
-    { id: 'careers', label: 'Careers', icon: Target },
-    { id: 'skills', label: 'Skills', icon: Zap },
-    { id: 'opportunities', label: 'Opportunities', icon: Briefcase },
-    { id: 'roadmap', label: '90-Day Plan', icon: FileText },
+    { id: 'my-path', label: t('navigation:myPath', 'My Path'), icon: Compass },
+    { id: 'careers', label: t('navigation:careers', 'Careers'), icon: Target },
+    { id: 'skills', label: t('navigation:skills', 'Skills'), icon: Zap },
+    { id: 'opportunities', label: t('navigation:opportunities', 'Opportunities'), icon: Briefcase },
+    { id: 'roadmap', label: t('navigation:roadmap', '90-Day Plan'), icon: FileText },
     { id: 'cv-builder', label: t('navigation:cvBuilder', 'AI CV'), icon: FileCheck },
     { id: 'mentor', label: t('navigation:advisor', 'AI Advisor'), icon: MessageSquare },
   ];
@@ -175,7 +177,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               {/* User Dropdown */}
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 max-w-[calc(100vw-1rem)] rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-1.5 space-y-1 z-50 animate-in fade-in zoom-in-95">
+                <div className={`absolute ${isRTL ? 'left-0' : 'right-0'} mt-2 w-56 max-w-[calc(100vw-1rem)] rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-1.5 space-y-1 z-50 animate-in fade-in zoom-in-95`}>
                   <div className="px-3 py-2 border-b border-slate-800/80">
                     <div className="text-xs font-bold text-white truncate">{displayName}</div>
                     <div className="text-[11px] text-slate-400 truncate">{displayEmail}</div>

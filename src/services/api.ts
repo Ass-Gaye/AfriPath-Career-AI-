@@ -354,13 +354,14 @@ export async function fetchGeneratedCV(
     contactEmail?: string;
     githubUsername?: string;
     linkedinUrl?: string;
-  }
+  },
+  language = 'en'
 ): Promise<CVData> {
   try {
     const response = await fetch('/api/generate-cv', {
       method: 'POST',
       headers: getHeaders(),
-      body: JSON.stringify({ profile, targetCareer, targetCompany, additionalInfo }),
+      body: JSON.stringify({ profile, targetCareer, targetCompany, additionalInfo, language }),
     });
     if (!response.ok) {
       throw new Error(`Server returned ${response.status}`);
@@ -449,13 +450,15 @@ export async function fetchSkillGap(
 
 export async function fetchRoadmap(
   profile: UserProfile,
-  targetCareer: string
+  targetCareer: string,
+  language = 'en',
+  preferences?: { weeklyHours?: number; learningPreference?: string }
 ): Promise<CareerRoadmap> {
   try {
     const response = await fetch('/api/generate-roadmap', {
       method: 'POST',
       headers: getHeaders(),
-      body: JSON.stringify({ profile, targetCareer }),
+      body: JSON.stringify({ profile, targetCareer, language, preferences }),
     });
     if (!response.ok) {
       throw new Error(`Server returned ${response.status}`);
@@ -471,11 +474,32 @@ export async function fetchRoadmap(
   }
 }
 
+export async function attachTaskEvidence(payload: {
+  taskId: string;
+  taskTitle: string;
+  skillName: string;
+  evidenceType: 'project_link' | 'certificate' | 'github_repo' | 'notes';
+  urlOrText: string;
+  addToCV?: boolean;
+  addToPortfolio?: boolean;
+}): Promise<{ success: boolean; message: string }> {
+  const response = await fetch('/api/roadmap/task-evidence', {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to attach evidence');
+  }
+  return await response.json();
+}
+
 export async function sendMentorMessage(
   history: ChatMessage[],
   message: string,
   profile?: UserProfile | null,
-  targetCareer?: string | null
+  targetCareer?: string | null,
+  language = 'en'
 ): Promise<{ text: string; quickReplies: string[] }> {
   try {
     const response = await fetch('/api/mentor-chat', {
@@ -486,6 +510,7 @@ export async function sendMentorMessage(
         message,
         profile,
         targetCareer,
+        language,
       }),
     });
     if (!response.ok) {
@@ -615,12 +640,13 @@ export async function generateInstantCV(
   profile: UserProfile,
   targetCareer: string,
   targetCompany?: string,
-  additionalInfo?: string
+  additionalInfo?: string,
+  language = 'en'
 ): Promise<CVData> {
   const response = await fetch('/api/cv/generate', {
     method: 'POST',
     headers: getHeaders(),
-    body: JSON.stringify({ profile, targetCareer, targetCompany, additionalInfo }),
+    body: JSON.stringify({ profile, targetCareer, targetCompany, additionalInfo, language }),
   });
   if (!response.ok) {
     throw new Error(`Failed to generate CV: ${response.statusText}`);
@@ -642,11 +668,11 @@ export async function validateCVDocument(cvData: CVData, profile?: UserProfile):
   return data.validation;
 }
 
-export async function polishCVWording(cvData: CVData): Promise<CVData> {
+export async function polishCVWording(cvData: CVData, language = 'en'): Promise<CVData> {
   const response = await fetch(`/api/cv/${cvData.id || 'current'}/regenerate-wording`, {
     method: 'POST',
     headers: getHeaders(),
-    body: JSON.stringify({ cvData }),
+    body: JSON.stringify({ cvData, language }),
   });
   if (!response.ok) {
     throw new Error('Failed to polish CV wording');

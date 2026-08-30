@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Globe2, Check, ChevronDown, Sparkles } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, LanguageConfig, getLanguageByCode } from '../i18n/languages';
-import { changeLanguage } from '../i18n';
+import { useLanguage } from '../context/LanguageContext';
 
 interface LanguageSelectorProps {
   variant?: 'compact' | 'full' | 'inline';
@@ -13,12 +13,12 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   variant = 'compact',
   onOpenAdmin,
 }) => {
-  const { i18n, t } = useTranslation(['common', 'navigation']);
+  const { t } = useTranslation(['common', 'navigation']);
+  const { language, setLanguage, isRTL } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const currentLangCode = i18n.language || 'en';
-  const currentLang: LanguageConfig = getLanguageByCode(currentLangCode);
+  const currentLang: LanguageConfig = getLanguageByCode(language);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -31,7 +31,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   }, []);
 
   const handleSelectLanguage = (langCode: string) => {
-    changeLanguage(langCode);
+    setLanguage(langCode);
     setIsOpen(false);
   };
 
@@ -46,8 +46,8 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
             ? 'px-1.5 sm:px-2.5 py-1 sm:py-1.5 text-xs font-semibold bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 border-slate-700 shadow-sm'
             : 'px-3 py-2 text-sm font-medium bg-slate-900/80 hover:bg-slate-800 text-white border-slate-700'
         }`}
-        title={t('common:selectLanguage')}
-        aria-label={t('common:selectLanguage')}
+        title={t('common:selectLanguage', 'Select Language')}
+        aria-label={t('common:selectLanguage', 'Select Language')}
       >
         <Globe2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 hidden sm:inline-block" />
         <span className="font-bold tracking-tight text-xs sm:text-sm">{currentLang.flag}</span>
@@ -61,14 +61,16 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
       {isOpen && (
         <div
           id="language-dropdown-menu"
-          className="absolute right-0 mt-2 w-64 max-w-[calc(100vw-1rem)] rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-1.5 space-y-1 z-50 animate-in fade-in zoom-in-95"
+          className={`absolute ${
+            isRTL ? 'left-0' : 'right-0'
+          } mt-2 w-64 max-w-[calc(100vw-1rem)] rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-1.5 space-y-1 z-50 animate-in fade-in zoom-in-95`}
         >
           <div className="px-3 py-2 border-b border-slate-800">
             <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-              {t('common:selectLanguage')}
+              {t('common:selectLanguage', 'Select Language')}
             </div>
             <div className="text-[10px] text-slate-500">
-              {t('common:panAfrican')} (English, Français, Wolof, العربية)
+              {t('common:panAfrican', 'Pan-African')} (English, Français, Wolof, العربية)
             </div>
           </div>
 
@@ -119,7 +121,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                 className="w-full px-3 py-1.5 rounded-xl text-left text-[11px] font-semibold text-emerald-400 hover:bg-slate-800 flex items-center gap-2 transition"
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>{t('navigation:adminTranslations')}</span>
+                <span>{t('navigation:adminTranslations', 'Translation Studio')}</span>
               </button>
             </div>
           )}

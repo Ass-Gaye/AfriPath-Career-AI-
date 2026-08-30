@@ -562,6 +562,12 @@ export default function App() {
             onToggleTask={handleToggleTask}
             isLoading={isLoading}
             onNavigateToCV={() => setActiveTab('cv-builder')}
+            onRoadmapUpdated={(newRoadmap) => {
+              setRoadmap(newRoadmap);
+              if (authUser) {
+                saveRoadmapData(targetCareer, newRoadmap, completedTaskIds);
+              }
+            }}
           />
         )}
 
