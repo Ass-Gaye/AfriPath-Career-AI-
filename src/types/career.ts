@@ -329,6 +329,28 @@ export interface RoadmapMonth {
   weeks: RoadmapWeek[];
 }
 
+export interface RoadmapProfileGrounding {
+  candidateName: string;
+  country: string;
+  location?: string;
+  educationLevel: string;
+  fieldOfStudy: string;
+  institution: string;
+  experienceYears?: string;
+  careerGoal: string;
+  careerGoalType?: string;
+  preferredPathway: string;
+  weeklyHours: number;
+  learningPreference: string;
+  deviceAccess?: string;
+  internetReliability?: string;
+  verifiedSkillCount: number;
+  topVerifiedSkills: string[];
+  topBridgedGaps: string[];
+  readinessBaselineScore: number;
+  lastCalculatedAt: string;
+}
+
 export interface CareerRoadmap {
   targetCareer: string;
   targetTimeframeDays: number;
@@ -361,6 +383,7 @@ export interface CareerRoadmap {
   };
   months: RoadmapMonth[];
   keyOutcomes: string[];
+  profileGrounding?: RoadmapProfileGrounding;
   disclaimer?: string;
 }
 
@@ -549,6 +572,85 @@ export interface CVData {
   factCheckAudit?: CVFactCheckItem[];
   pendingChanges?: CVChangeRecord[];
   userConfirmedAllFacts?: boolean;
+}
+
+export interface CourseEntity {
+  id: string;
+  title: string;
+  provider: string;
+  description: string;
+  url: string;
+  language: string; // 'English' | 'French' | 'Arabic' | 'Wolof'
+  level: 'Beginner' | 'Beginner → Intermediate' | 'Intermediate' | 'Intermediate → Advanced' | 'Advanced';
+  duration: string;
+  estimatedHours: number;
+  format: 'Video + Exercises' | 'Interactive Hands-on' | 'Project-based' | 'Self-paced Reading & Code' | 'Instructor-led' | 'Tutorial & Practice';
+  certificateAvailable: boolean;
+  projectIncluded: boolean;
+  cost: 'Free' | 'Freemium / Free Audit' | 'Paid';
+  isFree: boolean;
+  skills: string[]; // Skill IDs
+  competencies: string[];
+  careers: string[];
+  pathways: CareerPathwayType[];
+  prerequisites?: string[];
+  rating?: number;
+  availability?: 'Immediate Online' | 'Self-Paced' | 'Cohort-Based';
+  africanProvider?: boolean;
+  lastVerified?: string;
+  status?: 'Not Started' | 'Started' | 'In Progress' | 'Completed' | 'Abandoned' | 'Skipped';
+  completedDate?: string;
+  evidenceNotes?: string;
+}
+
+export interface CourseRecommendation {
+  course: CourseEntity;
+  matchedSkillId: string;
+  matchedSkillName: string;
+  currentSkillLevel: number; // 0 to 4
+  targetSkillLevel: number;
+  gapPriority: 'CRITICAL' | 'HIGH' | 'MODERATE' | 'LOW';
+  matchScore: number; // 0 - 100
+  matchReasons: {
+    skillGapFit: string;
+    levelFit: string;
+    careerGoalFit: string;
+    timeFit: string;
+    learningPreferenceFit: string;
+    languageFit: string;
+  };
+  whyRecommended: string;
+  isTopPick: boolean;
+  alternativeCourses?: CourseEntity[];
+  userStatus?: 'Not Started' | 'Started' | 'In Progress' | 'Completed' | 'Abandoned' | 'Skipped';
+}
+
+export interface PersonalizedCourseHubResponse {
+  topGapsWithCourses: {
+    skillId: string;
+    skillName: string;
+    gapPriority: 'CRITICAL' | 'HIGH' | 'MODERATE' | 'LOW';
+    currentProficiency: number;
+    targetProficiency: number;
+    topCourse: CourseRecommendation;
+    alternativeCourses: CourseEntity[];
+    practicalProjectSuggestion: string;
+    measurableOutcome: string;
+  }[];
+  userContextSummary: {
+    targetCareer: string;
+    careerGoal: string;
+    availableHoursWeekly: number;
+    preferredLanguage: string;
+    learningStyle: string;
+    skillsMasteredNoCourseNeeded: string[];
+  };
+  filterStats: {
+    totalFree: number;
+    totalWithProjects: number;
+    totalWithCertificates: number;
+    africanProvidersCount: number;
+  };
 }
 
 

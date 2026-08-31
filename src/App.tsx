@@ -319,14 +319,31 @@ export default function App() {
     }
   };
 
-  // Profile Update from Settings
-  const handleProfileUpdated = (updated: UserProfile) => {
+  // Profile Update from Settings or external edits
+  const handleProfileUpdated = async (updated: UserProfile) => {
     setUserProfile(updated);
     if (authUser && updated.name && updated.name.trim()) {
       setAuthUser({
         ...authUser,
         fullName: updated.name.trim(),
       });
+    }
+
+    if (targetCareer) {
+      try {
+        const [gapData, roadmapData] = await Promise.all([
+          fetchSkillGap(updated, targetCareer),
+          fetchRoadmap(updated, targetCareer),
+        ]);
+        setSkillGap(gapData);
+        setRoadmap(roadmapData);
+        if (authUser) {
+          saveSkillGapAnalysis(targetCareer, gapData);
+          saveRoadmapData(targetCareer, roadmapData, completedTaskIds);
+        }
+      } catch (err) {
+        console.warn('Roadmap recalculation on profile update error:', err);
+      }
     }
   };
 

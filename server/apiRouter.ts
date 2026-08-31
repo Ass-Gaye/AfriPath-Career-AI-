@@ -16,6 +16,7 @@ import { SkillEvidenceRecord } from './services/skill-evidence.service';
 import { CVGenerationService } from './services/cv-generation.service';
 import { CVValidationService } from './services/cv-validation.service';
 import { CVVersionService } from './services/cv-version.service';
+import { courseRecommendationService, VERIFIED_COURSE_DATABASE } from './services/course-recommendation.service';
 
 export const apiRouter = Router();
 
@@ -914,4 +915,149 @@ apiRouter.get('/opportunities', (req: Request, res: Response) => {
   }
 
   res.json({ success: true, opportunities: results });
+});
+
+// ==========================================
+// COURSE RECOMMENDATION & PROGRESS ENDPOINTS
+// ==========================================
+
+// In-memory progress tracking for courses (per user)
+const userCourseProgressStore = new Map<string, Record<string, { status: string; dateStarted?: string; dateCompleted?: string; evidenceNotes?: string }>>();
+
+apiRouter.post('/course-recommendations/generate', (req: Request, res: Response) => {
+  try {
+    const { profile, targetCareer } = req.body;
+    if (!profile) {
+      return res.status(400).json({ error: 'Missing profile in request body' });
+    }
+
+    const courseHub = courseRecommendationService.generatePersonalizedCourseHub(profile, targetCareer);
+    return res.json({ success: true, data: courseHub });
+  } catch (error: any) {
+    console.error('API /course-recommendations/generate error:', error);
+    return res.status(500).json({ error: error?.message || 'Failed to generate personalized course recommendations' });
+  }
+});
+
+apiRouter.get('/course-recommendations', (req: Request, res: Response) => {
+  try {
+    // Return standard verified course repository
+    const category = req.query.category as string;
+    const isFreeOnly = req.query.free === 'true';
+    const lang = req.query.language as string;
+
+    let courses = [...VERIFIED_COURSE_DATABASE];
+
+    if (category) {
+      courses = courses.filter((c) => c.careers.includes(category.toLowerCase()) || c.skills.includes(category.toLowerCase()));
+    }
+    if (isFreeOnly) {
+      courses = courses.filter((c) => c.isFree);
+    }
+    if (lang) {
+      courses = courses.filter((c) => c.language.toLowerCase() === lang.toLowerCase());
+    }
+
+    return res.json({ success: true, count: courses.length, courses });
+  } catch (error: any) {
+    console.error('API /course-recommendations error:', error);
+    return res.status(500).json({ error: 'Failed to retrieve courses' });
+  }
+});
+
+apiRouter.get('/course-recommendations/:skillId', (req: Request, res: Response) => {
+  try {
+    const { skillId } = req.params;
+    const normalized = skillId.toLowerCase().trim();
+    const matched = VERIFIED_COURSE_DATABASE.filter(
+      (c) => c.skills.some((s) => s.toLowerCase().includes(normalized) || normalized.includes(s.toLowerCase())) ||
+             c.competencies.some((cmp) => cmp.toLowerCase().includes(normalized))
+    );
+    return res.json({ success: true, skillId, count: matched.length, courses: matched });
+  } catch (error: any) {
+    return res.status(500).json({ error: 'Failed to find courses for skill' });
+  }
+});
+
+apiRouter.get('/courses/:courseId', (req: Request, res: Response) => {
+  try {
+    const { courseId } = req.params;
+    const course = courseRecommendationService.getCourseById(courseId);
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+    return res.json({ success: true, course });
+  } catch (error: any) {
+    return res.status(500).json({ error: 'Failed to retrieve course details' });
+  }
+});
+
+apiRouter.post('/courses/:courseId/start', (req: Request, res: Response) => {
+  try {
+    const { courseId } = req.params;
+    const { userId = 'current-user' } = req.body;
+
+    const userProgress = userCourseProgressStore.get(userId) || {};
+    userProgress[courseId] = {
+      status: 'In Progress',
+      dateStarted: new Date().toISOString(),
+    };
+    userCourseProgressStore.set(userId, userProgress);
+
+    return res.json({
+      success: true,
+      message: 'Course marked as In Progress and synchronized with your active learning sprint.',
+      progress: userProgress[courseId],
+    });
+  } catch (error: any) {
+    return res.status(500).json({ error: 'Failed to start course' });
+  }
+});
+
+apiRouter.post('/courses/:courseId/complete', (req: Request, res: Response) => {
+  try {
+    const { courseId } = req.params;
+    const { userId = 'current-user', evidenceNotes, addToCV = true } = req.body;
+
+    const userProgress = userCourseProgressStore.get(userId) || {};
+    userProgress[courseId] = {
+      status: 'Completed',
+      dateCompleted: new Date().toISOString(),
+      evidenceNotes: evidenceNotes || 'Completed verified course modules & hands-on exercises.',
+    };
+    userCourseProgressStore.set(userId, userProgress);
+
+    const course = courseRecommendationService.getCourseById(courseId);
+
+    return res.json({
+      success: true,
+      message: 'Course marked as completed! Practical evidence logged to your profile.',
+      courseTitle: course?.title || courseId,
+      addToCV,
+      evidenceRecorded: true,
+      progress: userProgress[courseId],
+    });
+  } catch (error: any) {
+    return res.status(500).json({ error: 'Failed to complete course' });
+  }
+});
+
+apiRouter.post('/courses/:courseId/replace', (req: Request, res: Response) => {
+  try {
+    const { courseId } = req.params;
+    const { skillId, reason } = req.body;
+
+    const alternatives = VERIFIED_COURSE_DATABASE.filter(
+      (c) => c.id !== courseId && (!skillId || c.skills.some((s) => s.toLowerCase().includes(skillId.toLowerCase())))
+    );
+
+    return res.json({
+      success: true,
+      message: 'Alternative courses found matching your skill gap requirements.',
+      reasonGiven: reason,
+      alternatives: alternatives.slice(0, 3),
+    });
+  } catch (error: any) {
+    return res.status(500).json({ error: 'Failed to find alternative courses' });
+  }
 });

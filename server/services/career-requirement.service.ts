@@ -453,7 +453,7 @@ export const CAREER_COMPETENCY_REGISTRY: Record<string, CareerCompetencyProfile>
     careerId: 'fintech-analyst',
     careerTitle: 'Fintech & Digital Payments Analyst',
     sector: 'Business, Finance & Banking',
-    disciplineAliases: ['finance', 'accounting', 'banking', 'economics', 'business administration'],
+    disciplineAliases: ['finance', 'banking', 'economics', 'business administration'],
     competencies: [
       {
         id: 'financial-accounting',
@@ -502,6 +502,324 @@ export const CAREER_COMPETENCY_REGISTRY: Record<string, CareerCompetencyProfile>
         transferableFrom: ['Telecom Operations', 'API Basics', 'POS Terminal Operations'],
         recommendedResources: [
           { title: 'African Digital Payment Infrastructure Overview', provider: 'AfriPath Tech Library', url: '#', isFree: true, type: 'Tutorial', africanProvider: true },
+        ],
+      },
+    ],
+  },
+
+  'financial-analyst': {
+    careerId: 'financial-analyst',
+    careerTitle: 'Financial Analyst',
+    sector: 'Business, Finance & Banking',
+    disciplineAliases: ['financial analysis', 'corporate finance', 'investment analysis', 'accounting', 'auditing'],
+    competencies: [
+      {
+        id: 'financial-modeling',
+        name: 'Financial Modeling & Valuation (DCF / 3-Statement)',
+        importance: 'HIGH',
+        requiredProficiency: 3,
+        category: 'Domain',
+        description: 'Building dynamic 3-statement integrated financial models, DCF valuations, and sensitivity analysis.',
+        transferableFrom: ['Accounting', 'Financial Reporting', 'Bookkeeping', 'Cost Accounting'],
+        recommendedResources: [
+          { title: 'Financial Modeling & Valuation Masterclass', provider: 'Corporate Finance Institute (CFI)', url: 'https://corporatefinanceinstitute.com', isFree: true, type: 'Course' },
+        ],
+        assessmentQuestions: [
+          {
+            id: 'fm-q1',
+            question: 'In a 3-statement model, how does Net Income flow into the Balance Sheet?',
+            options: ['Through Retained Earnings in Shareholders Equity', 'Directly into Current Assets', 'Through Accounts Payable', 'It does not connect to the Balance Sheet'],
+            correctIndex: 0,
+            explanation: 'Net Income flows from the Income Statement into Retained Earnings on the Balance Sheet (minus dividends).',
+          },
+        ],
+      },
+      {
+        id: 'advanced-excel-finance',
+        name: 'Advanced Excel & Financial Forecasting',
+        importance: 'HIGH',
+        requiredProficiency: 3,
+        category: 'Tool',
+        description: 'INDEX/MATCH, XLOOKUP, Data Tables, Scenario Manager, Solver, and financial KPI dashboards.',
+        transferableFrom: ['Spreadsheets', 'Excel Formulas', 'Accounting Ledgers'],
+        recommendedResources: [
+          { title: 'Excel for Financial Analysis', provider: 'Coursera / Wharton', url: 'https://coursera.org', isFree: true, type: 'Course' },
+        ],
+      },
+      {
+        id: 'sql-bi-finance',
+        name: 'SQL & Business Intelligence (Power BI / Tableau)',
+        importance: 'HIGH',
+        requiredProficiency: 2,
+        category: 'Technical',
+        description: 'Extracting ERP data with SQL queries and designing automated executive reporting dashboards.',
+        transferableFrom: ['Database Basics', 'Spreadsheet Reporting', 'Data Entry'],
+        recommendedResources: [
+          { title: 'SQL & Power BI for Financial Analysts', provider: 'DataCamp', url: 'https://datacamp.com', isFree: true, type: 'Course' },
+        ],
+      },
+      {
+        id: 'financial-statement-analysis',
+        name: 'Financial Statement Analysis & Ratios',
+        importance: 'HIGH',
+        requiredProficiency: 3,
+        category: 'Domain',
+        description: 'Liquidity, profitability, leverage, and efficiency ratios, identifying variance trends in P&L.',
+        transferableFrom: ['Accounting Principles', 'Auditing', 'IFRS Standards'],
+        recommendedResources: [
+          { title: 'Financial Statement Analysis', provider: 'Khan Academy', url: 'https://khanacademy.org', isFree: true, type: 'Tutorial' },
+        ],
+      },
+      {
+        id: 'investment-reporting',
+        name: 'Investment Pitching & Executive Deck Preparation',
+        importance: 'MEDIUM',
+        requiredProficiency: 3,
+        category: 'Soft',
+        description: 'Presenting valuation models, risks, and strategic recommendations clearly to board and C-suite.',
+        transferableFrom: ['Public Speaking', 'Report Writing', 'Client Presentations'],
+        recommendedResources: [
+          { title: 'Executive Financial Storytelling', provider: 'ALX Africa', url: 'https://alxafrica.com', isFree: true, type: 'Course', africanProvider: true },
+        ],
+      },
+    ],
+  },
+
+  'digital-marketing-manager': {
+    careerId: 'digital-marketing-manager',
+    careerTitle: 'Digital Marketing Manager',
+    sector: 'Marketing, Media & Communications',
+    disciplineAliases: ['marketing', 'digital marketing', 'growth marketing', 'communications', 'brand management'],
+    competencies: [
+      {
+        id: 'marketing-strategy-kpis',
+        name: 'Growth Strategy & Campaign Management',
+        importance: 'HIGH',
+        requiredProficiency: 3,
+        category: 'Domain',
+        description: 'Setting CAC, LTV, ROAS goals, omnichannel acquisition funnels, and managing quarterly marketing budgets.',
+        transferableFrom: ['Traditional Marketing', 'Brand Strategy', 'Sales Management'],
+        recommendedResources: [
+          { title: 'Digital Marketing Specialization', provider: 'Google Digital Skills for Africa', url: 'https://grow.google/intl/en_africa', isFree: true, type: 'Course', africanProvider: true },
+        ],
+      },
+      {
+        id: 'paid-ads-social',
+        name: 'Paid Advertising (Meta Ads, Google Ads, TikTok)',
+        importance: 'HIGH',
+        requiredProficiency: 3,
+        category: 'Tool',
+        description: 'Audience targeting, pixel conversion tracking, A/B ad creative testing, and budget pacing.',
+        transferableFrom: ['Social Media Management', 'Graphic Design', 'Copywriting'],
+        recommendedResources: [
+          { title: 'Meta Certified Digital Marketing Associate', provider: 'Meta Blueprint', url: 'https://facebook.com/business/learn', isFree: true, type: 'Certification' },
+        ],
+      },
+      {
+        id: 'seo-content-strategy',
+        name: 'SEO & Content Marketing',
+        importance: 'HIGH',
+        requiredProficiency: 3,
+        category: 'Technical',
+        description: 'Keyword research, on-page optimization, content pillar architecture, and organic backlink building.',
+        transferableFrom: ['Journalism', 'Blogging', 'Copywriting', 'Creative Writing'],
+        recommendedResources: [
+          { title: 'SEO Fundamentals', provider: 'HubSpot Academy', url: 'https://academy.hubspot.com', isFree: true, type: 'Course' },
+        ],
+      },
+      {
+        id: 'marketing-analytics',
+        name: 'Marketing Analytics & GA4 / Looker Studio',
+        importance: 'HIGH',
+        requiredProficiency: 3,
+        category: 'Technical',
+        description: 'GA4 event setup, UTM tracking, attribution modeling, and automated executive dashboards.',
+        transferableFrom: ['Excel', 'Data Entry', 'Business Reporting'],
+        recommendedResources: [
+          { title: 'Google Analytics 4 Certification', provider: 'Google Skillshop', url: 'https://skillshop.withgoogle.com', isFree: true, type: 'Certification' },
+        ],
+      },
+      {
+        id: 'brand-copywriting',
+        name: 'High-Converting Copywriting & Creative Direction',
+        importance: 'HIGH',
+        requiredProficiency: 3,
+        category: 'Soft',
+        description: 'Direct response copy, email nurture flows, and directing creative asset production.',
+        transferableFrom: ['Storytelling', 'English / Literature', 'Advertising'],
+        recommendedResources: [
+          { title: 'Direct Response Copywriting', provider: 'Copyblogger', url: 'https://copyblogger.com', isFree: true, type: 'Tutorial' },
+        ],
+      },
+    ],
+  },
+
+  'machine-learning-engineer': {
+    careerId: 'machine-learning-engineer',
+    careerTitle: 'Machine Learning & AI Engineer',
+    sector: 'Technology & AI',
+    disciplineAliases: ['machine learning', 'artificial intelligence', 'data science', 'deep learning', 'nlp', 'computer vision'],
+    competencies: [
+      {
+        id: 'ml-frameworks-python',
+        name: 'Python ML Frameworks (PyTorch / Scikit-Learn / TensorFlow)',
+        importance: 'HIGH',
+        requiredProficiency: 3,
+        category: 'Technical',
+        description: 'Model training pipelines, hyperparameter tuning, loss optimization, and evaluation metrics.',
+        transferableFrom: ['Python Programming', 'R', 'Mathematics', 'Statistics'],
+        recommendedResources: [
+          { title: 'Machine Learning Specialization', provider: 'DeepLearning.AI / Stanford', url: 'https://deeplearning.ai', isFree: true, type: 'Course' },
+        ],
+      },
+      {
+        id: 'feature-engineering-data',
+        name: 'Data Preprocessing & Feature Engineering',
+        importance: 'HIGH',
+        requiredProficiency: 3,
+        category: 'Technical',
+        description: 'Pandas, NumPy, vectorization, handling missing values, encoding, and dimensionality reduction.',
+        transferableFrom: ['SQL', 'Data Analysis', 'Excel'],
+        recommendedResources: [
+          { title: 'Feature Engineering for Machine Learning', provider: 'Kaggle Learn', url: 'https://kaggle.com/learn', isFree: true, type: 'Tutorial' },
+        ],
+      },
+      {
+        id: 'mlops-deployment',
+        name: 'MLOps, Model Serving & Docker (FastAPI / Triton / ONNX)',
+        importance: 'HIGH',
+        requiredProficiency: 3,
+        category: 'Technical',
+        description: 'Containerizing inference services, API latency optimization, model registry, and CI/CD pipelines.',
+        transferableFrom: ['Backend Development', 'DevOps', 'Linux Shell'],
+        recommendedResources: [
+          { title: 'MLOps Fundamentals', provider: 'Coursera / Duke', url: 'https://coursera.org', isFree: true, type: 'Course' },
+        ],
+      },
+      {
+        id: 'applied-math-stats',
+        name: 'Applied Linear Algebra & Probability',
+        importance: 'MEDIUM',
+        requiredProficiency: 3,
+        category: 'Domain',
+        description: 'Matrix decompositions, gradient descent mechanics, Bayes theorem, and statistical distributions.',
+        transferableFrom: ['University Mathematics', 'Engineering Math', 'Physics'],
+        recommendedResources: [
+          { title: 'Mathematics for Machine Learning', provider: 'Imperial College London', url: 'https://coursera.org', isFree: true, type: 'Course' },
+        ],
+      },
+    ],
+  },
+
+  'freelance-graphic-designer': {
+    careerId: 'freelance-graphic-designer',
+    careerTitle: 'Freelance Graphic & Brand Identity Designer',
+    sector: 'Creative & Digital Arts',
+    disciplineAliases: ['graphic design', 'ui/ux design', 'brand identity', 'visual design', 'digital arts'],
+    competencies: [
+      {
+        id: 'design-tools-figma-adobe',
+        name: 'Industry Design Tools (Figma, Photoshop, Illustrator)',
+        importance: 'HIGH',
+        requiredProficiency: 3,
+        category: 'Tool',
+        description: 'Vector asset creation, raster manipulation, responsive UI layouts, component systems, and design tokens.',
+        transferableFrom: ['Canva', 'Traditional Drawing', 'Art Coursework'],
+        recommendedResources: [
+          { title: 'Figma UI/UX & Brand Design Masterclass', provider: 'YouTube / Flux Academy', url: 'https://youtube.com', isFree: true, type: 'Tutorial' },
+        ],
+      },
+      {
+        id: 'visual-hierarchy-typography',
+        name: 'Visual Hierarchy, Color Theory & Typography',
+        importance: 'HIGH',
+        requiredProficiency: 3,
+        category: 'Domain',
+        description: 'Grid systems, typographic scale, high-contrast accessible palettes, and editorial layout.',
+        transferableFrom: ['Fine Arts', 'Print Media', 'Photography'],
+        recommendedResources: [
+          { title: 'Graphic Design Basics', provider: 'Coursera / CalArts', url: 'https://coursera.org', isFree: true, type: 'Course' },
+        ],
+      },
+      {
+        id: 'portfolio-case-studies',
+        name: 'Case Study Storytelling & Behance Portfolio',
+        importance: 'HIGH',
+        requiredProficiency: 3,
+        category: 'Domain',
+        description: 'Structuring client case studies, problem-solution narratives, mockups, and client testimonials.',
+        transferableFrom: ['Writing', 'Project Presentations', 'Marketing'],
+        recommendedResources: [
+          { title: 'Building a World-Class Design Portfolio', provider: 'Dribbble / Behance', url: 'https://behance.net', isFree: true, type: 'Tutorial' },
+        ],
+      },
+      {
+        id: 'freelance-client-ops',
+        name: 'Freelance Client Scoping, Contracts & Pricing',
+        importance: 'HIGH',
+        requiredProficiency: 3,
+        category: 'Soft',
+        description: 'Writing proposals, milestone billing, managing client revisions, and Upwork/Fiverr profile optimization.',
+        transferableFrom: ['Customer Service', 'Negotiation', 'Small Business Sales'],
+        recommendedResources: [
+          { title: 'The Freelance Blueprint for African Creatives', provider: 'AfriPath Freelance Hub', url: '#', isFree: true, type: 'Course', africanProvider: true },
+        ],
+      },
+    ],
+  },
+
+  'cybersecurity-specialist': {
+    careerId: 'cybersecurity-specialist',
+    careerTitle: 'Cybersecurity & SOC Defense Analyst',
+    sector: 'Technology & AI',
+    disciplineAliases: ['cybersecurity', 'information security', 'network security', 'soc analyst', 'ethical hacking'],
+    competencies: [
+      {
+        id: 'network-traffic-analysis',
+        name: 'Networking & Packet Analysis (Wireshark / TCP/IP)',
+        importance: 'HIGH',
+        requiredProficiency: 3,
+        category: 'Technical',
+        description: 'OSI model, subnetting, inspecting PCAP captures, DNS/HTTP traffic analysis, and firewall rules.',
+        transferableFrom: ['IT Support', 'Hardware Troubleshooting', 'System Administration'],
+        recommendedResources: [
+          { title: 'Network Security Fundamentals', provider: 'Cisco Networking Academy', url: 'https://netacad.com', isFree: true, type: 'Course' },
+        ],
+      },
+      {
+        id: 'soc-siem-monitoring',
+        name: 'SIEM & Log Monitoring (Splunk / Elastic / Wazuh)',
+        importance: 'HIGH',
+        requiredProficiency: 3,
+        category: 'Tool',
+        description: 'Triaging security alerts, writing detection queries, correlation rules, and event log auditing.',
+        transferableFrom: ['Database Queries', 'System Monitoring', 'Linux Administration'],
+        recommendedResources: [
+          { title: 'SOC Analyst Career Path', provider: 'TryHackMe', url: 'https://tryhackme.com', isFree: true, type: 'Course' },
+        ],
+      },
+      {
+        id: 'vulnerability-remediation',
+        name: 'Vulnerability Scanning & Threat Mitigation',
+        importance: 'HIGH',
+        requiredProficiency: 3,
+        category: 'Technical',
+        description: 'Nmap, Nessus/OpenVAS vulnerability scans, patch management, and OWASP Top 10 mitigation.',
+        transferableFrom: ['Web Development', 'System Administration'],
+        recommendedResources: [
+          { title: 'Practical Ethical Hacking', provider: 'TCM Security', url: 'https://tcm-sec.com', isFree: true, type: 'Course' },
+        ],
+      },
+      {
+        id: 'incident-response-reporting',
+        name: 'Incident Response & Security Documentation',
+        importance: 'HIGH',
+        requiredProficiency: 3,
+        category: 'Soft',
+        description: 'Documenting security breaches, root-cause timelines, chain of custody, and regulatory breach notification.',
+        transferableFrom: ['Technical Writing', 'Compliance', 'Auditing'],
+        recommendedResources: [
+          { title: 'CompTIA Security+ Prep', provider: 'Professor Messer', url: 'https://professormesser.com', isFree: true, type: 'Course' },
         ],
       },
     ],

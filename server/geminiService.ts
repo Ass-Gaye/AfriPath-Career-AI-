@@ -559,7 +559,19 @@ export async function generateCareerRoadmap(
   return executeWithRetryAndFallback<CareerRoadmap>(
     async (model) => {
       const ai = getAIClient()!;
-      const country = profile.country || 'Africa';
+      const country = profile.country || 'The Gambia';
+      const weeklyHours = options.weeklyHours || profile.constraints?.timeAvailableWeeklyHours || 10;
+      const learningPref = options.learningPreference || 'Projects & Hands-on Practice';
+      const pathway = profile.preferredPathway || 'University / Degree';
+      const education = `${profile.educationLevel || 'Bachelor’s Degree'} in ${profile.fieldOfStudy || 'Studies'} (${profile.institution || 'University'})`;
+      const experience = profile.experienceYears || '0-1 Years';
+      const verifiedSkills = [...(profile.currentSkills || []), ...(profile.softSkills || [])];
+      const deviceAccess = profile.constraints?.deviceAccess || 'Laptop / Desktop';
+      const internet = profile.constraints?.internetReliability || 'Stable Internet';
+
+      // Pre-compute grounded gap report to guide LLM with concrete missing competencies
+      const baseFallback = RoadmapEngineService.generateRoadmap(profile, targetCareer, { language, ...options });
+      const topGapNames = (baseFallback.topPriorities || []).join(', ') || 'Domain Technical Execution';
 
       const langInstruction =
         language === 'ar'
@@ -570,24 +582,33 @@ export async function generateCareerRoadmap(
           ? 'CRITICAL: Output all titles, descriptions, reasons, and tasks in Wolof/French professional blend suitable for Senegal/Gambia.'
           : 'Output in clear, professional English.';
 
-      const prompt = `Design a comprehensive, realistic, and highly motivating 90-Day (12-Week) career roadmap for this student/job seeker aiming to become a "${targetCareer}".
+      const prompt = `Design a comprehensive, deeply personalized, and highly motivating 90-Day (12-Week) career execution roadmap for this candidate aiming to become a "${targetCareer}".
 
-USER PROFILE:
-- Name: ${profile.name}
-- Country: ${country}
-- Education: ${profile.educationLevel} in ${profile.fieldOfStudy} (${profile.institution})
-- Current Verified Skills: ${(profile.currentSkills || []).join(', ')}
-- Goal: ${profile.careerGoal}
-- Target Career: ${targetCareer}
-- Preferred Pathway: ${profile.preferredPathway || 'University / Degree'}
-- Weekly Availability: ${options.weeklyHours || profile.constraints?.timeAvailableWeeklyHours || 10} hours/week
-- Learning Preference: ${options.learningPreference || 'Projects & Practice'}
+CANDIDATE 9-DIMENSION PROFILE SNAPSHOT:
+1. CURRENT VERIFIED SKILLS: ${verifiedSkills.join(', ') || 'Foundational Computing'}
+2. TARGET CAREER: ${targetCareer}
+3. CAREER GOAL: ${profile.careerGoal || 'Secure high-impact employment'} (Goal Type: ${profile.careerGoalType || 'Employment'})
+4. IDENTIFIED SKILL GAPS TO BRIDGE: ${topGapNames}
+5. AVAILABLE TIME & PACE: ${weeklyHours} hours/week
+6. EXPERIENCE LEVEL: ${experience}
+7. EDUCATION & INSTITUTION: ${education}
+8. PREFERRED PATHWAY: ${pathway}
+9. COUNTRY & ENVIRONMENT CONTEXT: ${country}, ${profile.location || country} | Device: ${deviceAccess} | Internet: ${internet}
 
-CRITICAL ROADMAP RULES:
-1. NEVER recommend beginner courses for skills the user already mastered (${(profile.currentSkills || []).join(', ')}). Instead, recommend advanced application in real projects.
-2. For missing high-priority skills, provide clear "reason" explaining why this task is assigned.
-3. Include diverse activityTypes: 'LEARN', 'PRACTICE', 'BUILD', 'ASSESS', 'DOCUMENT', 'DEMONSTRATE', 'APPLY', 'NETWORK', 'PREPARE', 'REVIEW'.
-4. Ground real-world projects in ${country} or Pan-African business contexts.
+MANDATORY PERSONALIZATION & ARCHITECTURAL RULES:
+1. NEVER output a generic "learn these 5 skills" checklist. Every single week must specifically tie into the candidate's exact starting skills, bridge their identified gaps (${topGapNames}), and culminate in measurable outcomes.
+2. NEVER prescribe beginner tutorials for skills the user has already verified (${verifiedSkills.join(', ')}). Leverage verified skills as foundational leverage to build advanced projects faster.
+3. ADAPT TO PREFERRED PATHWAY:
+   - If TVET / Vocational: Emphasize practical workshop mastery, trade standards, equipment safety, and direct supervisor/employer logbooks.
+   - If Self-Taught / Portfolio: Emphasize public GitHub repositories, deployed live demo URLs, open-source pull requests, and technical case studies.
+   - If University / Degree: Bridge academic theory with enterprise CI/CD, production design patterns, and industry software practices.
+   - If Certification Ladder: Structure preparation around recognized vendor exams (AWS, Google Cloud, Microsoft, Cisco, CompTIA, Linux Foundation).
+   - If Career Transition: Build bridge projects translating past domain experience into the new discipline.
+   - If Entrepreneurship: Focus on MVP building, user validation in ${country}, unit economics, and payment integration.
+4. ADAPT TO HARDWARE & CONNECTIVITY:
+   - If limited data or smartphone only, include offline-first tooling, lightweight documentation caches, and mobile IDE alternatives (e.g. Termux/Replit).
+5. Ground real-world flagship projects in authentic ${country} or Pan-African business contexts (e.g. mobile money/USSD integrations, solar utility monitoring, SME supply chain, local agro-logistics, public service portals).
+6. Provide diverse activityTypes ('LEARN', 'PRACTICE', 'BUILD', 'ASSESS', 'DOCUMENT', 'DEMONSTRATE', 'APPLY', 'NETWORK', 'PREPARE', 'REVIEW').
 
 ${langInstruction}`;
 
@@ -595,7 +616,7 @@ ${langInstruction}`;
         model,
         contents: prompt,
         config: {
-          systemInstruction: `You are AfriPath AI Roadmap Architect. Return valid structured JSON for a 90-day roadmap. ${langInstruction}`,
+          systemInstruction: `You are AfriPath AI Roadmap Architect, an elite career intelligence engine. Return valid structured JSON for a 90-day roadmap. ${langInstruction}`,
           responseMimeType: 'application/json',
           thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
           responseSchema: {
@@ -668,14 +689,13 @@ ${langInstruction}`;
 
       const parsed = JSON.parse(response.text || '{}');
       if (parsed.months && parsed.months.length > 0) {
-        // Enforce fallback metadata enrichment if needed
-        const baseFallback = RoadmapEngineService.generateRoadmap(profile, targetCareer, { language, ...options });
         return {
           ...baseFallback,
           ...parsed,
           todayAction: baseFallback.todayAction,
           beforeAfterGaps: baseFallback.beforeAfterGaps,
           phaseAllocation: baseFallback.phaseAllocation,
+          profileGrounding: baseFallback.profileGrounding,
         } as CareerRoadmap;
       }
       throw new Error('Incomplete roadmap response');

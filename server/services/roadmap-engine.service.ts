@@ -108,6 +108,29 @@ export class RoadmapEngineService {
         }
       : undefined;
 
+    // 8. Construct complete 9-dimension Profile Grounding Snapshot
+    const profileGrounding = {
+      candidateName: profile.name || 'Candidate',
+      country: profile.country || 'The Gambia',
+      location: profile.location || profile.country || 'West Africa',
+      educationLevel: profile.educationLevel || 'Bachelor’s Degree',
+      fieldOfStudy: profile.fieldOfStudy || 'Computer Science & Information Systems',
+      institution: profile.institution || 'University of The Gambia (UTG)',
+      experienceYears: profile.experienceYears || '0-1 Years (Entry/Junior)',
+      careerGoal: profile.careerGoal || `Master ${careerTitle} and secure top regional/remote roles`,
+      careerGoalType: profile.careerGoalType || 'Employment',
+      preferredPathway: profile.preferredPathway || 'University / Degree',
+      weeklyHours,
+      learningPreference: learningPref,
+      deviceAccess: profile.constraints?.deviceAccess || 'Laptop / Desktop',
+      internetReliability: profile.constraints?.internetReliability || 'Stable High-Speed',
+      verifiedSkillCount: (profile.currentSkills?.length || 0) + (profile.softSkills?.length || 0) + (profile.verifiedCompetencies?.length || 0),
+      topVerifiedSkills: (profile.currentSkills || []).slice(0, 5),
+      topBridgedGaps: topPriorities.slice(0, 4).map((p) => p.competencyName),
+      readinessBaselineScore: readinessScore,
+      lastCalculatedAt: new Date().toISOString(),
+    };
+
     return {
       targetCareer: `${careerTitle} (90-Day Execution Roadmap)`,
       targetTimeframeDays: 90,
@@ -134,6 +157,7 @@ export class RoadmapEngineService {
       todayAction,
       months,
       keyOutcomes,
+      profileGrounding,
       disclaimer:
         language === 'ar'
           ? 'تعتمد هذه الخطة على كفاءاتك الحالية المثبتة ومستوى التفرغ الأسبوعي. يمكنك تعديل المهام في أي وقت.'

@@ -29,11 +29,19 @@ import {
   FileText,
   Search,
   Filter,
+  GraduationCap,
+  Compass,
+  Globe2,
+  Smartphone,
+  Wifi,
+  ShieldCheck,
+  AlertCircle,
 } from 'lucide-react';
-import { UserProfile, CareerRoadmap, RoadmapTask, RoadmapWeek, RoadmapMonth } from '../types/career';
+import { UserProfile, CareerRoadmap, RoadmapTask, RoadmapWeek, RoadmapMonth, RoadmapProfileGrounding } from '../types/career';
 import { useLanguage } from '../context/LanguageContext';
 import { attachTaskEvidence, fetchRoadmap } from '../services/api';
 import { PhaseProgressTracker } from './PhaseProgressTracker';
+import { CourseRecommendationsModal } from './CourseRecommendationsModal';
 
 interface RoadmapViewProps {
   userProfile: UserProfile;
@@ -63,10 +71,14 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({
   const [filterActivityType, setFilterActivityType] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [showPreferences, setShowPreferences] = useState<boolean>(false);
+  const [showGroundingSnapshot, setShowGroundingSnapshot] = useState<boolean>(false);
   const [showGapProjection, setShowGapProjection] = useState<boolean>(true);
-  const [selectedHours, setSelectedHours] = useState<number>(roadmap?.weeklyHoursRecommended || 10);
+  const [selectedHours, setSelectedHours] = useState<number>(roadmap?.weeklyHoursRecommended || userProfile.constraints?.timeAvailableWeeklyHours || 10);
   const [selectedLearningPref, setSelectedLearningPref] = useState<string>(
     roadmap?.learningPreference || 'mixed'
+  );
+  const [selectedPathway, setSelectedPathway] = useState<string>(
+    roadmap?.pathwayType || userProfile.preferredPathway || 'University / Degree'
   );
   const [isRecalculating, setIsRecalculating] = useState<boolean>(false);
   const [expandedTaskDetails, setExpandedTaskDetails] = useState<Record<string, boolean>>({});
@@ -80,6 +92,15 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({
   const [isSubmittingEvidence, setIsSubmittingEvidence] = useState<boolean>(false);
   const [evidenceSuccessBanner, setEvidenceSuccessBanner] = useState<string | null>(null);
 
+  // Personalized Course Modal State
+  const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
+  const [courseModalSkillId, setCourseModalSkillId] = useState<string | undefined>(undefined);
+
+  const handleOpenCourses = (skillId?: string) => {
+    setCourseModalSkillId(skillId);
+    setIsCourseModalOpen(true);
+  };
+
   // Local roadmap state when regenerated
   const [currentRoadmap, setCurrentRoadmap] = useState<CareerRoadmap | null>(roadmap);
 
@@ -88,6 +109,7 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({
       setCurrentRoadmap(roadmap);
       if (roadmap.weeklyHoursRecommended) setSelectedHours(roadmap.weeklyHoursRecommended);
       if (roadmap.learningPreference) setSelectedLearningPref(roadmap.learningPreference);
+      if (roadmap.pathwayType) setSelectedPathway(roadmap.pathwayType);
     }
   }, [roadmap]);
 
@@ -123,6 +145,16 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({
   // Find next actionable task for "Today's Action"
   const nextIncompleteTask = allTasks.find((t) => !completedTaskIds.includes(t.id)) || allTasks[0];
 
+  // Detect if user profile has evolved since this roadmap was synthesized
+  const grounding = currentRoadmap.profileGrounding;
+  const profileHasEvolved = grounding && (
+    grounding.educationLevel !== (userProfile.educationLevel || 'Bachelor’s Degree') ||
+    grounding.preferredPathway !== (userProfile.preferredPathway || 'University / Degree') ||
+    grounding.country !== (userProfile.country || 'The Gambia') ||
+    grounding.weeklyHours !== (selectedHours) ||
+    grounding.verifiedSkillCount !== ((userProfile.currentSkills?.length || 0) + (userProfile.softSkills?.length || 0) + (userProfile.verifiedCompetencies?.length || 0))
+  );
+
   const handleTaskClick = (taskId: string) => {
     const isNowCompleted = !completedTaskIds.includes(taskId);
     onToggleTask(taskId);
@@ -147,8 +179,17 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({
   const handleRecalculateRoadmap = async () => {
     setIsRecalculating(true);
     try {
+      const updatedProfileWithPreferences: UserProfile = {
+        ...userProfile,
+        preferredPathway: selectedPathway as any,
+        constraints: {
+          ...userProfile.constraints,
+          timeAvailableWeeklyHours: selectedHours,
+        },
+      };
+
       const updated = await fetchRoadmap(
-        userProfile,
+        updatedProfileWithPreferences,
         targetCareer,
         language,
         {
@@ -163,12 +204,14 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({
       setShowPreferences(false);
       setEvidenceSuccessBanner(
         language === 'ar'
-          ? 'تم تحديث خطة الـ 90 يوماً بنجاح بناءً على تفضيلاتك الجديدة!'
+          ? 'تمت إعادة حساب وتخصيص خطة الـ 90 يوماً بنجاح بناءً على تفضيلاتك!'
           : language === 'fr'
-          ? 'Feuille de route mise à jour avec succès selon vos nouvelles préférences !'
-          : 'Roadmap recalculated successfully based on your availability!'
+          ? 'Feuille de route de 90 jours recalculée et personnalisée avec succès !'
+          : language === 'wo'
+          ? 'Yoonu 90 fann bi génn na te méngoo ak sa xam-xam !'
+          : '90-Day Roadmap successfully recalculated and grounded in your latest profile!'
       );
-      setTimeout(() => setEvidenceSuccessBanner(null), 4000);
+      setTimeout(() => setEvidenceSuccessBanner(null), 5000);
     } catch (err) {
       console.error('Failed to recalculate roadmap:', err);
     } finally {
@@ -205,7 +248,7 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({
 
       setEvidenceSuccessBanner(
         language === 'ar'
-          ? `تم حفظ الدليل للمهمة "${evidenceModalTask.title}" وإضافته إلى ملف الأدلة والسيرة الذاتية!`
+          ? `تم حفظ الدليل للمهمة "${evidenceModalTask.title}" وتثبيته في ملف الكفاءات والسيرة الذاتية!`
           : language === 'fr'
           ? `Preuve enregistrée pour "${evidenceModalTask.title}" et synchronisée avec le CV !`
           : `Evidence recorded for "${evidenceModalTask.title}" and synchronized with candidate records!`
@@ -271,6 +314,39 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({
         </div>
       )}
 
+      {/* Reactive Profile Evolution Alert Banner */}
+      {profileHasEvolved && (
+        <div className="p-4 rounded-2xl bg-amber-950/40 border border-amber-600/50 text-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md animate-in fade-in">
+          <div className="flex items-start sm:items-center gap-2.5">
+            <AlertCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5 sm:mt-0" />
+            <div>
+              <p className="text-xs font-bold text-white">
+                {language === 'ar'
+                  ? 'تم تحديث بيانات ملفك المهني'
+                  : language === 'fr'
+                  ? 'Profil professionnel mis à jour'
+                  : 'Profile Updates Detected'}
+              </p>
+              <p className="text-[11px] text-amber-300/90">
+                {language === 'ar'
+                  ? 'تم تعديل كفاءاتك أو تفرغك الأسبوعي. اضغط لإعادة حساب خطة الـ 90 يوماً لتلائم وضعك الحالي.'
+                  : language === 'fr'
+                  ? 'Vos compétences ou disponibilités ont changé. Recalculez votre feuille de route pour l’adapter.'
+                  : 'Your verified skills, pathway, or availability have evolved. Recalculate to adapt your 90-day plan.'}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={handleRecalculateRoadmap}
+            disabled={isRecalculating}
+            className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition flex items-center justify-center gap-1.5 shrink-0 shadow disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isRecalculating ? 'animate-spin' : ''}`} />
+            <span>{isRecalculating ? t('roadmap:recomputing', 'Recalculating...') : t('roadmap:recalcNow', 'Recalculate Roadmap')}</span>
+          </button>
+        </div>
+      )}
+
       {/* Main Roadmap Header */}
       <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 shadow-sm relative overflow-hidden">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -288,6 +364,12 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({
                 <Clock className="w-3 h-3" />
                 {selectedHours} hrs / week
               </span>
+              {currentRoadmap.pathwayType && (
+                <span className="text-[11px] font-semibold bg-purple-950 text-purple-300 px-2 py-0.5 rounded-full border border-purple-800/40 flex items-center gap-1">
+                  <Compass className="w-3 h-3" />
+                  {currentRoadmap.pathwayType}
+                </span>
+              )}
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
@@ -298,6 +380,22 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({
               {currentRoadmap.phaseAllocation?.focusSummary ||
                 `A personalized 12-week progression for ${userProfile.name} designed to bridge verified skill gaps, ship live African-market applications, and guarantee ATS interview readiness.`}
             </p>
+
+            {/* Profile Grounding Toggle */}
+            <div className="pt-1 flex items-center gap-3 flex-wrap">
+              <button
+                onClick={() => setShowGroundingSnapshot(!showGroundingSnapshot)}
+                className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1.5 transition"
+              >
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>
+                  {showGroundingSnapshot
+                    ? t('roadmap:hideGrounding', 'Hide 9-Dimension Profile Grounding Snapshot')
+                    : t('roadmap:viewGrounding', 'View 9-Dimension Profile Grounding Snapshot')}
+                </span>
+                {showGroundingSnapshot ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+              </button>
+            </div>
           </div>
 
           {/* Progress Card & Actions */}
@@ -329,26 +427,254 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({
               className="w-full py-1.5 px-3 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 font-medium flex items-center justify-center gap-1.5 transition"
             >
               <Sliders className="w-3.5 h-3.5 text-emerald-400" />
-              <span>{showPreferences ? t('roadmap:hidePrefs', 'Hide Settings') : t('roadmap:customCommitment', 'Customize Hours & Learning Style')}</span>
+              <span>{showPreferences ? t('roadmap:hidePrefs', 'Hide Settings') : t('roadmap:customCommitment', 'Customize Hours, Pathway & Style')}</span>
               {showPreferences ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             </button>
           </div>
         </div>
 
+        {/* Section 33 & 34: Personalization Summary & Confidence Matrix */}
+        <div className="mt-6 pt-5 border-t border-slate-800 grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Starting Point Card */}
+          <div className="p-4 rounded-xl bg-slate-950/70 border border-slate-800/80 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>{language === 'ar' ? 'نقطة الانطلاق المهنية الخاصة بك' : language === 'fr' ? 'Votre point de départ professionnel' : 'Your Career Starting Point'}</span>
+              </div>
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-950 text-emerald-300 border border-emerald-800/50">
+                {language === 'ar' ? 'مخصص بالكامل' : language === 'fr' ? 'Personnalisé' : 'Fully Personalized'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <span className="text-slate-400 text-[11px] block">{language === 'ar' ? 'المجال والتخصص:' : language === 'fr' ? 'Filière & Discipline :' : 'Field & Discipline:'}</span>
+                <span className="font-semibold text-white truncate block">{userProfile.discipline || userProfile.fieldOfStudy || 'General Computing'}</span>
+              </div>
+              <div>
+                <span className="text-slate-400 text-[11px] block">{language === 'ar' ? 'الخبرة الحالية:' : language === 'fr' ? 'Expérience actuelle :' : 'Current Experience:'}</span>
+                <span className="font-semibold text-white block">{userProfile.experienceYears || '0-1 Years'}</span>
+              </div>
+              <div>
+                <span className="text-slate-400 text-[11px] block">{language === 'ar' ? 'المهنة المستهدفة:' : language === 'fr' ? 'Métier visé :' : 'Target Career:'}</span>
+                <span className="font-semibold text-emerald-400 truncate block">{currentRoadmap.targetCareer}</span>
+              </div>
+              <div>
+                <span className="text-slate-400 text-[11px] block">{language === 'ar' ? 'الوقت المتاح:' : language === 'fr' ? 'Temps disponible :' : 'Available Time:'}</span>
+                <span className="font-semibold text-blue-400 block">{selectedHours} {language === 'ar' ? 'ساعات / أسبوع' : language === 'fr' ? 'h / semaine' : 'hrs / week'}</span>
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-slate-900 text-xs space-y-1">
+              <div>
+                <span className="text-slate-400 text-[11px] font-medium">{language === 'ar' ? 'نقاط القوة الحالية:' : language === 'fr' ? 'Forces actuelles :' : 'Current Strengths:'} </span>
+                <span className="text-slate-200">{(userProfile.currentSkills || []).slice(0, 3).join(', ') || 'Foundational Computing'}</span>
+              </div>
+              <div>
+                <span className="text-slate-400 text-[11px] font-medium">{language === 'ar' ? 'الفجوات ذات الأولوية:' : language === 'fr' ? 'Écarts prioritaires :' : 'Priority Gaps:'} </span>
+                <span className="text-amber-400 font-semibold">{(currentRoadmap.topPriorities || []).slice(0, 3).join(', ') || 'Domain Specialization'}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 90-Day Adaptive Plan Summary */}
+          <div className="p-4 rounded-xl bg-slate-950/70 border border-slate-800/80 space-y-2.5 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <Target className="w-3.5 h-3.5" />
+                  <span>{language === 'ar' ? 'خطة الـ 90 يوماً المخصصة لك' : language === 'fr' ? 'Votre plan sur 90 jours' : 'Your 90-Day Plan'}</span>
+                </div>
+                <span className="text-[10px] text-slate-400 font-medium">12 {language === 'ar' ? 'أسبوعاً مقسمة على 3 مراحل' : language === 'fr' ? 'semaines réparties en 3 phases' : 'weeks across 3 phases'}</span>
+              </div>
+
+              <div className="space-y-1.5 text-xs text-slate-300">
+                <div className="flex items-start gap-2">
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800/40 shrink-0">
+                    Phase 1 (D1–{currentRoadmap.phaseAllocation?.phase1Days || 30})
+                  </span>
+                  <span className="truncate">{currentRoadmap.phaseAllocation?.phase1Focus || 'Bridging core verified technical baseline & tooling'}</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-950 text-blue-400 border border-blue-800/40 shrink-0">
+                    Phase 2 (D{((currentRoadmap.phaseAllocation?.phase1Days || 30) + 1)}–{((currentRoadmap.phaseAllocation?.phase1Days || 30) + (currentRoadmap.phaseAllocation?.phase2Days || 30))})
+                  </span>
+                  <span className="truncate">{currentRoadmap.phaseAllocation?.phase2Focus || 'Applied African-context projects & integration'}</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-950 text-purple-400 border border-purple-800/40 shrink-0">
+                    Phase 3 (D{((currentRoadmap.phaseAllocation?.phase1Days || 30) + (currentRoadmap.phaseAllocation?.phase2Days || 30) + 1)}–90)
+                  </span>
+                  <span className="truncate">{currentRoadmap.phaseAllocation?.phase3Focus || 'Portfolio hardening, ATS CV sync & job applications'}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-slate-900 flex items-center justify-between text-[11px]">
+              <span className="text-slate-400">
+                {language === 'ar' ? 'المسار المفضل:' : language === 'fr' ? 'Parcours choisi :' : 'Pathway:'} <strong className="text-slate-200">{selectedPathway}</strong>
+              </span>
+              <span className="text-emerald-400 font-semibold">
+                {formatNumber(selectedHours * 12)} {language === 'ar' ? 'ساعة تدريب إجمالية' : language === 'fr' ? 'heures totales' : 'total hours'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* 9-Dimension Profile Grounding Snapshot Panel */}
+        {showGroundingSnapshot && (
+          <div className="mt-6 pt-5 border-t border-slate-800 bg-slate-950/80 p-5 rounded-xl space-y-4 animate-in fade-in">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-emerald-400" />
+                <span>{t('roadmap:groundingTitle', 'Synthesized from Your Verified 9-Dimension Profile')}</span>
+              </h3>
+              <span className="text-[10px] text-slate-400">
+                {t('roadmap:groundingSubtitle', 'Continuously recalculates as profile changes')}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+              {/* 1. Verified Skills */}
+              <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                <div className="text-slate-400 font-medium flex items-center gap-1.5 text-[11px]">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>1. Verified Skills Baseline</span>
+                </div>
+                <div className="text-white font-semibold">
+                  {(userProfile.currentSkills || []).slice(0, 4).join(', ') || 'Foundational Computing'}
+                </div>
+                <div className="text-[10px] text-slate-400">
+                  {userProfile.currentSkills?.length || 0} technical + {userProfile.softSkills?.length || 0} soft skills
+                </div>
+              </div>
+
+              {/* 2. Target Career */}
+              <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                <div className="text-slate-400 font-medium flex items-center gap-1.5 text-[11px]">
+                  <Target className="w-3.5 h-3.5 text-blue-400" />
+                  <span>2. Target Career & Goal</span>
+                </div>
+                <div className="text-white font-semibold truncate">{currentRoadmap.targetCareer}</div>
+                <div className="text-[10px] text-slate-400 truncate">
+                  Goal: {userProfile.careerGoal || 'High-growth employment'}
+                </div>
+              </div>
+
+              {/* 3. Skill Gaps Bridged */}
+              <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                <div className="text-slate-400 font-medium flex items-center gap-1.5 text-[11px]">
+                  <TrendingUp className="w-3.5 h-3.5 text-rose-400" />
+                  <span>3. Priority Gaps Bridged</span>
+                </div>
+                <div className="text-white font-semibold truncate">
+                  {(currentRoadmap.topPriorities || []).slice(0, 3).join(', ') || 'Domain Specialization'}
+                </div>
+                <div className="text-[10px] text-slate-400">
+                  Calculated from live AfriPath Skill Gap Engine
+                </div>
+              </div>
+
+              {/* 4. Availability & Pace */}
+              <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                <div className="text-slate-400 font-medium flex items-center gap-1.5 text-[11px]">
+                  <Clock className="w-3.5 h-3.5 text-amber-400" />
+                  <span>4. Available Time & Pace</span>
+                </div>
+                <div className="text-white font-semibold">
+                  {selectedHours} hrs / week • ~{selectedHours * 12} hrs total
+                </div>
+                <div className="text-[10px] text-slate-400">
+                  {selectedHours >= 20 ? 'Full-Time Intensive' : selectedHours >= 10 ? 'Part-Time Student Pace' : 'Lightweight Evening Pace'}
+                </div>
+              </div>
+
+              {/* 5. Education & Background */}
+              <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                <div className="text-slate-400 font-medium flex items-center gap-1.5 text-[11px]">
+                  <GraduationCap className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>5. Education & Institution</span>
+                </div>
+                <div className="text-white font-semibold truncate">
+                  {userProfile.educationLevel} in {userProfile.fieldOfStudy}
+                </div>
+                <div className="text-[10px] text-slate-400 truncate">{userProfile.institution}</div>
+              </div>
+
+              {/* 6. Preferred Pathway */}
+              <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                <div className="text-slate-400 font-medium flex items-center gap-1.5 text-[11px]">
+                  <Compass className="w-3.5 h-3.5 text-purple-400" />
+                  <span>6. Preferred Career Pathway</span>
+                </div>
+                <div className="text-white font-semibold truncate">
+                  {selectedPathway}
+                </div>
+                <div className="text-[10px] text-slate-400">
+                  Tailored milestone and deliverable criteria
+                </div>
+              </div>
+
+              {/* 7. Experience Level */}
+              <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                <div className="text-slate-400 font-medium flex items-center gap-1.5 text-[11px]">
+                  <Briefcase className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>7. Experience Stage</span>
+                </div>
+                <div className="text-white font-semibold">
+                  {userProfile.experienceYears || '0-1 Years (Entry/Junior)'}
+                </div>
+                <div className="text-[10px] text-slate-400">
+                  Calibrated difficulty curve & task complexity
+                </div>
+              </div>
+
+              {/* 8. Country & Local Ecosystem */}
+              <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                <div className="text-slate-400 font-medium flex items-center gap-1.5 text-[11px]">
+                  <Globe2 className="w-3.5 h-3.5 text-teal-400" />
+                  <span>8. Country & Market Context</span>
+                </div>
+                <div className="text-white font-semibold truncate">
+                  {userProfile.country || 'The Gambia'} ({userProfile.location || 'Urban Hub'})
+                </div>
+                <div className="text-[10px] text-slate-400 truncate">
+                  Aligned with local employers & regional remote demand
+                </div>
+              </div>
+
+              {/* 9. Device & Connectivity Context */}
+              <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                <div className="text-slate-400 font-medium flex items-center gap-1.5 text-[11px]">
+                  <Smartphone className="w-3.5 h-3.5 text-orange-400" />
+                  <span>9. Hardware & Connectivity</span>
+                </div>
+                <div className="text-white font-semibold truncate">
+                  {userProfile.constraints?.deviceAccess || 'Laptop / Desktop'}
+                </div>
+                <div className="text-[10px] text-slate-400 truncate">
+                  {userProfile.constraints?.internetReliability || 'Stable High-Speed'}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Personalization Drawer */}
         {showPreferences && (
-          <div className="mt-6 pt-5 border-t border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-950/60 p-4 rounded-xl">
+          <div className="mt-6 pt-5 border-t border-slate-800 grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-950/60 p-4 rounded-xl animate-in fade-in">
             <div>
               <label className="text-xs font-semibold text-slate-300 block mb-1.5 flex items-center gap-1">
                 <Clock className="w-3.5 h-3.5 text-emerald-400" />
                 {t('roadmap:weeklyTime', 'Weekly Availability Commitment')}
               </label>
-              <div className="flex gap-2">
-                {[5, 10, 15, 20].map((h) => (
+              <div className="flex gap-1.5 flex-wrap">
+                {[5, 10, 15, 20, 30].map((h) => (
                   <button
                     key={h}
                     onClick={() => setSelectedHours(h)}
-                    className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition border ${
+                    className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition border ${
                       selectedHours === h
                         ? 'bg-emerald-600 text-white border-emerald-500'
                         : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
@@ -358,6 +684,25 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({
                   </button>
                 ))}
               </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold text-slate-300 block mb-1.5 flex items-center gap-1">
+                <Compass className="w-3.5 h-3.5 text-purple-400" />
+                {t('roadmap:pathwayChoice', 'Career Pathway Model')}
+              </label>
+              <select
+                value={selectedPathway}
+                onChange={(e) => setSelectedPathway(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-800 text-xs text-white rounded-lg p-2 focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+              >
+                <option value="University / Degree">University / Degree Track</option>
+                <option value="Vocational & TVET Apprenticeship">Vocational & TVET Apprenticeship</option>
+                <option value="Self-Taught & Portfolio">Self-Taught & Portfolio Showcase</option>
+                <option value="Professional Certification Ladder">Professional Certification Ladder</option>
+                <option value="Career Transition & Skill Bridge">Career Transition & Skill Bridge</option>
+                <option value="Entrepreneurship & Agribusiness">Entrepreneurship & Startup MVP</option>
+              </select>
             </div>
 
             <div>
@@ -544,8 +889,16 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({
           ))}
         </div>
 
-        {/* Activity Filter */}
-        <div className="flex items-center gap-2 shrink-0">
+        {/* Activity Filter & Course Hub */}
+        <div className="flex items-center gap-2 shrink-0 flex-wrap">
+          <button
+            onClick={() => handleOpenCourses()}
+            className="px-3.5 py-1.5 rounded-xl bg-emerald-950 border border-emerald-800/60 text-emerald-300 hover:bg-emerald-900 text-xs font-semibold flex items-center gap-1.5 transition shadow-sm"
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            <span>{language === 'ar' ? 'مركز الدورات المخصصة' : language === 'fr' ? 'Formations personnalisées' : 'Personalized Courses'}</span>
+          </button>
+
           <div className="relative">
             <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
             <input
@@ -733,6 +1086,16 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({
                                         <Paperclip className="w-3 h-3" />
                                         <span>Attach Proof / Repo</span>
                                       </button>
+
+                                      {(task.activityType === 'learn' || task.skillCompetency) && (
+                                        <button
+                                          onClick={() => handleOpenCourses(task.skillCompetency)}
+                                          className="inline-flex items-center gap-1 text-[11px] text-teal-300 hover:text-teal-200 bg-slate-900 px-2.5 py-1 rounded border border-slate-800"
+                                        >
+                                          <BookOpen className="w-3 h-3" />
+                                          <span>Personalized Courses</span>
+                                        </button>
+                                      )}
                                     </div>
                                   </div>
                                 )}
@@ -884,6 +1247,20 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({
           </div>
         </div>
       )}
+
+      {/* Personalized Course Recommendations Engine Modal */}
+      <CourseRecommendationsModal
+        isOpen={isCourseModalOpen}
+        onClose={() => setIsCourseModalOpen(false)}
+        userProfile={userProfile}
+        targetCareer={currentRoadmap.targetCareer}
+        initialSkillId={courseModalSkillId}
+        language={language}
+        onCourseCompleted={() => {
+          // Trigger smooth roadmap recalculation with evidence
+          handleRecalculateRoadmap();
+        }}
+      />
     </div>
   );
 };

@@ -15,9 +15,10 @@ import {
   X,
   Check,
 } from 'lucide-react';
-import { UserProfile, SkillGapAnalysis, CareerMatch, EvaluatedGapItem } from '../types/career';
+import { UserProfile, SkillGapAnalysis, CareerMatch, EvaluatedGapItem, CourseEntity } from '../types/career';
 import { submitSkillAssessment, submitSkillEvidence } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
+import { CourseRecommendationsModal } from './CourseRecommendationsModal';
 
 interface SkillGapViewProps {
   userProfile: UserProfile;
@@ -50,6 +51,15 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
   const [evidenceText, setEvidenceText] = useState('');
   const [evidenceSource, setEvidenceSource] = useState<'project_deliverable' | 'work_experience' | 'certification'>('project_deliverable');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Personalized Course Recommendation Modal State
+  const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
+  const [courseModalSkillId, setCourseModalSkillId] = useState<string | undefined>(undefined);
+
+  const handleOpenCoursesForGap = (skillId?: string) => {
+    setCourseModalSkillId(skillId);
+    setIsCourseModalOpen(true);
+  };
 
   if (isLoading || !skillGap) {
     return (
@@ -241,20 +251,39 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
         </div>
       </div>
 
-      {/* Grounded Diagnostic Summary */}
-      <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-1.5">
-        <div className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>
-            {language === 'ar'
-              ? 'ملخص التقييم التشخيصي'
-              : language === 'fr'
-              ? 'Résumé du diagnostic des compétences'
-              : language === 'wo'
-              ? 'Tënk bu tënk xarala yi'
-              : 'Diagnostic Assessment Summary'}
-          </span>
+      {/* Grounded Diagnostic Summary & Course Hub CTA */}
+      <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>
+              {language === 'ar'
+                ? 'ملخص التقييم التشخيصي'
+                : language === 'fr'
+                ? 'Résumé du diagnostic des compétences'
+                : language === 'wo'
+                ? 'Tënk bu tënk xarala yi'
+                : 'Diagnostic Assessment Summary'}
+            </span>
+          </div>
+
+          {topPriorities.length > 0 && (
+            <button
+              onClick={() => handleOpenCoursesForGap(undefined)}
+              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-emerald-950 transition self-start sm:self-auto"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>
+                {language === 'ar'
+                  ? 'استكشاف الدورات المخصصة لفجواتك'
+                  : language === 'fr'
+                  ? 'Voir les formations adaptées à vos lacunes'
+                  : 'View Courses for Your Gaps'}
+              </span>
+            </button>
+          )}
         </div>
+
         <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
           {report?.executiveSummary || skillGap.aiSummary}
         </p>
@@ -412,11 +441,18 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
                         💡 <strong>{language === 'ar' ? 'الإجراء الموصى به:' : language === 'fr' ? 'Action recommandée :' : 'Recommended Action:'}</strong> {item.recommendedAction}
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <button
+                          onClick={() => handleOpenCoursesForGap(item.id)}
+                          className="px-3 py-1 rounded-lg bg-emerald-950 border border-emerald-800/60 text-emerald-300 hover:bg-emerald-900 text-xs font-semibold transition flex items-center gap-1 shadow-sm"
+                        >
+                          <BookOpen className="w-3 h-3" />
+                          <span>{language === 'ar' ? 'الدورات الموصى بها' : language === 'fr' ? 'Formations recommandées' : 'View Recommended Courses'}</span>
+                        </button>
                         {item.assessmentAvailable && (
                           <button
                             onClick={() => handleStartAssessment(item)}
-                            className="px-3 py-1 rounded-lg bg-emerald-950 border border-emerald-800/60 text-emerald-300 hover:bg-emerald-900 text-xs font-semibold transition flex items-center gap-1"
+                            className="px-3 py-1 rounded-lg bg-blue-950 border border-blue-800/60 text-blue-300 hover:bg-blue-900 text-xs font-semibold transition flex items-center gap-1"
                           >
                             <Award className="w-3 h-3" />
                             <span>{language === 'ar' ? 'إجراء التقييم' : language === 'fr' ? 'Passer l’évaluation' : 'Take Assessment'}</span>
@@ -817,6 +853,21 @@ export const SkillGapView: React.FC<SkillGapViewProps> = ({
           </div>
         </div>
       )}
+
+      {/* Personalized Course Recommendations Engine Modal */}
+      <CourseRecommendationsModal
+        isOpen={isCourseModalOpen}
+        onClose={() => setIsCourseModalOpen(false)}
+        userProfile={userProfile}
+        targetCareer={targetCareer}
+        initialSkillId={courseModalSkillId}
+        language={language}
+        onCourseCompleted={() => {
+          if (onRefreshGapAnalysis) {
+            onRefreshGapAnalysis();
+          }
+        }}
+      />
     </div>
   );
 };
